@@ -4,7 +4,6 @@
   <property name="src.dir"     value="src"/>
   <property name="deploy.dir"  value="dist"/>
   <property name="classes.dir" value="${deploy.dir}/classes"/>
-  <property name="utclass.dir" value="${deploy.dir}/utclass"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
   <property name="libs.dir"    value="lib"/>
 
@@ -84,7 +83,7 @@
           description="Compiles the code and builds our jar file.">
     <jar destfile="${deploy.dir}/jgrok-analyzer.jar" basedir="${classes.dir}">
       <service type="javax.annotation.processing.Processor"
-               provider="org.javagrok.analyzer.Processor"/>
+               provider="org.javagrok.processor.Processor"/>
       <exclude name="**/tests/**"/>
       <exclude name="**/docker/**"/>
     </jar>
@@ -97,6 +96,7 @@
   <!-- compiles our unit tests and runs them -->
   <target name="tests" depends="prepare,compile"
           description="Compiles and runs the unit tests.">
+    <property name="utclass.dir" value="${deploy.dir}/utclasses"/>
     <delete dir="${utclass.dir}"/>
     <mkdir dir="${utclass.dir}"/>
 
@@ -129,5 +129,23 @@
         </fileset>
       </batchtest>
     </unit>
+  </target>
+
+  <target name="dogfood" depends="prepare"
+          description="Runs the analyses on the JavaGrok source.">
+    <property name="dfclass.dir" value="${deploy.dir}/dfclasses"/>
+    <delete dir="${utclass.dir}"/>
+    <mkdir dir="${dfclass.dir}"/>
+
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8"
+           srcdir="${src.dir}" destdir="${dfclass.dir}">
+      <classpath refid="build.classpath"/>
+      <exclude name="org/javagrok/tests/**"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <compilerarg value="-processor"/>
+      <compilerarg value="org.javagrok.processor.Processor"/>
+    </javac>
   </target>
 </project>
