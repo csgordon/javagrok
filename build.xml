@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<project name="javagrok" default="compile" basedir=".">
+  <!-- various directories used when building things -->
+  <property name="src.dir"     value="src"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="utclass.dir" value="${deploy.dir}/utclass"/>
+  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="libs.dir"    value="lib"/>
+
+  <!-- read in the desired configuration local configuration -->
+  <property file="build.properties"/>
+  <!-- if build.properties does not specify javac.home we provide a default -->
+  <property name="javac.home"  value="${java.home}/.."/>
+
+  <!-- defines our classpath -->
+  <path id="base.classpath">
+    <pathelement location="${classes.dir}"/>
+    <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
+  </path>
+  <path id="build.classpath">
+    <path refid="base.classpath"/>
+  </path>
+
+  <!-- defines our build-time library dependencies -->
+  <fileset dir="${libs.dir}" id="build.libs">
+    <include name="junit4.jar"/>
+  </fileset>
+
+  <!-- prepares the application directories -->
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/lib"/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${javadoc.dir}"/>
+    <copy todir="${deploy.dir}/lib" flatten="true">
+      <fileset refid="build.libs"/>
+    </copy>
+  </target>
+
+  <!-- cleans out the intermediate build files -->
+  <target name="clean" description="Cleans out build results.">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${deploy.dir}/docs"/>
+    <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
+  </target>
+
+  <!-- wipes the entire build directory clean -->
+  <target name="distclean" description="Completely removes build result directory.">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- builds the java class files -->
+  <target name="compile" depends="prepare" description="Compiles the code.">
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8"
+           srcdir="${src.dir}" destdir="${classes.dir}">
+      <classpath refid="build.classpath"/>
+      <exclude name="org/javagrok/tests/**"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+  </target>
+
+  <!-- builds the javadoc documentation -->
+  <target name="javadoc" depends="prepare" description="Generates javadoc documentation.">
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API"
+             overview="${src.dir}/org/javagrok/overview.html" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator">
+      <packageset dir="${src.dir}">
+        <exclude name="org/javagrok/*/tests/**"/>
+      </packageset>
+      <classpath refid="build.classpath"/>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+
+  <!-- rebuilds everything -->
+  <target name="all" depends="clean,prepare,compile,javadoc,dist"
+          description="Cleans and rebuilds everything including documentation."/>
+
+  <!-- builds our distribution jar file -->
+  <target name="dist" depends="prepare,compile"
+          description="Compiles the code and builds our jar file.">
+    <jar destfile="${deploy.dir}/jgrok-analyzer.jar" basedir="${classes.dir}">
+      <service type="javax.annotation.processing.Processor"
+               provider="org.javagrok.analyzer.Processor"/>
+      <exclude name="**/tests/**"/>
+      <exclude name="**/docker/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/jgrok-docker.jar" basedir="${classes.dir}">
+      <exclude name="**/tests/**"/>
+      <exclude name="**/analyzer/**"/>
+    </jar>
+  </target>
+
+  <!-- compiles our unit tests and runs them -->
+  <target name="tests" depends="prepare,compile"
+          description="Compiles and runs the unit tests.">
+    <delete dir="${utclass.dir}"/>
+    <mkdir dir="${utclass.dir}"/>
+
+    <!-- allows passing -Dtest=NamePrefix to restrict to subset of tests -->
+    <property name="test" value=""/>
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8"
+           srcdir="${src.dir}" destdir="${utclass.dir}">
+      <classpath>
+        <pathelement location="${utclass.dir}"/>
+        <path refid="build.classpath"/>
+      </classpath>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <include name="**/tests/${test}*.java"/>
+    </javac>
+
+    <taskdef name="unit" classpathref="build.classpath"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
+      <classpath>
+        <pathelement location="${utclass.dir}"/>
+        <pathelement location="${classes.dir}"/>
+        <path refid="build.classpath"/>
+      </classpath>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.dir}">
+          <include name="**/tests/${test}*.java"/>
+        </fileset>
+      </batchtest>
+    </unit>
+  </target>
+</project>
