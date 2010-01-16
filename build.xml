@@ -24,7 +24,7 @@
 
   <!-- defines our build-time library dependencies -->
   <fileset dir="${libs.dir}" id="build.libs">
-    <include name="junit4.jar"/>
+    <include name="junit-4*.jar"/>
   </fileset>
 
   <!-- prepares the application directories -->
