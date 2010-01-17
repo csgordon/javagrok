@@ -26,6 +26,9 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+import com.sun.tools.javac.processing.JavacProcessingEnvironment;
+import com.sun.tools.javac.tree.JCTree.*;
+
 import org.javagrok.analysis.AnalysisContext;
 import org.javagrok.analysis.Analyzer;
 
@@ -41,14 +44,19 @@ public class Processor extends AbstractProcessor
     {
         super.init(procEnv);
 
-        _ctx = new AnalysisContext() {
-            public void info (String message) {
-                procEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, message);
-            }
-            public void warn (String message) {
-                procEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
-            }
-        };
+        // we need to reach into javac's guts, so make sure we're running therein
+        if (!(procEnv instanceof JavacProcessingEnvironment)) {
+            procEnv.getMessager().printMessage(
+                Diagnostic.Kind.WARNING, "JavaGrok requires javac v1.6+.");
+            return;
+        }
+
+        // some of the guts we need to reach into are protected, so Backdoor handles all of our
+        // reflection-based access control circumvention; yee haw!
+        Backdoor.init(procEnv);
+
+        // the analysis context liases between javac internals and the analyzers
+        _ctx = new AnalysisContextImpl(procEnv);
 
         // locate our analyses via their META-INF/services declarations
         for (String aname : findAnalyses(procEnv)) {
@@ -68,7 +76,7 @@ public class Processor extends AbstractProcessor
             }                
         }
 
-        procEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "JavaGrok running");
+        _ctx.info("JavaGrok running");
     }
 
     @Override // from AbstractProcessor
