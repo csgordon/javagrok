@@ -3,6 +3,14 @@
 
 package org.javagrok.processor;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -18,54 +26,97 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+import org.javagrok.analysis.AnalysisContext;
+import org.javagrok.analysis.Analyzer;
+
 /**
- * The main entry point for the javac annotation processor.
+ * The main entry point for the javac analysis executing annotation processor.
  */
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class Processor extends AbstractProcessor
 {
     @Override // from AbstractProcessor
-    public void init (ProcessingEnvironment procenv)
+    public void init (final ProcessingEnvironment procEnv)
     {
-        super.init(procenv);
+        super.init(procEnv);
 
-//         if (!(procenv instanceof JavacProcessingEnvironment)) {
-//             procenv.getMessager().printMessage(
-//                 Diagnostic.Kind.WARNING, "JavaGrok requires javac v1.6+.");
-//             return;
-//         }
+        _ctx = new AnalysisContext() {
+            public void info (String message) {
+                procEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, message);
+            }
+            public void warn (String message) {
+                procEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, message);
+            }
+        };
 
-//         Context ctx = ((JavacProcessingEnvironment)procenv).getContext();
-//         _trees = Trees.instance(procenv);
-        _procenv = procenv;
+        // locate our analyses via their META-INF/services declarations
+        for (String aname : findAnalyses(procEnv)) {
+            try {
+                _analyzers.add((Analyzer)Class.forName(aname).newInstance());
+            } catch (Exception e) {
+                _ctx.warn("Failed to instantiate analyzer '" + aname + "': " + e);
+            }
+        }
 
-        procenv.getMessager().printMessage(
-            Diagnostic.Kind.NOTE, "JavaGrok running [vers=" + procenv.getSourceVersion() + "]");
+        // now initialize our analyzers
+        for (Analyzer a : _analyzers) {
+            try {
+                a.init(_ctx);
+            } catch (Exception e) {
+                _ctx.warn("Failed to initialize analyzer '" + a + "': " + e);
+            }                
+        }
+
+        procEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "JavaGrok running");
     }
 
     @Override // from AbstractProcessor
     public boolean process (Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
     {
-//         if (_trees == null) {
-//             return false;
-//         }
-
-        for (Element elem : roundEnv.getRootElements()) {
-            System.out.println("Got " + elem);
-//             final JCCompilationUnit unit = toUnit(elem);
-
-//             // we only want to operate on files being compiled from source; if they're already
-//             // classfiles then we've already run or we're looking at a library class
-//             if (unit.sourcefile.getKind() != JavaFileObject.Kind.SOURCE) {
-//                 System.err.println("Skipping non-source-file " + unit.sourcefile);
-//                 continue;
-//             }
+        // run our analyzers in turn
+        for (Analyzer a : _analyzers) {
+            try {
+                a.process(_ctx, roundEnv.getRootElements());
+            } catch (Exception e) {
+                _ctx.warn("Analyzer failed in process() '" + a + "': " + e);
+            }
         }
-
         return false;
     }
 
-    protected ProcessingEnvironment _procenv;
-//     protected Trees _trees;
+    protected List<String> findAnalyses (ProcessingEnvironment procEnv)
+    {
+        List<String> provs = new ArrayList<String>();
+        try {
+            Enumeration<URL> svcurls =
+                getClass().getClassLoader().getResources("META-INF/services/" + SERVICE_NAME);
+            while (svcurls.hasMoreElements()) {
+                readProviders(provs, svcurls.nextElement());
+            }
+        } catch (IOException ioe) {
+            procEnv.getMessager().printMessage(
+                Diagnostic.Kind.WARNING, "JavaGrok failed to enumerate analyzers: " + ioe);
+        }
+        return provs;
+    }
+
+    protected void readProviders (List<String> provs, URL svcurl)
+        throws IOException
+    {
+        BufferedReader bin = new BufferedReader(new InputStreamReader(svcurl.openStream()));
+        try {
+            String prov;
+            while ((prov = bin.readLine()) != null) {
+                provs.add(prov);
+            }
+        } finally {
+            bin.close();
+        }
+    }
+
+    protected AnalysisContext _ctx;
+    protected List<Analyzer> _analyzers = new ArrayList<Analyzer>();
+
+    protected static final String SERVICE_NAME = "org.javagrok.analysis.Analyzer";
 }

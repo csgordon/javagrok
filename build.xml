@@ -81,15 +81,12 @@
   <!-- builds our distribution jar file -->
   <target name="dist" depends="prepare,compile"
           description="Compiles the code and builds our jar file.">
-    <jar destfile="${deploy.dir}/jgrok-analyzer.jar" basedir="${classes.dir}">
+    <jar destfile="${deploy.dir}/javagrok.jar" basedir="${classes.dir}">
       <service type="javax.annotation.processing.Processor"
                provider="org.javagrok.processor.Processor"/>
-      <exclude name="**/tests/**"/>
-      <exclude name="**/docker/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/jgrok-docker.jar" basedir="${classes.dir}">
-      <exclude name="**/tests/**"/>
-      <exclude name="**/analyzer/**"/>
+      <service type="org.javagrok.analysis.Analyzer">
+        <provider classname="org.javagrok.analysis.NoopAnalyzer"/>
+      </service>
     </jar>
   </target>
 
@@ -131,17 +128,19 @@
     </unit>
   </target>
 
-  <target name="dogfood" depends="prepare"
+  <target name="dogfood" depends="dist"
           description="Runs the analyses on the JavaGrok source.">
     <property name="dfclass.dir" value="${deploy.dir}/dfclasses"/>
-    <delete dir="${utclass.dir}"/>
+    <delete dir="${dfclass.dir}"/>
     <mkdir dir="${dfclass.dir}"/>
 
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
            source="1.6" target="1.6" encoding="utf-8"
            srcdir="${src.dir}" destdir="${dfclass.dir}">
-      <classpath refid="build.classpath"/>
-      <exclude name="org/javagrok/tests/**"/>
+      <classpath>
+        <fileset dir="${deploy.dir}" includes="javagrok.jar"/>
+        <path refid="build.classpath"/>
+      </classpath>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
       <compilerarg value="-processor"/>
