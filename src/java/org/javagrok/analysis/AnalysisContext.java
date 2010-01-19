@@ -32,7 +32,7 @@ public interface AnalysisContext
     /**
      * Adds an annotation to the supplied method AST node.
      *
-     * @param cdecl the method onto which to add the annotation.
+     * @param mdecl the method onto which to add the annotation.
      * @param aclass the class of the annotation to be added.
      * @param argsVals an array of strings representing the annotation field names and values
      * (i.e. "param", "foo", "property", "Must not be null.").

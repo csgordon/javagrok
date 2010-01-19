@@ -32,7 +32,7 @@ public class Backdoor
     }
 
     /**
-     * Invokes {@link Annotate.enterAnnotation} reflectively.
+     * Invokes <code>Annotate.enterAnnotation</code> reflectively.
      */
     public static Attribute.Compound enterAnnotation (
         Annotate annotate, JCAnnotation a, Type expected, Env<AttrContext> env)

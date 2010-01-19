@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="javagrok" default="compile" basedir=".">
   <!-- various directories used when building things -->
-  <property name="src.dir"     value="src"/>
+  <property name="src.dir"     value="src/java"/>
   <property name="deploy.dir"  value="dist"/>
   <property name="classes.dir" value="${deploy.dir}/classes"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
@@ -16,6 +16,8 @@
   <path id="base.classpath">
     <pathelement location="${classes.dir}"/>
     <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
+    <fileset dir="${javac.home}/lib" includes="tools.jar"/>
+    <fileset dir="${javac.home}/lib" includes="javadoc.jar"/>
   </path>
   <path id="build.classpath">
     <path refid="base.classpath"/>
@@ -52,7 +54,7 @@
   <!-- builds the java class files -->
   <target name="compile" depends="prepare" description="Compiles the code.">
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
-           source="1.6" target="1.6" encoding="utf-8"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${classes.dir}">
       <classpath refid="build.classpath"/>
       <exclude name="org/javagrok/tests/**"/>
@@ -63,9 +65,8 @@
 
   <!-- builds the javadoc documentation -->
   <target name="javadoc" depends="prepare" description="Generates javadoc documentation.">
-    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API"
-             overview="${src.dir}/org/javagrok/overview.html" destdir="${javadoc.dir}"
-             additionalparam="-breakiterator">
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
       <packageset dir="${src.dir}">
         <exclude name="org/javagrok/*/tests/**"/>
       </packageset>
@@ -100,7 +101,7 @@
     <!-- allows passing -Dtest=NamePrefix to restrict to subset of tests -->
     <property name="test" value=""/>
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
-           source="1.6" target="1.6" encoding="utf-8"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${utclass.dir}">
       <classpath>
         <pathelement location="${utclass.dir}"/>
@@ -135,7 +136,7 @@
     <mkdir dir="${dfclass.dir}"/>
 
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
-           source="1.6" target="1.6" encoding="utf-8"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${dfclass.dir}">
       <classpath>
         <fileset dir="${deploy.dir}" includes="javagrok.jar"/>
@@ -146,5 +147,15 @@
       <compilerarg value="-processor"/>
       <compilerarg value="org.javagrok.processor.Processor"/>
     </javac>
+
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
+      <packageset dir="${src.dir}">
+        <exclude name="org/javagrok/*/tests/**"/>
+      </packageset>
+      <classpath refid="build.classpath"/>
+      <doclet name="org.javagrok.doclet.Standard" path="${deploy.dir}/javagrok.jar"/>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
   </target>
 </project>
