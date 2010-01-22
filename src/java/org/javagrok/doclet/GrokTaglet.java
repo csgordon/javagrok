@@ -82,7 +82,7 @@ public class GrokTaglet implements Taglet
         if (tags.length == 0) {
             return null;
         }
-        StringBuffer buf = new StringBuffer("<DT><B>Grok:</B></DT>");
+        StringBuilder buf = new StringBuilder("<DT><B>Grok:</B></DT>");
         for (Tag tag : tags) {
             buf.append("<DD>" + tag.text() + "</DD>");
         }
