@@ -73,7 +73,7 @@ public class GrokTaglet implements Taglet
     // from interface Taglet
     public String toString (Tag tag)
     {
-        return "<DT><B>Grok:</B></DT><DD>" + tag.text() + "</DD>\n";
+        return toString(new Tag[] { tag });
     }
 
     // from interface Taglet
