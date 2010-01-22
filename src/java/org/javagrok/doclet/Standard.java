@@ -5,6 +5,7 @@ package org.javagrok.doclet;
 
 import java.lang.reflect.Field;
 
+import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.DocErrorReporter;
 import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.RootDoc;
@@ -14,6 +15,7 @@ import com.sun.tools.doclets.formats.html.WriterFactoryImpl;
 import com.sun.tools.doclets.internal.toolkit.ClassWriter;
 import com.sun.tools.doclets.internal.toolkit.Configuration;
 import com.sun.tools.doclets.internal.toolkit.MethodWriter;
+import com.sun.tools.doclets.internal.toolkit.util.ClassTree;
 import com.sun.tools.doclets.internal.toolkit.builders.BuilderFactory;
 
 /**
@@ -48,9 +50,13 @@ public class Standard
         ConfigurationImpl conf = ConfigurationImpl.getInstance();
         BuilderFactory bf = new BuilderFactory(conf);
         setField(BuilderFactory.class, "writerFactory", bf, new WriterFactoryImpl(conf) {
+            public ClassWriter getClassWriter (
+                ClassDoc classDoc, ClassDoc prevClass,
+                ClassDoc nextClass, ClassTree classTree) throws Exception {
+                return new GrokClassWriter(classDoc, prevClass, nextClass, classTree);
+            }
             public MethodWriter getMethodWriter (ClassWriter classWriter) throws Exception {
-                System.err.println("TODO: custom!");
-                return super.getMethodWriter(classWriter);
+                return new GrokMethodWriter(classWriter);
             }
         });
         setField(Configuration.class, "builderFactory", conf, bf);
