@@ -154,7 +154,7 @@
         <exclude name="org/javagrok/*/tests/**"/>
       </packageset>
       <classpath refid="build.classpath"/>
-      <doclet name="org.javagrok.doclet.Standard" path="${deploy.dir}/javagrok.jar"/>
+      <taglet name="org.javagrok.doclet.GrokTaglet" path="${deploy.dir}/javagrok.jar"/>
       <link href="http://java.sun.com/javase/6/docs/api/"/>
     </javadoc>
   </target>
