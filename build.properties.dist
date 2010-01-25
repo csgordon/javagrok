@@ -8,3 +8,12 @@
 
 # To build with a locally build langtools javac use the following:
 # javac.home = ../langtools/dist
+
+# Checkers framework installation (required for test/ subproject)
+checkers.home = ../checker-framework/checkers
+
+# AFU installation (required for test/ subproject)
+afu.home = ../annotation-tools/annotation-file-utilities
+
+# Javarifier installation (required for test/ subproject)
+javarifier.home = ../javarifier
