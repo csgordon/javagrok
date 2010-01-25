@@ -51,15 +51,17 @@
 
   <target name="javarifier" depends="compile"
           description="Runs Javarifier on the compiled classes.">
-    <fileset dir="${java.home}" id="jdk.fileset">
-      <include name="lib/charsets.jar"/>
-      <include name="lib/jce.jar"/>
-      <include name="lib/jsse.jar"/>
-      <include name="lib/management-agent.jar"/>
-      <include name="lib/resources.jar"/>
-      <include name="lib/rt.jar"/>
-    </fileset>
-    <pathconvert refid="jdk.fileset" pathsep=":" property="world.classpath"/>
+    <path id="world.classpath">
+      <fileset dir="${java.home}">
+        <include name="lib/charsets.jar"/>
+        <include name="lib/jce.jar"/>
+        <include name="lib/jsse.jar"/>
+        <include name="lib/management-agent.jar"/>
+        <include name="lib/resources.jar"/>
+        <include name="lib/rt.jar"/>
+      </fileset>
+    </path>
+
     <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files">
       <chainedmapper>
@@ -67,23 +69,44 @@
         <mapper type="package" from="*.java" to="*"/>
       </chainedmapper>
     </pathconvert>
+
     <java classname="javarifier.Main">
       <classpath>
         <fileset dir="${javarifier.home}" includes="javarifier.jar"/>
-        <fileset dir="${afu.home}/annotation-file-utilities"
-                 includes="annotation-file-utilities.jar"/>
+        <fileset dir="${afu.home}" includes="annotation-file-utilities.jar"/>
       </classpath>
       <arg value="-Q"/>
       <arg value="-defaultStubCPEntries"/>
       <arg value="${checkers.home}/jdk/javari/build"/>
       <arg value="-defaultWorldCPEntries"/>
-      <arg value="${world.classpath}"/>
+      <arg pathref="world.classpath"/>
       <arg value="-programCPEntries"/>
       <arg value="${classes.dir}"/>
       <arg value="-output"/>
-      <arg value="org.javagrok.test.jaif"/>
+      <arg value="${deploy.dir}/org.javagrok.test.jaif"/>
       <arg value="${src.files}"/>
     </java>
     <delete dir="sootOutput"/>
+  </target>
+
+  <target name="annotate-source"
+          description="Merges annotations from .jaif files into (new copy of) source.">
+
+    <delete dir="${deploy.dir}/annotated-source"/>
+    <mkdir dir="${deploy.dir}/annotated-source"/>
+    <copy todir="${deploy.dir}/annotated-source">
+      <fileset dir="${src.dir}" includes="**/*.java"/>
+    </copy>
+
+    <fileset dir="${deploy.dir}" includes="*.jaif" id="jaif.fileset"/>
+    <pathconvert refid="jaif.fileset" pathsep=" " property="jaif.files"/>
+    <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
+
+    <exec executable="${afu.home}/scripts/insert-annotations-to-source">
+      <arg value="-i"/>
+      <arg value="${jaif.files}"/>
+      <arg value="${src.files}"/>
+    </exec>
   </target>
 </project>

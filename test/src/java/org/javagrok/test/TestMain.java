@@ -37,4 +37,14 @@ public class TestMain
         box.increment(3);
         System.out.println("Value " + box.current());
     }
+
+    public TestMain () {
+        _box = new IntBox(0);
+    }
+
+    public void plusplus () {
+        _box.increment(1);
+    }
+
+    private IntBox _box;
 }
