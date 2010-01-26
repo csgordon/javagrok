@@ -4,7 +4,6 @@
 package org.javagrok.doclet;
 
 import com.sun.javadoc.AnnotationDesc;
-import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Type;
 import com.sun.tools.doclets.formats.html.MethodWriterImpl;

@@ -27,7 +27,7 @@ public class Standard
 
     public static int optionLength (String option)
     {
-        return doclet.optionLength(option);
+        return HtmlDoclet.optionLength(option);
     }
 
     public static boolean start (RootDoc root)
@@ -37,12 +37,12 @@ public class Standard
 
     public static boolean validOptions (String[][] options, DocErrorReporter reporter)
     {
-        return doclet.validOptions(options, reporter);
+        return HtmlDoclet.validOptions(options, reporter);
     }
 
     public static LanguageVersion languageVersion ()
     {
-        return doclet.languageVersion();
+        return HtmlDoclet.languageVersion();
     }
 
     protected static void injectWriterFactory ()

@@ -6,7 +6,6 @@ package org.javagrok.analysis;
 import java.util.Set;
 import javax.lang.model.element.Element;
 
-import com.sun.source.tree.TreeVisitor;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.TreeScanner;
 
