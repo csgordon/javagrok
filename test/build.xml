@@ -31,8 +31,8 @@
            srcdir="${src.dir}" destdir="${classes.dir}">
       <classpath refid="classpath"/>
       <exclude name="org/javagrok/tests/**"/>
-      <compilerarg value="-Xlint"/>
-      <compilerarg value="-Xlint:-serial"/>
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
     </javac>
   </target>
 
@@ -83,7 +83,7 @@
       <arg value="-programCPEntries"/>
       <arg value="${classes.dir}"/>
       <arg value="-output"/>
-      <arg value="${deploy.dir}/org.javagrok.test.jaif"/>
+      <arg value="${deploy.dir}/test.jaif"/>
       <arg value="${src.files}"/>
     </java>
     <delete dir="sootOutput"/>
