@@ -18,7 +18,7 @@
     <fileset dir="${javac.home}/lib" includes="javac.jar"/>
     <fileset dir="${javac.home}/lib" includes="javadoc.jar"/>
     <fileset dir="${javac.home}/lib" includes="doclets.jar"/>
-    <fileset dir="${java.home}/../Classes" includes="classes.jar"/>
+    <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
     <fileset dir="${java.home}/lib" includes="rt.jar"/>
   </path>
   <path id="build.classpath">
