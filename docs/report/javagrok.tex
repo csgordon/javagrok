@@ -1,0 +1,59 @@
+\documentclass{sig-alternate}
+
+\begin{document}
+\conferenceinfo{UWCSE503}{'10 Seattle, WA USA}
+
+\title{JavaGrok: Automatic Inference of Documentation for Under-documented Code}
+
+\numberofauthors{1} 
+\author{
+\alignauthor
+Colin S. Gordon, Reto Conconi, Gilbert Bernstein, Michael Bayne\\
+       \affaddr{University of Washington}\\
+       \affaddr{Seattle, WA USA}\\
+       \email{\{csgordon,rconconi,gilbo,mdb\}@cs.washington.edu}
+}
+
+\maketitle
+\begin{abstract}
+Modern software development increasingly involves the use of third party
+libraries. Developers now routinely locate and learn the APIs of myriad
+libraries in the course of a single software development project. This process
+is made more difficult by the fact that many libraries are poorly documented.
+The developer often has to read the library source code or resort to trial and
+error to determine how to correctly use the library. These methods of learning
+about the library are time consuming and error prone.
+
+We present a method to automatically augment library API documentation with invariants
+inferred by a variety of static analyses. These include argument nullability,
+argument and receiver mutation, argument leaking and capturing, and conditions
+that will cause exceptions to be thrown.
+\end{abstract}
+
+% A category with the (minimum) three required fields
+\category{H.4}{Information Systems Applications}{Miscellaneous}
+%A category including the fourth, optional field follows...
+\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
+
+\terms{Delphi theory}
+
+\keywords{ACM proceedings, \LaTeX, text tagging}
+
+\input{intro.tex}
+
+\input{approach.tex}
+
+\input{evaluation.tex}
+
+\input{related.tex}
+
+\input{conclusion.tex}
+
+%ACKNOWLEDGMENTS are optional
+\section{Acknowledgments}
+Thanks to the great pumpkin.
+
+\bibliographystyle{abbrv}
+\bibliography{javagrok}
+
+\end{document}
