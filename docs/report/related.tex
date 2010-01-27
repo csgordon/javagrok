@@ -7,7 +7,9 @@ that is not possible for much of that work.
 
 The most directly relevant work is Buse and Weimer's system for automatically
 inferring documentation for conditions that will result in a Java method
-throwing an exception \cite{autodoc}.
+throwing an exception \cite{autodoc}.  We use a modification of their
+algorithm, and also perform several other analyses to provide a broader range
+of information.
 
 \subsection{Individual Analyses}
 Some text for nullability.
@@ -16,4 +18,6 @@ Some text for mutability.
 
 Some text for reference capture and leakage.
 
-Some text for exception conditions.
+Buse and Weimer \cite{autodoc} automatically infer documentation for
+exceptions, and the exception analysis in our work is directly based on the
+refined version of {\sc Jex} [citation needed] they present.
