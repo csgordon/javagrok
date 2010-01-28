@@ -76,7 +76,7 @@
         <fileset dir="${afu.home}" includes="annotation-file-utilities.jar"/>
       </classpath>
       <!--<arg value="-Q"/>-->
-      <arg value="-printStubs"/>
+      <!--<arg value="-printStubs"/>-->
       <arg value="-defaultStubCPEntries"/>
       <arg value="${checkers.home}/jdk/javari/annotated"/>
       <arg value="-defaultWorldCPEntries"/>
