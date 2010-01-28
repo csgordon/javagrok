@@ -70,15 +70,20 @@
       </chainedmapper>
     </pathconvert>
 
+    <property name="javarifier.dir" value="../lib/javarifier"/>
+    <property name="javarifier-stubs.dir" value="../lib/javarifier"/>
+    <property name="afu.dir" value="../lib/afu"/>
+    <property name="afu-scripts.dir" value="../lib/afu"/>
+
     <java classname="javarifier.Main">
       <classpath>
-        <fileset dir="../lib/javarifier" includes="javarifier.jar"/>
-        <fileset dir="../lib/afu" includes="annotation-file-utilities.jar"/>
+        <fileset dir="${javarifier.dir}" includes="javarifier.jar"/>
+        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
       </classpath>
       <!--<arg value="-Q"/>-->
       <!--<arg value="-printStubs"/>-->
       <arg value="-defaultStubCPEntries"/>
-      <arg value="../lib/javarifier/jdk.jar"/>
+      <arg value="${javarifier-stubs.dir}/jdk.jar"/>
       <arg value="-defaultWorldCPEntries"/>
       <arg pathref="world.classpath"/>
       <arg value="-programCPEntries"/>
@@ -104,7 +109,7 @@
     <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
 
-    <exec executable="../lib/afu/insert-annotations-to-source">
+    <exec executable="${afu-scripts.dir}/insert-annotations-to-source">
       <arg value="-i"/>
       <arg value="${jaif.files}"/>
       <arg value="${src.files}"/>
