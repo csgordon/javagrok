@@ -75,16 +75,17 @@
         <fileset dir="${javarifier.home}" includes="javarifier.jar"/>
         <fileset dir="${afu.home}" includes="annotation-file-utilities.jar"/>
       </classpath>
-      <arg value="-Q"/>
+      <!--<arg value="-Q"/>-->
+      <arg value="-printStubs"/>
       <arg value="-defaultStubCPEntries"/>
-      <arg value="${checkers.home}/jdk/javari/build"/>
+      <arg value="${checkers.home}/jdk/javari/annotated"/>
       <arg value="-defaultWorldCPEntries"/>
       <arg pathref="world.classpath"/>
       <arg value="-programCPEntries"/>
       <arg value="${classes.dir}"/>
       <arg value="-output"/>
       <arg value="${deploy.dir}/test.jaif"/>
-      <arg value="${src.files}"/>
+      <arg line="${src.files}"/>
     </java>
     <delete dir="sootOutput"/>
   </target>
