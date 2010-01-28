@@ -72,13 +72,13 @@
 
     <java classname="javarifier.Main">
       <classpath>
-        <fileset dir="${javarifier.home}" includes="javarifier.jar"/>
-        <fileset dir="${afu.home}" includes="annotation-file-utilities.jar"/>
+        <fileset dir="../lib/javarifier" includes="javarifier.jar"/>
+        <fileset dir="../lib/afu" includes="annotation-file-utilities.jar"/>
       </classpath>
       <!--<arg value="-Q"/>-->
       <!--<arg value="-printStubs"/>-->
       <arg value="-defaultStubCPEntries"/>
-      <arg value="${checkers.home}/jdk/javari/annotated"/>
+      <arg value="../lib/javarifier/jdk.jar"/>
       <arg value="-defaultWorldCPEntries"/>
       <arg pathref="world.classpath"/>
       <arg value="-programCPEntries"/>
