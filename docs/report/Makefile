@@ -1,4 +1,5 @@
 TEXFILE=javagrok
+OTHERTEXS=approach.tex conclusion.tex evaluation.tex intro.tex related.tex
 DVIFILE=$(TEXFILE:%=%.dvi)
 PSFILE=$(TEXFILE:%=%.ps)
 PDFFILE=$(TEXFILE:%=%.pdf)
