@@ -16,7 +16,13 @@ Some text for nullability.
 
 Some text for mutability.
 
-Some text for reference capture and leakage.
+Cherem and Rugina \cite{UniquenessInference} inferred uniqueness using a two-level
+abstraction. A intraprocedural analysis which is flow-sensitive and a interprocedural
+one that is flow-insensitive. Combined they get precise uniqueness information
+which is used to actively free Java heap space whenever the unique reference gets lost.
+
+Aldrich, Kostadinov and Chambers \cite{AliasJava} showed how alias information 
+helps the programmer to understand how data is shared in large software systems.
 
 Buse and Weimer \cite{autodoc} automatically infer documentation for
 exceptions, and the exception analysis in our work is directly based on the
