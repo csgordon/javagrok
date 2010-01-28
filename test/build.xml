@@ -104,7 +104,7 @@
     <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
 
-    <exec executable="${afu.home}/scripts/insert-annotations-to-source">
+    <exec executable="../lib/afu/insert-annotations-to-source">
       <arg value="-i"/>
       <arg value="${jaif.files}"/>
       <arg value="${src.files}"/>
