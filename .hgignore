@@ -1,6 +1,9 @@
 syntax: glob
 dist
 build.properties
-docs/proposal/*.aux
-docs/proposal/*.log
-docs/proposal/*.pdf
+docs/*/*.aux
+docs/*/*.log
+docs/*/*.bbl
+docs/*/*.blg
+docs/*/*.dvi
+docs/*/*.pdf
