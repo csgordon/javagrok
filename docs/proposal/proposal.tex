@@ -1,0 +1,163 @@
+\documentclass[letterpaper,12pt]{article}
+\usepackage[margin=1in, top=1in]{geometry}
+\usepackage[compact]{titlesec}
+\usepackage[small,it]{caption}
+
+%% Adjust the paragraph and title indentation and spacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\partopsep}{0pt}
+
+%% Eliminate additional padding around section headers (\parskip handles it)
+\titlespacing{\section}{0pt}{*0}{*0}
+\titlespacing{\subsection}{0pt}{*0}{*0}
+\titlespacing{\subsubsection}{0pt}{*0}{*0}
+
+%% Bring items closer together in list environments
+% Prevent infinite loops
+\let\Itemize =\itemize
+\let\Enumerate =\enumerate
+\let\Description =\description
+% Zero the vertical spacing parameters
+\def\Nospacing{\itemsep=0pt\topsep=0pt\partopsep=0pt\parskip=0pt\parsep=0pt}
+% Redefine the environments in terms of the original values
+\renewenvironment{itemize}{\Itemize\Nospacing}{\endlist}
+\renewenvironment{enumerate}{\Enumerate\Nospacing}{\endlist}
+\renewenvironment{description}{\Description\Nospacing}{\endlist}
+
+%% Now we can actually start our proposal
+\begin{document}
+
+\centerline{\Large \bf 503 Project Proposal: JavaGrok}
+\centerline{Colin Gordon, Reto Conconi, Gilbert Bernstein, Michael Bayne}
+\bigskip
+\small
+
+\subsection*{Motivation}
+Modern software development increasingly involves the use of third party
+libraries. Developers now routinely locate and learn the APIs of myriad
+libraries in the course of a single software development project. This process
+is made more difficult by the fact that many libraries are poorly documented.
+The developer often has to read the library source code or resort to trial and
+error to determine how to correctly use the library. These methods of learning
+about the library are time consuming and error prone.
+
+We propose to automatically augment library API documentation with invariants
+inferred by a variety of static analyses. These include argument nullability,
+argument and receiver mutation, leaking and capturing, and argument
+dependence. More information on the proposed analyses is provided below. We
+hypothesize that having such information readily available in the library
+documentation will reduce the need to read the library source or perform trial
+and error experiments, thereby saving the developer time and increasing the
+likelihood that they make correct use of the library.
+
+We aim to answer the following questions:
+\begin{itemize}
+\item Can the results of our chosen static analyses be presented in a human
+  readable form without overwhelming the developer with too much information?
+
+\item Does the availability of API documentation augmented with analysis
+  results reduce the frequency with which a programmer refers to library source
+  code when using that library?
+
+\item Does the availability of API documentation augmented with analysis
+  results reduce the frequency with which a programmer resorts to trial and
+  error experiments when using that library?
+
+\item Does the availability of API documentation augmented with analysis
+  results reduce the frequency with which a programmer makes errors when using
+  that library?
+\end{itemize}
+
+
+\subsection*{Technical Approach}
+\subsubsection*{JavaGrok Tool}
+We will develop a tool for the Java programming language that executes the
+intended analysis and integrates their results into standard Javadoc API
+documentation. The tool will have two main components: a plugin to the Java
+compiler and a plugin to the Javadoc tool. The components will communicate in
+the form of annotations added to the compiled Java byte-codes.
+
+By embedding the results in byte-code, the analyses can be modular: the
+dependencies of a library can be analyzed prior to the library itself and the
+results of that analysis can be used to improve the results of the analysis of
+the dependee.
+
+\subsubsection*{Investigated Analyses}
+We aim to consider the following analyses:
+
+\begin{itemize}
+\item \textbf{Nullability} Whether or not the arguments to an API method are
+  allowed to be null or not.
+
+\item \textbf{Capturing, Leaking} Report whether aliases are retained to
+  arguments supplied to an API method. Conversely, report whether aliases are
+  retained to values returned by an API method.
+
+\item \textbf{Mutation} Report whether the method mutates the receiver (or its
+  referents), and whether it mutates any of the supplied arguments.
+
+\item \textbf{Array bounds} Report whether an argument is used in an array
+  index expression and any unchecked bounds restrictions.
+
+\item \textbf{Exception causes} Report conditions under which otherwise
+  undocumented exceptions are thrown.
+\end{itemize}
+
+Because our analyses are only generating information for documentation
+purposes, we may benefit from partial or incomplete results where an analysis
+used for compiler optimizations or another tool might have obtained no
+value. We will differentiate in our documentation \textit{may} properties
+versus \textit{must} properties.
+
+\subsection*{Evaluation}
+
+Our evaluation will measure the whether our augmented documentation is accurate
+and whether it is useful. We will accomplish this via three approaches.
+
+\subsubsection*{Manual Code Inspection}
+To measure the accuracy of our tool, we will validate each of its inferred
+properties with a manual inspection of the underlying library code.
+
+\subsubsection*{Comparison with Exemplar Documentation}
+The API documentation that ships with the Java standard libraries has received
+tremendous attention and refinement over the lifetime of the Java language and
+is considered to be of high quality. We will run our tool over various packages
+in the Java standard libraries and compare the incidence of the following:
+
+\begin{itemize}
+\item How often a property reported by our tool is also specified in the
+  standard documentation.
+
+\item How often a property specified by the standard documentation is not
+  reported by our tool.
+
+\item How often a property reported by our tool is not specified in the
+  standard documentation.
+\end{itemize}
+
+\subsubsection*{Case Study}
+We will conduct a small case study where two groups of developers are supplied
+with a skeleton program, a third-party library and a programming task that
+involves using the library to complete functionality in the program. One group
+will be supplied with the stock library documentation and the other will be
+supplied with documentation augmented by our tool.
+
+We will measure the following data for both groups:
+
+\begin{itemize}
+\item How often developers refer to the library source code.
+\item How often developers write test code to investigate the behavior of the
+  library.
+\item How often library behavior surprises the developer based on the
+  documentation.
+\item How many errors were made in the use of the library.
+\end{itemize}
+
+The first three measurements will be obtained by having the developers maintain
+a log while they undertake the development task. The last measurement will be
+made via a manual inspection of their code.
+
+\end{document}

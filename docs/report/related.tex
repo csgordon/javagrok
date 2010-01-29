@@ -1,0 +1,29 @@
+\section{Related Work}
+There is a wealth of work on inferring interesting properties of existing code,
+but most of these are focused on inferring properties suitable for checking.
+Because our goal is not to prove absence of errors, but to simply infer correct
+information that is useful to the developer, some flexibility is available to us
+that is not possible for much of that work.
+
+The most directly relevant work is Buse and Weimer's system for automatically
+inferring documentation for conditions that will result in a Java method
+throwing an exception \cite{autodoc}.  We use a modification of their
+algorithm, and also perform several other analyses to provide a broader range
+of information.
+
+\subsection{Individual Analyses}
+Some text for nullability.
+
+Some text for mutability.
+
+Cherem and Rugina \cite{UniquenessInference} inferred uniqueness using a two-level
+abstraction. A intraprocedural analysis which is flow-sensitive and a interprocedural
+one that is flow-insensitive. Combined they get precise uniqueness information
+which is used to actively free Java heap space whenever the unique reference gets lost.
+
+Aldrich, Kostadinov and Chambers \cite{AliasJava} showed how alias information 
+helps the programmer to understand how data is shared in large software systems.
+
+Buse and Weimer \cite{autodoc} automatically infer documentation for
+exceptions, and the exception analysis in our work is directly based on the
+refined version of {\sc Jex} [citation needed] they present.
