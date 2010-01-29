@@ -38,14 +38,16 @@ public class NoopAnalyzer extends AbstractAnalyzer
                 if (def.getTag() == JCTree.CLASSDEF && ((JCClassDecl)def).name == csym.name) {
                     def.accept(new TreeScanner() {
                         public void visitClassDef (JCClassDecl tree) {
-                            ctx.addAnnotation(tree, Property.class, "property", "NOOP analyzed!");
+                            ctx.addAnnotation(tree, Property.class,
+                                              "property", tree.name + " analyzed!");
                             super.visitClassDef(tree);
                         }
                         public void visitMethodDef (JCMethodDecl tree) {
-                            ctx.addAnnotation(tree, Property.class, "property", "NOOP analyzed!");
+                            ctx.addAnnotation(tree, Property.class,
+                                              "property", tree.name + " analyzed!");
                             for (JCVariableDecl param : tree.params) {
                                 ctx.addAnnotation(param, Property.class,
-                                                  "property", "NOOP analyzed!");
+                                                  "property", param.name + " analyzed!");
                             }
                         }
                     });
