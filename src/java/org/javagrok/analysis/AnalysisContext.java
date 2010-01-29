@@ -35,10 +35,21 @@ public interface AnalysisContext
      * @param mdecl the method onto which to add the annotation.
      * @param aclass the class of the annotation to be added.
      * @param argsVals an array of strings representing the annotation field names and values
-     * (i.e. "param", "foo", "property", "Must not be null.").
+     * (i.e. "property", "Does not modify object state.").
      */
     public void addAnnotation (JCTree.JCMethodDecl mdecl, Class<? extends Annotation> aclass,
                                 String... argsVals);
+
+    /**
+     * Adds an annotation to the supplied method parameter AST node.
+     *
+     * @param pdecl the method parameter onto which to add the annotation.
+     * @param aclass the class of the annotation to be added.
+     * @param argsVals an array of strings representing the annotation field names and values
+     * (i.e. "property", "Must not be null.").
+     */
+    public void addAnnotation (JCTree.JCVariableDecl pdecl, Class<? extends Annotation> aclass,
+                               String... argsVals);
 
     /**
      * Emits an informational log message.

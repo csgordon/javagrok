@@ -118,7 +118,7 @@ public class Processor extends AbstractProcessor
         }
     }
 
-    protected AnalysisContext _ctx;
+    protected AnalysisContextImpl _ctx;
     protected List<Analyzer> _analyzers = new ArrayList<Analyzer>();
 
     protected static final String SERVICE_NAME = "org.javagrok.analysis.Analyzer";

@@ -56,6 +56,7 @@ public class AnalysisContextImpl implements AnalysisContext
                                String... argsVals)
     {
         addAnnotation(cdecl.mods, cdecl.sym, aclass, argsVals);
+        // System.out.println("Annotated " + cdecl);
     }
 
     // from interface AnalysisContext
@@ -63,6 +64,15 @@ public class AnalysisContextImpl implements AnalysisContext
                                String... argsVals)
     {
         addAnnotation(mdecl.mods, mdecl.sym, aclass, argsVals);
+        // System.out.println("Annotated " + mdecl);
+    }
+
+    // from interface AnalysisContext
+    public void addAnnotation (JCVariableDecl pdecl, Class<? extends Annotation> aclass,
+                               String... argsVals)
+    {
+        addAnnotation(pdecl.mods, pdecl.sym, aclass, argsVals);
+        // System.out.println("Annotated " + pdecl);
     }
 
     // from interface AnalysisContext
@@ -95,7 +105,7 @@ public class AnalysisContextImpl implements AnalysisContext
         mods.annotations = mods.annotations.prepend(a);
 
         // since the annotations AST has already been resolved into type symbols, we have to
-        // manually add a type symbol for annotation to the Class or MethodSymbol
+        // manually add a type symbol for annotation to the Class, Method or VarSymbol
         sym.attributes_field = sym.attributes_field.prepend(
             Backdoor.enterAnnotation(_annotate, a, _syms.annotationType,
                                      _enter.getEnv(getOwningType(sym))));
