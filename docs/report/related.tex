@@ -7,27 +7,27 @@ that is not possible for much of that work.
 
 The most directly relevant work is Buse and Weimer's system for automatically
 inferring documentation for conditions that will result in a Java method
-throwing an exception \cite{autodoc}.  We use a modification of their
+throwing an exception~\cite{autodoc}.  We use a modification of their
 algorithm, and also perform several other analyses to provide a broader range
 of information.
 
 \subsection{Individual Analyses}
 Some text for nullability.
 
-Quinonez, et al.\ \cite{Javarifier} described a technique for inference of
+Quinonez, et al.~\cite{Javarifier} described a technique for inference of
 reference immutability in Java and implemented it in a tool called {\sc
   Javarifier}. Their goal is the inference of annotations for the {\sc Javari}
 language (an extension of Java) which enforces reference immutability
-constraints. TODO: IGJ \cite{IGJ}, Pidasa \cite{Pidasa}.
+constraints. TODO: IGJ~\cite{IGJ}, Pidasa~\cite{Pidasa}.
 
-Cherem and Rugina \cite{UniquenessInference} inferred uniqueness using a two-level
+Cherem and Rugina~\cite{UniquenessInference} inferred uniqueness using a two-level
 abstraction. A intraprocedural analysis which is flow-sensitive and an interprocedural
 one that is flow-insensitive. Combined they get uniqueness information
 which is used to actively free Java object whenever an unique reference gets lost.
 
-Aldrich, Kostadinov and Chambers \cite{AliasJava} showed how alias information 
+Aldrich, Kostadinov and Chambers~\cite{AliasJava} showed how alias information 
 helps the programmer to understand how data is shared in large software systems.
 
-Buse and Weimer \cite{autodoc} automatically infer documentation for
+Buse and Weimer~\cite{autodoc} automatically infer documentation for
 exceptions, and the exception analysis in our work is directly based on the
 refined version of {\sc Jex} [citation needed] they present.
