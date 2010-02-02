@@ -12,11 +12,22 @@ to detect the conditions under which some exceptions are thrown.
 
 Analysis of libraries as a separate entity from whole programs, without
 considering documentation, has recieved broader attention from the software
-engineering community.  Williams, Thies, and Ernst describe a method for
-detecting possible deadlocks in Java libraries~\cite{deadlocklibs}.
+engineering community.  Arnout and Meyer performed a study of the .NET
+collections libraries where they manually extracted
+contracts~\cite{findingcontracts}.  Their work is complementary to ours: in some
+sense we are extracting and documenting the implicit contracts of the libraries
+we analyze.
 
-Tools for analyzing documentation, particularly in relation to program text, has
-also recieved some attention.  Schreck,
+Williams et al.~describe a method for
+detecting possible deadlocks in Java libraries~\cite{deadlocklibs}.
+Sankaranarayanan et al.~use inductive logic programming to infer precise Datalog
+specifications of proper use of librari APIs~\cite{mininglibspecs}.  Their work
+is intended for consumption by the developer, but they do not go so far as to
+modify whatever documentation a library has.  Either of these approaches, or
+others, could likely be adapted to generate additional useful documentation.
+
+Tools for analyzing documentation, particularly in relation to program text,
+have also recieved some attention.  Schreck,
 Dallmeier, and Zimmermann describe a tool for measuring the quality of software
 documentation, and how that quality varies over time~\cite{evolvedoc}. Tools
 like Mismar~\cite{mismar} make it easier to construct use guides for code bases by allowing
