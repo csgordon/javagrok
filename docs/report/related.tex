@@ -7,18 +7,25 @@ that is not possible for much of that work.
 
 The most directly relevant work is Buse and Weimer's system for automatically
 inferring documentation for conditions that will result in a Java method
-throwing an exception~\cite{autodoc}.  We use a modification of their
-algorithm, and also perform several other analyses to provide a broader range
-of information.
+throwing an exception~\cite{autodoc}.  We implement a similar symbolic analysis
+to detect the conditions under which some exceptions are thrown.
 
 Analysis of libraries as a separate entity from whole programs, without
 considering documentation, has recieved broader attention from the software
 engineering community.  Williams, Thies, and Ernst describe a method for
 detecting possible deadlocks in Java libraries \cite{deadlocklibs}.
 
-Similarly, documentation has also been studied in isolation.  Schreck,
+Tools for analyzing documentation, particularly in relation to program text, has
+also recieved some attention.  Schreck,
 Dallmeier, and Zimmermann describe a tool for measuring the quality of software
-documentation, and how that quality varies over time \cite{evolvedoc}.
+documentation, and how that quality varies over time \cite{evolvedoc}. Tools
+like Mismar \cite{mismar} make it easier to construct use guides for code bases by allowing
+the developer to essentially drag-and-drop software components to form a
+documentation skeleton.  eMoose \cite{emoose} does a programming-environment version of the
+inter-procedural constraint propagation in our system; it integrates
+documentation about a method being called into the hover text for a programmer
+working at a call site for that method.  Any of these techniques could be used
+in conjunction with our work to further improve the developer experience.
 
 \subsection{Individual Analyses}
 Some text for nullability.
@@ -38,5 +45,6 @@ Aldrich, Kostadinov and Chambers~\cite{AliasJava} showed how alias information
 helps the programmer to understand how data is shared in large software systems.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
-exceptions, and the exception analysis in our work is directly based on the
-refined version of {\sc Jex} [citation needed] they present.
+exceptions.  Our exception inference is weaker than theirs, but similar.  One
+possible future extension of our work would be to integrate their exception
+analysis.
