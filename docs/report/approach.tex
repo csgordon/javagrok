@@ -90,8 +90,7 @@ implementation of such an analysis that is readily available.
 
 \subsection{Nullability}
 \label{sec:Nullability}
-TODO Gilbert
-
+In heavily object oriented languages like java, every variable is a nullable (aka. option, maybe) type, capable of holding either a reference to a value or the special value null.  Because of this ubiquity, one common mistake is to call methods with null parameters they are unprepared to handle, or to erroneously assume that returned values are never null.  Well documented libraries, like the Java collections framework, will frequently spell out when variables are assumed to be nullable or not-null when an ambiguity seems likely.  By means of a nullability inference\cite{NIT,NonNullTypeInference} we can add similarly useful type decorations (in the form of icons) to documentation.  Although two Java nullability inferences are freely available, they are both whole program analyses and therefore ill-suited to our target application: library documentation.  We plan to first try adapting their existing analysis code, or failing that re-implement a modular version of their analysis within our own framework.
 
 \subsection{From JAIF to HTML documentation}
 \label{sec:jaif2html}
