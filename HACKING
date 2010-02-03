@@ -1,0 +1,42 @@
+----------------
+JDK 1.7 Compiler
+----------------
+
+The main thing you need to compile JavaGrok is the JDK 1.7 Java compiler. This
+can be most easily obtained from the OpenJDK project as described on this
+webpage: http://openjdk.java.net/groups/compiler/
+
+The short version is as follows:
+
+% hg clone http://hg.openjdk.java.net/jdk7/tl/langtools
+% cd langtools/make
+% [edit build.properties; set boot.java.home a JDK 1.6 installation]
+% ant build-all-tools
+
+You should now have a compiled version of javac, javadoc and some other bits in
+langtools/dist.
+
+---------------------
+JavaGrok Build Config
+---------------------
+
+Now copy javagrok/build.properties.dist to javagrok/build.properties and set
+javac.home to <somepath>/langtools/dist.
+
+You should now be able to build and run javagrok. Invoke "ant -p" to learn
+about the useful ant targets:
+
+% ant -p
+Buildfile: build.xml
+
+Main targets:
+
+ all        Cleans and rebuilds everything including documentation.
+ clean      Cleans out build results.
+ compile    Compiles the code.
+ dist       Compiles the code and builds our jar file.
+ distclean  Completely removes build result directory.
+ dogfood    Runs the analyses on the JavaGrok source.
+ javadoc    Generates javadoc documentation.
+ tests      Compiles and runs the unit tests.
+Default target: compile
