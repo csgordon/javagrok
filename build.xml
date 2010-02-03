@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<project name="javagrok" default="compile" basedir=".">
+  <!-- various directories used when building things -->
+  <property name="src.dir"     value="src/java"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+  <property name="libs.dir"    value="lib"/>
+
+  <!-- read in the desired configuration local configuration -->
+  <property file="build.properties"/>
+  <!-- if build.properties does not specify javac.home we provide a default -->
+  <property name="javac.home"  value="${java.home}/.."/>
+
+  <!-- defines our classpaths -->
+  <path id="boot.classpath">
+    <fileset dir="${javac.home}/lib" includes="tools.jar"/>
+    <fileset dir="${javac.home}/lib" includes="javac.jar"/>
+    <fileset dir="${javac.home}/lib" includes="javadoc.jar"/>
+    <fileset dir="${javac.home}/lib" includes="doclets.jar"/>
+    <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
+    <fileset dir="${java.home}/lib" includes="rt.jar"/>
+  </path>
+  <path id="build.classpath">
+    <pathelement location="${classes.dir}"/>
+    <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
+  </path>
+
+  <!-- defines our build-time library dependencies -->
+  <fileset dir="${libs.dir}" id="build.libs">
+    <include name="junit-4*.jar"/>
+  </fileset>
+
+  <!-- prepares the application directories -->
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/lib"/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${javadoc.dir}"/>
+    <copy todir="${deploy.dir}/lib" flatten="true">
+      <fileset refid="build.libs"/>
+    </copy>
+  </target>
+
+  <!-- cleans out the intermediate build files -->
+  <target name="clean" description="Cleans out build results.">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${deploy.dir}/docs"/>
+    <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
+  </target>
+
+  <!-- wipes the entire build directory clean -->
+  <target name="distclean" description="Completely removes build result directory.">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- builds the java class files -->
+  <target name="compile" depends="prepare" description="Compiles the code.">
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${classes.dir}"
+           classpathref="build.classpath" bootclasspathref="boot.classpath">
+      <exclude name="org/javagrok/tests/**"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+  </target>
+
+  <!-- builds the javadoc documentation -->
+  <target name="javadoc" depends="prepare" description="Generates javadoc documentation.">
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc"
+             classpathref="build.classpath" bootclasspathref="boot.classpath">
+      <packageset dir="${src.dir}">
+        <exclude name="org/javagrok/*/tests/**"/>
+      </packageset>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+
+  <!-- rebuilds everything -->
+  <target name="all" depends="clean,prepare,compile,javadoc,dist"
+          description="Cleans and rebuilds everything including documentation."/>
+
+  <!-- builds our distribution jar file -->
+  <target name="dist" depends="prepare,compile"
+          description="Compiles the code and builds our jar file.">
+    <jar destfile="${deploy.dir}/javagrok.jar" basedir="${classes.dir}">
+      <service type="javax.annotation.processing.Processor"
+               provider="org.javagrok.processor.Processor"/>
+      <service type="org.javagrok.analysis.Analyzer">
+        <provider classname="org.javagrok.analysis.NoopAnalyzer"/>
+      </service>
+    </jar>
+  </target>
+
+  <!-- compiles our unit tests and runs them -->
+  <target name="tests" depends="prepare,compile"
+          description="Compiles and runs the unit tests.">
+    <property name="utclass.dir" value="${deploy.dir}/utclasses"/>
+    <delete dir="${utclass.dir}"/>
+    <mkdir dir="${utclass.dir}"/>
+
+    <!-- allows passing -Dtest=NamePrefix to restrict to subset of tests -->
+    <property name="test" value=""/>
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${utclass.dir}" bootclasspathref="boot.classpath">
+      <classpath>
+        <pathelement location="${utclass.dir}"/>
+        <path refid="build.classpath"/>
+      </classpath>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <include name="**/tests/${test}*.java"/>
+    </javac>
+
+    <taskdef name="unit" classpathref="build.classpath"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <unit printsummary="off" haltonfailure="yes" fork="${junit.fork}">
+      <classpath>
+        <pathelement location="${utclass.dir}"/>
+        <pathelement location="${classes.dir}"/>
+        <path refid="build.classpath"/>
+      </classpath>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.dir}">
+          <include name="**/tests/${test}*.java"/>
+        </fileset>
+      </batchtest>
+    </unit>
+  </target>
+
+  <target name="dogfood" depends="dist"
+          description="Runs the analyses on the JavaGrok source.">
+    <property name="dfclass.dir" value="${deploy.dir}/dfclasses"/>
+    <delete dir="${dfclass.dir}"/>
+    <mkdir dir="${dfclass.dir}"/>
+
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${dfclass.dir}" bootclasspathref="boot.classpath">
+      <classpath>
+        <fileset dir="${deploy.dir}" includes="javagrok.jar"/>
+        <path refid="build.classpath"/>
+      </classpath>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <compilerarg value="-processor"/>
+      <compilerarg value="org.javagrok.processor.Processor"/>
+    </javac>
+
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc"
+             bootclasspathref="boot.classpath">
+      <packageset dir="${src.dir}">
+        <exclude name="org/javagrok/*/tests/**"/>
+      </packageset>
+      <classpath refid="build.classpath"/>
+      <taglet name="org.javagrok.doclet.GrokTaglet" path="${deploy.dir}/javagrok.jar"/>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+</project>
