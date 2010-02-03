@@ -8,7 +8,7 @@ their results into a common format at some point in our toolchain.
 We will use the JAIF (Java Annotation Index File) format as our common format. 
 Firstly because the Javarifier tool generates its output in this file format. 
 Secondly because there do exist tools which allow to extract annotations from 
-annoted byte code. This makes it easy to use existing tools which embed their 
+annotated byte code. This makes it easy to use existing tools which embed their 
 results into the byte code.
 
 \begin{figure}
@@ -18,19 +18,21 @@ results into the byte code.
 \label{fig:toolchain}
 \end{figure}
 
+In the following section we describe how our own analysis is built up.
+In the sections~\ref{sec:Javarifier} until~\ref{sec:Nullability} we show how each analysis 
+generates information and transforms it's result to the JAIF format. In the section~\ref{sec:jaif2html}
+we explain how we will use all the annotated files to generate a documentation summarizing
+the findings of all the analysis techniques.
+
 \subsection{Analysis Framework}
 \label{ss:analysisFramework}
 
 To implement our own analysis tools we use the current version of the Java 7 compiler.
 This allows us to use it's plugin architecture to write our own analyzers. From within
-a Java compiler plugin we can access the compiler's abstract syntax tree and we can emit 
-annotation to the class files. As described above those annotation will get extracted 
+a Java compiler plugin we can access the compiler's abstract syntax tree of the 
+compilation unit and we can emit 
+annotation to the byte code files. As mentioned above those annotation will get extracted 
 with the annotation file utilities.
-
-In the sections~\ref{sec:Javarifier} until~\ref{sec:Nullability} we show how each analysis 
-generates information and transforms it's result to the JAIF format. In the section~\ref{sec:jaif2html}
-we explain how we will use all the annotated files to generate a documentation summarizing
-the findings of all the analysis techniques.
 
 \subsection{Javarifier}
 \label{sec:Javarifier}
@@ -46,12 +48,12 @@ treats it's parameters, return objects and fields (in case of a non-static funct
 when called. E.g. if a function captures or leaks a reference or returns a new 
 unique reference.
 
-The tool generates annotations which are stored in a single seperate file. We plan
+The tool generates annotations which are stored in a single separate file. We plan
 to either change the output mechanism of the tool in a way that it directly generates
 JAI files or to write a rewriter which transforms files from Uno's file format to the
 JAIF format.
 
-In case we realise that the tool is not fulfilling our needs we will implement
+In case we realize that the tool is not fulfilling our needs we will implement
 our own (simpler) analysis based on the uniqueness inference algorithm
 described in~\cite{UniquenessInference}.
 

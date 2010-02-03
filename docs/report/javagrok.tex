@@ -1,6 +1,18 @@
 \documentclass{sig-alternate}
 \usepackage{url}
 
+%% Bring items closer together in list environments
+% Prevent infinite loops
+\let\Itemize =\itemize
+\let\Enumerate =\enumerate
+\let\Description =\description
+% Zero the vertical spacing parameters
+\def\Nospacing{\itemsep=0pt\topsep=0pt\partopsep=0pt\parskip=0pt\parsep=0pt}
+% Redefine the environments in terms of the original values
+\renewenvironment{itemize}{\Itemize\Nospacing}{\endlist}
+\renewenvironment{enumerate}{\Enumerate\Nospacing}{\endlist}
+\renewenvironment{description}{\Description\Nospacing}{\endlist}
+
 \begin{document}
 \conferenceinfo{UWCSE503}{'10 Seattle, WA USA}
 
