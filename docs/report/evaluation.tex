@@ -3,7 +3,7 @@
 We propose to evaluate our work in two ways: by comparing our inferred
 documentation against existing documentation for a library that is widely
 considered to be of high quality (\textit{exemplar} documentation), and by
-conducting a small controlled experiment.
+conducting a small user study.
 
 \subsection{Comparison with exemplar documentation}
 
@@ -44,19 +44,22 @@ time, or actively worsening the quality of the documentation.
 
 We will also consider the possibility that our tool generates so many
 properties that it overwhelms the reader, though this more subjective measure
-will be evaluated as a part of the controlled experiment.
+will be evaluated as a part of the user study.
 
-\subsection{Controlled experiment}
+\subsection{User study}
 
-We will perform a controlled experiment where two groups of developers are
-given a third party library (including its source code) and a skeleton program
-and are asked to implement functionality in the program that makes use of the
-library. One group will be provided with the original documentation supplied
-with the library and the other group will be supplied with documentation
-augmented by our tool.
+We will perform a user study where two groups of developers are given a third
+party library (including its source code) and a skeleton program and are asked
+to implement functionality in the program that makes use of the library. One
+group will be provided with the original documentation supplied with the
+library and the other group will be supplied with documentation augmented by
+our tool.
 
-TODO: describe exactly which library and what programming tasks will be
-required.
+Our preliminary library selection is the Nenya library~\cite{nenya}, which
+provides graphics and animation functionality. Developers will be tasked with
+using the library to create interactive and non-interactive animations in a
+series of simple tasks that require increasingly sophisticated use of the
+library.
 
 We will provide a checklist on which the developers will be asked to
 self-report the following events:
@@ -74,11 +77,12 @@ We will also provide them with instructions on how to access the library
 documentation as well as the library source code to insure that they are not
 otherwise discouraged from referencing either.
 
-We will also record the total time taken to complete the tasks and manually
-inspect the resulting programs to tabulate the number of errors made in using
-the underlying library. For example, we will look for situations where the
-program could pass invalid data to the library or where the program fails to
-call proper library initialization or cleanup methods.
+We will also record the total time taken to complete the tasks as well as the
+number of tasks completed. We will manually inspect the resulting programs to
+tabulate the number of errors made in using the underlying library. We will
+specifically focus on errors that could have been avoided given the information
+in our enhanced documentation, for example, allowing a null value to be passed
+to a method that does not properly handle null parameters.
 
 Finally, we will conduct an exit survey, asking the developers subjective
 questions about their experiences:
@@ -98,5 +102,11 @@ experimental group in the following ways:
   frequently?
 \item Were there fewer instances of unexpected library behavior encountered by
   the experimental group?
-\item TBD...
+\item Did the experimental group find using the library to be less frustrating?
+\item Was the experimental group more likely than the control group to consider
+  the documentation too detailed?
 \end{itemize}
+
+Our goals are to reduce the frequency with which the developer has to refer to
+the library source code, to make the use of the library less frustrating, and
+to avoid overwhelming the developer with too much detail.
