@@ -36,8 +36,24 @@ with the annotation file utilities.
 
 \subsection{Javarifier}
 \label{sec:Javarifier}
-TODO Michael
 
+Javarifier is a tool to infer reference immutability information built in
+conjuction with research done by Quinonez et al.~\cite{Javarifier}. It infers
+mutability constraints for object fields, method arguments and receivers. Those
+constraints may be \texttt{mutable}, \texttt{readonly}, \texttt{?~readonly},
+\texttt{polyread}, and \texttt{this-mutable}. The \texttt{?~readonly}
+constraint indicates a method argument with a \texttt{readonly} upper bound and
+a \texttt{mutable} lower bound. The \texttt{polyread} constraint provides
+polymorphism over mutability for method arguments and receivers
+(i.e. indicating that a method is read-only when called through a read-only
+reference or mutable when called through a mutable reference). A
+\texttt{this-mutable} reference provides similar polymorphism for object
+fields: a \texttt{this-mutable} field is mutable if \texttt{this} is mutable
+and read-only otherwise.
+
+Javarifier produces its results directly in the JAIF format which allows us to
+easily integrate it into our toolchain. We need simply to express the meaning
+of its inferred constraints in the Javadoc documentation in concise language.
 
 \subsection{Uno}
 
