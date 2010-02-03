@@ -28,7 +28,9 @@ annotation to the class files. As described above those annotation will get extr
 with the annotation file utilities.
 
 In the sections~\ref{sec:Javarifier} until~\ref{sec:Nullability} we show how each analysis 
-generates information and transforms it's result to the JAIF format.
+generates information and transforms it's result to the JAIF format. In the section~\ref{sec:jaif2html}
+we explain how we will use all the annotated files to generate a documentation summarizing
+the findings of all the analysis techniques.
 
 \subsection{Javarifier}
 \label{sec:Javarifier}
@@ -49,7 +51,9 @@ to either change the output mechanism of the tool in a way that it directly gene
 JAI files or to write a rewriter which transforms files from Uno's file format to the
 JAIF format.
 
-In case we realise that the tool is not fulfilling our needs
+In case we realise that the tool is not fulfilling our needs we will implement
+our own (simpler) analysis based on the uniqueness inference algorithm
+described in~\cite{UniquenessInference}.
 
 \subsection{Precondition/Dependency}
 
@@ -61,10 +65,11 @@ TODO Gilbert
 
 
 \subsection{From JAIF to HTML documentation}
+\label{sec:jaif2html}
 
 To get the inferred information back into the source files we use the annotation 
 file utilities (\cite{AFU} AFU). The next step is to run JavaDoc over our
-annotated source code. A JavaDoc plugin (called doclet) is needed which will
+annotated source code. We will need to write a JavaDoc plugin (called doclet) which will
 cause JavaDoc to generate documentation for our new annotations. The output will
 generate a HTML documentation of the code enriched with automatically inferred
 properties expressed in a programmer friendly format.
