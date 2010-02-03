@@ -5,13 +5,11 @@ implement our own analysis.
 
 To combine all analysis tools (including our own ones) we have to bring 
 their results into a common format at some point in our toolchain. 
-We will use the JAIF (for Java Annotation Index File) as our common format. 
+We will use the JAIF (Java Annotation Index File) format as our common format. 
 Firstly because the Javarifier tool generates its output in this file format. 
 Secondly because there do exist tools which allow to extract annotations from 
 annoted byte code. This makes it easy to use existing tools which embed their 
 results into the byte code.
-
-
 
 \begin{figure}
 \centering
@@ -21,6 +19,7 @@ results into the byte code.
 \end{figure}
 
 \subsection{Analysis Framework}
+\label{ss:analysisFramework}
 
 To implement our own analysis tools we use the current version of the Java 7 compiler.
 This allows us to use it's plugin architecture to write our own analyzers. From within
@@ -28,11 +27,11 @@ a Java compiler plugin we can access the compiler's abstract syntax tree and we 
 annotation to the class files. As described above those annotation will get extracted 
 with the annotation file utilities.
 
-In the sections~\ref{Javarifier} until~\ref{Nullability} we show how each analysis 
+In the sections~\ref{sec:Javarifier} until~\ref{sec:Nullability} we show how each analysis 
 generates information and transforms it's result to the JAIF format.
 
 \subsection{Javarifier}
-
+\label{sec:Javarifier}
 TODO Michael
 
 
@@ -41,22 +40,24 @@ TODO Michael
 Uno is an open source tool which is the outcome of a research work done by
 Ma and Foster~\cite{Uno}. It infers alias and encapsulation properties for Java.
 The tool generates annotations which provide information about how a certain function
-treats it's parameters, return objects and fields (in case of non-static function) 
-when called. E.g. if a function captures or a reference or returns a new objects to which
-the returned reference is unique.
+treats it's parameters, return objects and fields (in case of a non-static function) 
+when called. E.g. if a function captures or leaks a reference or returns a new 
+unique reference.
 
 The tool generates annotations which are stored in a single seperate file. We plan
 to either change the output mechanism of the tool in a way that it directly generates
 JAI files or to write a rewriter which transforms files from Uno's file format to the
 JAIF format.
 
+In case we realise that the tool is not fulfilling our needs
+
 \subsection{Precondition/Dependency}
 
 TODO Colin
 
 \subsection{Nullability}
-
-TODO 
+\label{sec:Nullability}
+TODO Gilbert
 
 
 \subsection{From JAIF to HTML documentation}
