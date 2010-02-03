@@ -1,0 +1,10 @@
+#
+# $Id$
+#
+# Local build configuration
+
+# Leave javac.home commented out to build using the javac on your path. Bear in
+# mind that JDK 1.7 is required to build (and run) JavaGrok.
+
+# To build with a locally build langtools javac use the following:
+# javac.home = ../langtools/dist
