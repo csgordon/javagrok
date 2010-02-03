@@ -1,9 +1,40 @@
 \section{Introduction}
 
-Despite their best intentions, many developers routinely fail to provide adequate or any documentation of the code they write.  Whether because of bad practice, laziness or a sincere belief on the part of programmers that their code will soon be thrown away, much code in regular use and reuse remains undocumented.  New developers join the team, the code gets handed off to another group, or perhaps even posted publicly on the internet.  By various means, this code finds its way into the hands of programmers who---having been assured that this code will save them weeks of effort---now face a thoroughly unenviable task: grok a lump of un(der)documented code and figure out its interface enough to solve their original problem.
+Despite their best intentions, many developers routinely fail to provide
+adequate or any documentation of the code they write.  Whether because of bad
+practice, laziness or a sincere belief on the part of programmers that their
+code will soon be thrown away, much code in regular use and reuse remains
+undocumented.  New developers join the team, the code gets handed off to
+another group, or perhaps even posted publicly on the Internet.  By various
+means, this code finds its way into the hands of programmers who---having been
+assured that this code will save them weeks of effort---now face a thoroughly
+unenviable task: grok a lump of un(der)documented code and figure out its
+interface enough to solve their original problem.
 
-Ideally, we would have an army of ingenious, classically trained Shakespearean typing monkeys, ready to provide high-quality documentation for all our programs and libraries at the drop of a hat.  However in reality, we, the unlucky developers often must make do with a single use case or oblique e-mail offering advice---if we are even that lucky.  Sitting at our desks, we curse fate, the code in front of us, and the anonymous (or not so anonymous) programmer responsible for our pain.  We wonder, wouldn't it be nice if we could just push a button and get some useful, if not perfect documentation?
+Ideally, we would have an army of ingenious, classically trained Shakespearean
+typing monkeys, ready to provide high-quality documentation for all our
+programs and libraries at the drop of a hat.  However in reality, we, the
+unlucky developers often must make do with a single use case or oblique e-mail
+offering advice---if we are even that lucky.  Sitting at our desks, we curse
+fate, the code in front of us, and the anonymous (or not so anonymous)
+programmer responsible for our pain.  We wonder, wouldn't it be nice if we
+could just push a button and get some useful, if not perfect documentation?
 
-We designed a tool, named JavaGrok, to do just this: take an un(der)documented library and opportunistically infer bare-bones documentation to aid a client programmer.  Our tool takes a collection of java source files intended for use as a library, computes a variety of modular static analyses, and then places select results from these analyses into the javadoc documentation for the provided classes.  These analysis results appear side by side, line by line with any pre-existing documentation.  They warn the library's user about potentially null return values, possible side-effects and unhandled exceptions, to name a few examples.  Armed with this reinforced documentation, our unfortunate programmer is now ready to do battle with their unseemly library.
+We designed a tool, named JavaGrok, to do just this: take an un(der)documented
+library and opportunistically infer bare-bones documentation to aid a client
+programmer.  Our tool takes a collection of java source files intended for use
+as a library, computes a variety of modular static analyses, and then places
+select results from these analyses into the javadoc documentation for the
+provided classes.  These analysis results appear side by side, line by line
+with any pre-existing documentation.  They warn the library's user about
+potentially null return values, possible side-effects and unhandled exceptions,
+to name a few examples.  Armed with this reinforced documentation, our
+unfortunate programmer is now ready to do battle with their unseemly library.
 
-Certainly, any attempt to provide automatically generated documentation is prone to being useless or even actively unhelpful if done incorrectly.  In order to verify that the provided automatic documentation helps rather than hurts users, we have conducted a user study.  Programmers were asked to accomplish a routine task(?) using an unfamiliar library and lacking extensive or robust documentation.  It turns out we discovered some interesting results.  Go us!
+Certainly, any attempt to provide automatically generated documentation is
+prone to being useless or even actively unhelpful if done incorrectly.  In
+order to verify that the provided automatic documentation helps rather than
+hurts users, we have conducted a user study.  Programmers were asked to
+accomplish a routine task(?) using an unfamiliar library and lacking extensive
+or robust documentation.  It turns out we discovered some interesting results.
+Go us!
