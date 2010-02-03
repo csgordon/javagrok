@@ -16,7 +16,8 @@ For each class and method in the target code, our tool generates properties for
 insertion into the documentation. Example properties include: ``Argument foo
 may not be null'', or ``This method has no side effects.'' We will compare
 these properties to properties identified in the exemplar documentation and
-classify them via the following criteria:
+classify them via the following criteria\footnote{These are similar to the
+criteria used by Buse and Weimer~\cite{autodoc}.}:
 
 \begin{itemize}
 \item How many properties were inferred by our tool that were not specified by
@@ -86,7 +87,7 @@ questions about their experiences:
 \item Did you find the documentation to be too detailed, sufficiently detailed
   or not detailed enough?
 \item Did you find the experience of using this library to be pleasant, normal
-  or frustrating.
+  or frustrating?
 \end{itemize}
 
 We will compare the data from the control group with those from the
