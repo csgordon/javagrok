@@ -18,19 +18,21 @@ results into the byte code.
 \label{fig:toolchain}
 \end{figure}
 
+In the following section we describe how our own analysis is built up.
+In the sections~\ref{sec:Javarifier} until~\ref{sec:Nullability} we show how each analysis 
+generates information and transforms it's result to the JAIF format. In the section~\ref{sec:jaif2html}
+we explain how we will use all the annotated files to generate a documentation summarizing
+the findings of all the analysis techniques.
+
 \subsection{Analysis Framework}
 \label{ss:analysisFramework}
 
 To implement our own analysis tools we use the current version of the Java 7 compiler.
 This allows us to use it's plugin architecture to write our own analyzers. From within
-a Java compiler plugin we can access the compiler's abstract syntax tree and we can emit 
-annotation to the class files. As described above those annotation will get extracted 
+a Java compiler plugin we can access the compiler's abstract syntax tree of the 
+compilation unit and we can emit 
+annotation to the byte code files. As mentioned above those annotation will get extracted 
 with the annotation file utilities.
-
-In the sections~\ref{sec:Javarifier} until~\ref{sec:Nullability} we show how each analysis 
-generates information and transforms it's result to the JAIF format. In the section~\ref{sec:jaif2html}
-we explain how we will use all the annotated files to generate a documentation summarizing
-the findings of all the analysis techniques.
 
 \subsection{Javarifier}
 \label{sec:Javarifier}
