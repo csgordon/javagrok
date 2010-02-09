@@ -30,7 +30,7 @@ Figure \ref{fig:toolchain} shows the stages in our toolchain.
 \label{ss:analysisFramework}
 
 To implement our own analysis tools we use the Annotation Processing Tool (APT)
-API~cite{apt} built into the Java standard compiler.  From within an APT plugin
+API~\cite{apt} built into the Java standard compiler.  From within an APT plugin
 we can access the compiler's abstract syntax tree and augment the generated
 bytecode with annotations representing our analysis results. These annotations
 are then extracted into external annotation files.
