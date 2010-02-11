@@ -61,6 +61,9 @@
         <include name="lib/resources.jar"/>
         <include name="lib/rt.jar"/>
       </fileset>
+      <fileset dir="${java.home}/..">
+        <include name="Classes/classes.jar"/>
+      </fileset>
     </path>
 
     <mkdir dir="${deploy.dir}/javarifier"/>
