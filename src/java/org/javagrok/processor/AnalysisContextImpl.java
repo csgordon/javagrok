@@ -93,6 +93,9 @@ public class AnalysisContextImpl implements AnalysisContext
         if (argsVals.length % 2 != 0) {
             throw new IllegalArgumentException("Mismatched argsVals array");
         }
+	if (sym == null) {
+	    throw new IllegalArgumentException("Cannot annotate element with no symbol! Did you try to annotate an anonymous class?");
+	}
 
         // TODO: make sure the annotation isn't already there
         List<JCExpression> args = List.nil();
