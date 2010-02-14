@@ -1,0 +1,9 @@
+syntax: glob
+dist
+build.properties
+docs/*/*.aux
+docs/*/*.log
+docs/*/*.bbl
+docs/*/*.blg
+docs/*/*.dvi
+docs/*/*.pdf
