@@ -116,6 +116,7 @@
       </bootclasspath>
       <classpath>
         <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
+        <fileset dir="${libs.dir}" includes="jsr305.jar"/>
         <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
         <pathelement location="${deploy.dir}/grok-classes"/>
       </classpath>
