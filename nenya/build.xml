@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<project name="javautil" default="compile" basedir=".">
+  <property file="../build.properties"/>
+  <import file="../build-eval.xml"/>
+</project>
