@@ -1,0 +1,7 @@
+uno.test
+#
+uno.test.Subject
+uno.test.ConcreteSubject
+uno.test.Factory
+uno.test.Proxy
+uno.test.Main
