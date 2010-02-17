@@ -8,13 +8,14 @@
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
 
   <property file="${javagrok.dir}/build.properties"/>
+  <property name="libs.dir" value="${javagrok.dir}/lib/"/>
 
   <!-- default locations for various third party tools -->
   <property name="javac.home" value="${java.home}/.."/>
-  <property name="afu.dir" value="${javagrok.dir}/lib/afu"/>
-  <property name="afu-scripts.dir" value="${javagrok.dir}/lib/afu"/>
-  <property name="javarifier.dir" value="${javagrok.dir}/lib/javarifier"/>
-  <property name="javarifier-stubs.dir" value="${javagrok.dir}/lib/javarifier"/>
+  <property name="afu.dir" value="${libs.dir}/afu"/>
+  <property name="afu-scripts.dir" value="${libs.dir}/afu"/>
+  <property name="javarifier.dir" value="${libs.dir}/javarifier"/>
+  <property name="javarifier-stubs.dir" value="${libs.dir}/javarifier"/>
 
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
@@ -169,9 +170,21 @@
     </javadoc>
   </target>
   
-  <target name="nit" depends="compile"
-          description="Runs the nullability inference tool (nit) on the compiled classes.">
-    <echo>nit stub</echo>
+  <target name="nullability" depends="prepare"
+          description="Do the nullability inference dance.">
+    <echo>Nullability Stub</echo>
+    
+    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
+    
+    <java jar="${libs.dir}/JavaNonNullInferencer.jar" fork="true">
+        <!-- Note that I had to tweak the allowed heap size
+             in order to get this analysis to run -->
+        <jvmarg value="-Xmx512M"/>
+        <arg value="-d"/>
+        <arg value="${deploy.dir}/JavaNonNullInferencer"/>
+        <arg line="${src.files}"/>
+    </java>
   </target>
 
 </project>
