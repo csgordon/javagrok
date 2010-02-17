@@ -31,11 +31,20 @@ public class TestMain
         private int _currentValue;
     }
 
-    public static void main (String[] args)
-    {
+    public static void main (String[] args) {
         IntBox box = new IntBox(5);
         box.increment(3);
         System.out.println("Value " + box.current());
+
+        // taint noop!
+        String nn = noop(null);
+
+        String foo = "foo";
+        int lfoo = length(noop(foo));
+    }
+
+    public static int length (String value) {
+        return value.length();
     }
 
     public TestMain () {
@@ -50,6 +59,14 @@ public class TestMain
         if (shouldFail) {
             throw new RuntimeException("Epic FAIL!");
         }
+    }
+
+    private static String noop (String value) {
+        if (value == null) {
+            return "";
+        }
+        int hc = value.hashCode();
+        return value;
     }
 
     private IntBox _box;
