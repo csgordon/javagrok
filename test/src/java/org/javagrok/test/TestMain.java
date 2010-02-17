@@ -46,5 +46,11 @@ public class TestMain
         _box.increment(1);
     }
 
+    public void maybeFail (boolean shouldFail) {
+        if (shouldFail) {
+            throw new RuntimeException("Epic FAIL!");
+        }
+    }
+
     private IntBox _box;
 }
