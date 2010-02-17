@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <project name="javautil" default="compile" basedir=".">
-  <property file="../build.properties"/>
-  <import file="../build-eval.xml"/>
+  <property name="javagrok.dir" value=".."/>
+  <import file="${javagrok.dir}/build-eval.xml"/>
 </project>

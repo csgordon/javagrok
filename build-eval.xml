@@ -7,12 +7,14 @@
   <property name="classes.dir" value="${deploy.dir}/classes"/>
   <property name="javadoc.dir" value="${deploy.dir}/docs"/>
 
+  <property file="${javagrok.dir}/build.properties"/>
+
   <!-- default locations for various third party tools -->
   <property name="javac.home" value="${java.home}/.."/>
-  <property name="afu.dir" value="lib/afu"/>
-  <property name="afu-scripts.dir" value="lib/afu"/>
-  <property name="javarifier.dir" value="lib/javarifier"/>
-  <property name="javarifier-stubs.dir" value="lib/javarifier"/>
+  <property name="afu.dir" value="${javagrok.dir}/lib/afu"/>
+  <property name="afu-scripts.dir" value="${javagrok.dir}/lib/afu"/>
+  <property name="javarifier.dir" value="${javagrok.dir}/lib/javarifier"/>
+  <property name="javarifier-stubs.dir" value="${javagrok.dir}/lib/javarifier"/>
 
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
