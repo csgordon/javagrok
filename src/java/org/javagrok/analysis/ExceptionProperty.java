@@ -19,9 +19,9 @@ import java.lang.annotation.Target;
 public @interface ExceptionProperty
 {
     /** The text of the property. */
-    public String exceptionsThrown ();
+    public String throwsWhen ();
+    //public String exceptionsThrown ();
 
     //public String methodsCalled ();
 
-    //public String whenThrown ();
 }

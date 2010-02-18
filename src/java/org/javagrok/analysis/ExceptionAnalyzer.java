@@ -30,6 +30,7 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
     private class ExceptionScanner extends TreeScanner {
 	private final AnalysisContext ctx;
 	private List<String> exns;
+	private List<String> cond_exns;
 	private Stack<Pair<BoolSign,JCExpression>> current_path;
 	private Stack<JCClassDecl> current_class;
 	private Stack<JCMethodDecl> current_method;
@@ -46,6 +47,7 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	    current_class = new Stack<JCClassDecl>();
 	    current_method = new Stack<JCMethodDecl>();
 	    exns = new ArrayList<String>();
+	    cond_exns = new ArrayList<String>();
 	    current_path = new Stack<Pair<BoolSign,JCExpression>>();
 	}
 	public void visitClassDef (JCClassDecl tree) {
@@ -65,17 +67,27 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	    //ctx.info("Visiting method "+tree.name+" in "+tree.sym);
 	    if (tree.sym != null) {
 		exns.clear();
+		cond_exns.clear();
 	    }
 	    current_method.push(tree);
 	    super.visitMethodDef(tree);
-	    if (tree.sym != null && !exns.isEmpty()) {
+	    if (tree.sym != null) {
 		String exnlist = "";
-		for (String s : exns) {
-		    exnlist += " " + s;
+		String condexns = "";
+		if (!exns.isEmpty()) {
+		    for (String s : exns) {
+			exnlist += " " + s;
+		    }
+		}
+		if (!cond_exns.isEmpty()) {
+		    for (String s : cond_exns) {
+			condexns += "<br>" + s;
+		    }
 		}
 		ctx.info("Method "+current_class.peek().name+"."+tree.name+" throws"+exnlist);
 		ctx.addAnnotation(tree, ExceptionProperty.class,
-				  "exceptionsThrown", "explicitly throws"+exnlist);
+				  //"exceptionsThrown", "explicitly throws"+exnlist,
+				  "throwsWhen", condexns);
 	    }
 	    current_method.pop();
 	    ///* XXX WIP */
@@ -114,22 +126,22 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	    ctx.info(current_class.peek().name+"."+current_method.peek().name+" throws "+exn+getCurrentBranchPath());
 	    if (!exns.contains(exn))
 		exns.add(exn);
+	    cond_exns.add(exn+getCurrentBranchPath());
 	}
 	public void visitApply(JCMethodInvocation tree) {
 	    super.visitApply(tree);
-	    ctx.info("Need to import exception analysis for "+tree.meth + " with type "+tree.meth.type);
 	    if (tree.meth.getKind() == Tree.Kind.MEMBER_SELECT) {
 	        JCFieldAccess access = (JCFieldAccess)tree.meth;
-	        ctx.info("Member select on "+access.name+" of expression "+access.selected+"("+access.selected.getKind()+")");
-	        if (access.selected.getKind() == Tree.Kind.IDENTIFIER) {
-	            JCIdent id = (JCIdent)access.selected;
-	            ctx.info("MORE INFO: "+id.type+"/"+id.sym);
-	        }
-	    //} else if (tree.meth.getKind() == Tree.Kind.IDENTIFIER) {
-	    //    JCIdent id = (JCIdent)tree.meth;
-	    //    ctx.info("Identifier "+id+" of type "+id.type);
-	    //} else {
-	    //    ctx.info("Method invocation on SOMETHING");
+		ctx.info("Need to import exception analysis for "+access.selected.type+"."+access.name+access.type);
+	        //if (access.selected.getKind() == Tree.Kind.IDENTIFIER) {
+	        //    JCIdent id = (JCIdent)access.selected;
+	        //    ctx.info("MORE INFO: "+id.type+"/"+id.sym);
+	        //}
+	    } else if (tree.meth.getKind() == Tree.Kind.IDENTIFIER) {
+	        JCIdent id = (JCIdent)tree.meth;
+		ctx.info("Need to import exception analysis for "+id+" with type "+id.type);
+	    } else {
+	        ctx.info("Method invocation on SOMETHING");
 	    }
 	}
     }
