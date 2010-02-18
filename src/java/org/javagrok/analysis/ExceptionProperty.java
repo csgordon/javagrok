@@ -21,7 +21,7 @@ public @interface ExceptionProperty
     /** The text of the property. */
     public String exceptionsThrown ();
 
-    public String methodsCalled ();
+    //public String methodsCalled ();
 
-    public String whenThrown ();
+    //public String whenThrown ();
 }
