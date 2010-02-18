@@ -93,9 +93,6 @@ public class AnalysisContextImpl implements AnalysisContext
         if (argsVals.length % 2 != 0) {
             throw new IllegalArgumentException("Mismatched argsVals array");
         }
-	if (sym == null) {
-	    throw new IllegalArgumentException("Cannot annotate element with no symbol! Did you try to annotate an anonymous class?");
-	}
 
         // TODO: make sure the annotation isn't already there
         List<JCExpression> args = List.nil();
@@ -107,11 +104,14 @@ public class AnalysisContextImpl implements AnalysisContext
         JCAnnotation a = _tmaker.Annotation(mkFA(aclass.getName()), args);
         mods.annotations = mods.annotations.prepend(a);
 
-        // since the annotations AST has already been resolved into type symbols, we have to
-        // manually add a type symbol for annotation to the Class, Method or VarSymbol
-        sym.attributes_field = sym.attributes_field.prepend(
-            Backdoor.enterAnnotation(_annotate, a, _syms.annotationType,
-                                     _enter.getEnv(getOwningType(sym))));
+        // if the annotations AST has already been resolved into type symbols, we have to manually
+        // add a type symbol for annotation to the Class, Method or VarSymbol; if it has not been
+        // resolved, then we're OK because javac will later resolve the AST node added above
+        if (sym != null) {
+            sym.attributes_field = sym.attributes_field.prepend(
+                Backdoor.enterAnnotation(_annotate, a, _syms.annotationType,
+                                         _enter.getEnv(getOwningType(sym))));
+        }
     }
 
     protected Symbol.TypeSymbol getOwningType (Symbol sym)

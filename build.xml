@@ -89,6 +89,7 @@
       <service type="javax.annotation.processing.Processor"
                provider="org.javagrok.processor.Processor"/>
       <service type="org.javagrok.analysis.Analyzer">
+        <provider classname="org.javagrok.analysis.NoopAnalyzer"/>
         <provider classname="org.javagrok.analysis.ExceptionAnalyzer"/>
       	<provider classname="org.javagrok.analysis.Uno"/>
       </service>
