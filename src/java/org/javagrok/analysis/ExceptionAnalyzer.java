@@ -10,7 +10,10 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeScanner;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.comp.Attr;
 import com.sun.source.tree.*;
+import com.sun.tools.javac.util.Context;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -47,10 +50,10 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	}
 	public void visitClassDef (JCClassDecl tree) {
 	    //ctx.info("Visiting class "+ (tree.name.length()==0 ? "<anon class>" : tree.name));
-	    if (tree.name.length() > 0) {
-		ctx.addAnnotation(tree, Property.class,
-				  "property", tree.name + " analyzed by exception analysis!");
-	    }
+	    //if (tree.name.length() > 0) {
+	    //    ctx.addAnnotation(tree, ExceptionProperty.class,
+	    //    		  "property", tree.name + " analyzed by exception analysis!");
+	    //}
 	    current_class.push(tree);
 	    super.visitClassDef(tree);
 	    current_class.pop();
@@ -71,12 +74,8 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 		    exnlist += " " + s;
 		}
 		ctx.info("Method "+current_class.peek().name+"."+tree.name+" throws"+exnlist);
-		ctx.addAnnotation(tree, Property.class,
-				  "property", "explicitly throws"+exnlist);
-		//for (JCVariableDecl param : tree.params) {
-		//    ctx.addAnnotation(param, Property.class,
-		//		      "property", param.name + " analyzed by exception analysis!");
-		//}
+		ctx.addAnnotation(tree, ExceptionProperty.class,
+				  "exceptionsThrown", "explicitly throws"+exnlist);
 	    }
 	    current_method.pop();
 	    ///* XXX WIP */
@@ -118,20 +117,20 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	}
 	public void visitApply(JCMethodInvocation tree) {
 	    super.visitApply(tree);
-	    //ctx.info("Need to import exception analysis for "+tree.meth + " with type "+tree.meth.getKind());
-	    //if (tree.meth.getKind() == Tree.Kind.MEMBER_SELECT) {
-	    //    JCFieldAccess access = (JCFieldAccess)tree.meth;
-	    //    ctx.info("Member select on "+access.name+" of expression "+access.selected+"("+access.selected.getKind()+")");
-	    //    if (access.selected.getKind() == Tree.Kind.IDENTIFIER) {
-	    //        JCIdent id = (JCIdent)access.selected;
-	    //        ctx.info("MORE INFO: "+id.type+"/"+id.sym);
-	    //    }
+	    ctx.info("Need to import exception analysis for "+tree.meth + " with type "+tree.meth.type);
+	    if (tree.meth.getKind() == Tree.Kind.MEMBER_SELECT) {
+	        JCFieldAccess access = (JCFieldAccess)tree.meth;
+	        ctx.info("Member select on "+access.name+" of expression "+access.selected+"("+access.selected.getKind()+")");
+	        if (access.selected.getKind() == Tree.Kind.IDENTIFIER) {
+	            JCIdent id = (JCIdent)access.selected;
+	            ctx.info("MORE INFO: "+id.type+"/"+id.sym);
+	        }
 	    //} else if (tree.meth.getKind() == Tree.Kind.IDENTIFIER) {
 	    //    JCIdent id = (JCIdent)tree.meth;
 	    //    ctx.info("Identifier "+id+" of type "+id.type);
 	    //} else {
 	    //    ctx.info("Method invocation on SOMETHING");
-	    //}
+	    }
 	}
     }
 
@@ -153,8 +152,12 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
             // and only traverse its AST subtree
             Symbol.ClassSymbol csym = (Symbol.ClassSymbol)elem;
             JCCompilationUnit unit = ctx.getCompilationUnit(elem);
+	    Attr attr = Attr.instance(ctx.getInnerContext());
             for (JCTree def : unit.defs) {
                 if (def.getTag() == JCTree.CLASSDEF && ((JCClassDecl)def).name == csym.name) {
+		    //def.accept(attr);
+		    //attr.visitClassDef((JCClassDecl)def);
+		    attr.attribClass(def.pos(), csym);
                     def.accept(new ExceptionScanner(ctx));
                 }
             }

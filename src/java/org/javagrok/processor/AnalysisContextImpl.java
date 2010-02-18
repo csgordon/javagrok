@@ -42,6 +42,7 @@ public class AnalysisContextImpl implements AnalysisContext
         _annotate = Annotate.instance(ctx);
         _syms = Symtab.instance(ctx);
         _enter = Enter.instance(ctx);
+	_ctx = ctx;
     }
 
     // from interface AnalysisContext
@@ -130,6 +131,10 @@ public class AnalysisContextImpl implements AnalysisContext
         }
     }
 
+    public Context getInnerContext() {
+	return _ctx;
+    }
+
     protected ProcessingEnvironment _procEnv;
     protected Trees _trees;
     protected TreeMaker _tmaker;
@@ -137,4 +142,5 @@ public class AnalysisContextImpl implements AnalysisContext
     protected Annotate _annotate;
     protected Symtab _syms;
     protected Enter _enter;
+    protected final Context _ctx;
 }
