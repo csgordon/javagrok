@@ -70,4 +70,14 @@ public class TestMain
     }
 
     private IntBox _box;
+    
+    private Object someObj;
+    
+    void setSomeClass(Object so) {
+    	someObj = so;
+    }
+    
+    Object getSomeClass() {
+    	return someObj;
+    }
 }
