@@ -14,13 +14,13 @@ import java.lang.annotation.Target;
  * TODO: maybe we should split this up into ParamProperty, MethodProperty, FieldProperty and
  * ClassProperty?
  */
-@Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.PARAMETER})
+@Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface ExceptionProperty
 {
     /** The text of the property. */
     public String throwsWhen ();
-    //public String exceptionsThrown ();
+    public String exceptionsThrown ();
 
     //public String methodsCalled ();
 

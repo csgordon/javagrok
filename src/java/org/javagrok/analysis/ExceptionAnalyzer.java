@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.lang.model.element.Element;
 
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeScanner;
@@ -64,7 +65,7 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	    if (tree == null) {
 		throw new IllegalArgumentException("Method declaration shouldn't be null!");
 	    }
-	    //ctx.info("Visiting method "+tree.name+" in "+tree.sym);
+	    ctx.info("Visiting method "+tree.name+" in "+tree.sym+" of "+tree.sym.owner);
 	    if (tree.sym != null) {
 		exns.clear();
 		cond_exns.clear();
@@ -84,18 +85,14 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 			condexns += "<br>" + s;
 		    }
 		}
-		ctx.info("Method "+current_class.peek().name+"."+tree.name+" throws"+exnlist);
-		ctx.addAnnotation(tree, ExceptionProperty.class,
-				  //"exceptionsThrown", "explicitly throws"+exnlist,
-				  "throwsWhen", condexns);
+		if (exnlist.length() > 0 || condexns.length() > 0) {
+		    ctx.info("Method "+current_class.peek().name+"."+tree.name+" throws"+exnlist);
+		    ctx.addAnnotation(tree, ExceptionProperty.class,
+				      "exceptionsThrown", "explicitly throws"+exnlist,
+				      "throwsWhen", condexns);
+		}
 	    }
 	    current_method.pop();
-	    ///* XXX WIP */
-	    //List<JCExpression> thrown = tree.getThrows();
-	    //for (JCExpression e : thrown) {
-	    //    JCIdent id = (JCIdent)e;
-	    //    ctx.info("Method "+tree.name+" throws "+id.getName().toString());
-	    //}
 	}
 	public void visitIf(JCIf tree) {
 	    scan(tree.cond);
@@ -130,16 +127,21 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	}
 	public void visitApply(JCMethodInvocation tree) {
 	    super.visitApply(tree);
+	    //ctx.info("**Importing: "+tree.meth.sym+" owned by "+tree.meth.sym.owner+" |"+tree.meth.type);
 	    if (tree.meth.getKind() == Tree.Kind.MEMBER_SELECT) {
 	        JCFieldAccess access = (JCFieldAccess)tree.meth;
-		ctx.info("Need to import exception analysis for "+access.selected.type+"."+access.name+access.type);
+		ctx.info("Need to import exception analysis for "+access.type+" "+access.selected.type+"."+access.name);
+		ctx.info("Symbol: "+access.sym+" owned by "+access.sym.owner);
+		if (!access.type.getThrownTypes().isEmpty()) {
+		    ctx.info("*** This method might throw!");
+		}
 	        //if (access.selected.getKind() == Tree.Kind.IDENTIFIER) {
 	        //    JCIdent id = (JCIdent)access.selected;
 	        //    ctx.info("MORE INFO: "+id.type+"/"+id.sym);
 	        //}
 	    } else if (tree.meth.getKind() == Tree.Kind.IDENTIFIER) {
 	        JCIdent id = (JCIdent)tree.meth;
-		ctx.info("Need to import exception analysis for "+id+" with type "+id.type);
+		ctx.info("Need to import exception analysis for "+id.sym+" with type "+id.type);
 	    } else {
 	        ctx.info("Method invocation on SOMETHING");
 	    }
