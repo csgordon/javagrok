@@ -89,7 +89,6 @@ public class Uno extends AbstractAnalyzer {
     	private AnalysisContext ctx;
 		private String packageName;
 		private String className = "";
-
     	
 		public UnoScanner(AnalysisContext ctx, String packageName) {
 			this.ctx = ctx;
@@ -114,7 +113,7 @@ public class Uno extends AbstractAnalyzer {
 			for (JCTree m : members) {
 				if (m instanceof JCVariableDecl) {
 					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
-					ctx.info("Variable: " + var);
+
 					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
 					
 					//if (var.getType() is not primitive type) {
@@ -145,9 +144,7 @@ public class Uno extends AbstractAnalyzer {
         	
         	List<JCTypeAnnotation> receiverAnnotations = tree.getReceiverAnnotations();
         	String key = this.packageName + "." + this.className + "." + tree.getName();
-        	if (!trueMethodProperties.containsKey(key) && !falseMethodProperties.containsKey(key)) {
-        		ctx.info("UNO: could not find any properties for method " + key);
-        	}
+
         	if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
         		ctx.info("Adding annotation for method: " + key);
         		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Returns an unique object"); // TODO Better text here... :-)
@@ -159,13 +156,14 @@ public class Uno extends AbstractAnalyzer {
         		annotatedMethods++;
         	}
         	else {
+        		nonAnnotatedMethods++;
         		if (emitErrorAboutMissingProperty) {
         			ctx.info("No property for method with key: " + key + ". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
-        			if (nonAnnotatedMethods -5 > annotatedMethods) {
+        			if ((nonAnnotatedMethods - 5) > annotatedMethods) {
         				ctx.info("Future missing property messages ommited...");
+        				emitErrorAboutMissingProperty = false;
         			}        			
         		}
-        		nonAnnotatedMethods++;
         	}
         	
             int i = 0; // i is the parameter index
