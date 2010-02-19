@@ -4,6 +4,9 @@
 package experiment;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import javax.swing.SwingUtilities;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -51,26 +54,43 @@ public class TaskRunner
 
         // set up our myriad interlocking bits of scaffolding
         final ManagedJFrame frame = new ManagedJFrame("Task " + taskNo);
-        frame.setDefaultCloseOperation(ManagedJFrame.EXIT_ON_CLOSE);
         final FrameManager fmgr = FrameManager.newInstance(frame);
         final ResourceManager rmgr = new ResourceManager("rsrc");
         final ImageManager imgr = new ImageManager(rmgr, frame);
+
+        // set up the top-level frame
+        frame.setDefaultCloseOperation(ManagedJFrame.EXIT_ON_CLOSE);
+        frame.setSize(FRAME_SIZE, FRAME_SIZE);
 
         // now we ship ourselves off to the AWT thread to start everything up
         SwingUtilities.invokeLater(new Runnable() {
             public void run () {
                 // set up our media panel, 
-                MediaPanel panel = new MediaPanel(fmgr);
+                MediaPanel panel = new MediaPanel(fmgr) {
+                    protected void paintBehind (Graphics2D gfx, Rectangle dirtyRect) {
+                        gfx.setColor(Color.white);
+                        gfx.fill(dirtyRect);
+                    }
+                };
                 frame.getContentPane().add(panel, BorderLayout.CENTER);
+
+                // the panel will normally not be laid out until we show our frame below and Swing
+                // goes through all of its layout manager hullabaloo, but we want the panel to have
+                // a sane size during task.init() so as not to cause confusion; so we just manually
+                // set the panel size here to the same values the frame will later provide
+                panel.setSize(FRAME_SIZE, FRAME_SIZE);
+                // this should happen automatically, but seems not to on the Mac, yay!
+                panel.repaint(0, 0, FRAME_SIZE, FRAME_SIZE);
 
                 // initialize the task, which will add sprites and start them up
                 task.init(imgr, panel);
 
                 // show our panel and start the frame manager running
-                frame.setSize(500, 500);
                 frame.setVisible(true);
                 fmgr.start();
             }
         });
     }
+
+    protected static final int FRAME_SIZE = 500;
 }
