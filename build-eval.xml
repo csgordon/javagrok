@@ -46,10 +46,14 @@
            source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${classes.dir}">
       <classpath refid="classpath"/>
-      <exclude name="org/javagrok/tests/**"/>
       <!--<compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>-->
     </javac>
+  </target>
+
+  <target name="jar" depends="compile"
+          description="Builds compiled classes into a jar file.">
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
   </target>
 
   <target name="javarifier" depends="compile"
