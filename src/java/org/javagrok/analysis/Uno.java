@@ -25,6 +25,11 @@ import com.sun.tools.javac.util.List;
 
 public class Uno extends AbstractAnalyzer {
 	
+	private boolean unoFileExists = false;
+	private int annotatedMethods = 0;
+	private int nonAnnotatedMethods = 0;
+	private boolean emitErrorAboutMissingProperty = true;
+	
 	private HashSet<JCTree> visitedSet = new HashSet<JCTree>();
 
 	@Override
@@ -46,6 +51,7 @@ public class Uno extends AbstractAnalyzer {
 				parseLine(line, ctx);
 				i++;
 			}
+			unoFileExists = true;
 			ctx.info("UNO: Processed " + i + " lines.");
 			in.close();
 		}
@@ -60,6 +66,7 @@ public class Uno extends AbstractAnalyzer {
 
 	// from interface Analyzer
     public void process(final AnalysisContext ctx, Set<? extends Element> elements) {
+    	if (!unoFileExists) return;
         for (Element elem : elements) {
             // we'll get an Element for each top-level class in a compilation unit (source file),
             // but scanning the AST from the top-level compilation unit will visit all classes
@@ -82,6 +89,7 @@ public class Uno extends AbstractAnalyzer {
     	private AnalysisContext ctx;
 		private String packageName;
 		private String className = "";
+
     	
 		public UnoScanner(AnalysisContext ctx, String packageName) {
 			this.ctx = ctx;
@@ -90,10 +98,7 @@ public class Uno extends AbstractAnalyzer {
 
 		@Override
 		public void visitClassDef(JCClassDecl tree) {
-			if (visitedSet.contains(tree)) {
-				return;
-			}
-			visitedSet.add(tree);
+			if (!unoFileExists) return;
 			
 			String oldClassName = this.className;
 			// Build correct class name for inner classes
@@ -109,23 +114,18 @@ public class Uno extends AbstractAnalyzer {
 			for (JCTree m : members) {
 				if (m instanceof JCVariableDecl) {
 					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
+					ctx.info("Variable: " + var);
 					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
 					
 					//if (var.getType() is not primitive type) {
 					String key = this.packageName + "." + this.className + "." + var.getName();
 					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
 						ctx.info("Adding annotation to field: " + key);
-						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)
+						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)	
 					}
 					else if (falseFieldProperties.containsKey(key) && falseFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
 						ctx.info("Adding annotation to field: " + key);
 						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is leaked"); // TODO Better text here... :-)
-					}
-					else {
-						// TODO
-						// Most of the time this information isn't available is if the field is of a primitive type.
-						// Would be cool if I could find that out here...
-						//ctx.info("UNO: could not find any NEscField information for field " + key);
 					}
 				}
 			}
@@ -137,6 +137,7 @@ public class Uno extends AbstractAnalyzer {
 		}
 		
         public void visitMethodDef (JCMethodDecl tree) {
+        	if (!unoFileExists) return;
         	if (visitedSet.contains(tree)) {
 				return;
 			}
@@ -150,16 +151,23 @@ public class Uno extends AbstractAnalyzer {
         	if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
         		ctx.info("Adding annotation for method: " + key);
         		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Returns an unique object"); // TODO Better text here... :-)
+        		annotatedMethods++;
         	}
         	else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
         		ctx.info("Adding annotation for method: " + key);
         		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
+        		annotatedMethods++;
         	}
         	else {
-        		ctx.info("UNO: could not find any UniqRet information for method " + key);
+        		if (emitErrorAboutMissingProperty) {
+        			ctx.info("No property for method with key: " + key + ". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
+        			if (nonAnnotatedMethods -5 > annotatedMethods) {
+        				ctx.info("Future missing property messages ommited...");
+        			}        			
+        		}
+        		nonAnnotatedMethods++;
         	}
         	
-            ctx.addAnnotation(tree, UnoAnnotation.class, "property", tree.name + " analyzed!");
             int i = 0; // i is the parameter index
             for (JCVariableDecl param : tree.params) {
             	//System.out.println("    " + param.getName());
@@ -167,15 +175,11 @@ public class Uno extends AbstractAnalyzer {
                 
             	if (trueParameterProperties.containsKey(key) && trueParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
             		ctx.info("Adding annotation for parameter: " + key);
-            		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Parameter is lent"); // TODO Better text here... :-)
+            		ctx.addAnnotation(param, UnoAnnotation.class, "property", "Parameter is lent"); // TODO Better text here... :-)
             	}
             	else if (falseParameterProperties.containsKey(key) && falseParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
             		ctx.info("Adding annotation for parameter: " + key);
-            		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Parameter gets captured"); // TODO Better text here... :-)
-            	}
-            	else {
-            		// If the parameter is a primitive type there won't be any property for this parameter.
-            		//ctx.info("UNO: could not find any LentPar information for parameter " + i + " in method " + key.substring(0, key.length()-3));
+            		ctx.addAnnotation(param, UnoAnnotation.class, "property", "Parameter gets captured"); // TODO Better text here... :-)
             	}
                 i++;
             }
@@ -309,11 +313,6 @@ public class Uno extends AbstractAnalyzer {
 		
 		switch (firstChar) {
 		case 'm':  // Method annotation: m UniqRet True org.javagrok.test.TestMain main
-//			ctx.info("---");
-//			ctx.info("Property: " + property);
-//			ctx.info("ClassName: " + className);
-//			ctx.info("MethodName: " + methodOrFieldName);
-//			ctx.info("Property holds: " + holds);
 			addPropertyForMethod(property, holds, className, methodOrFieldName);
 			break;
 		case 'p':  // Parameter annotation: p LentPar True org.javagrok.test.TestMain main 0 java.lang.String[] [True] <-- last one optional
@@ -330,14 +329,6 @@ public class Uno extends AbstractAnalyzer {
 				if (parts.length == 7) {
 					nofield = parts[i++];
 				}
-				
-//				ctx.info("---");
-//				ctx.info("Property: " + property);
-//				ctx.info("ClassName: " + className);
-//				ctx.info("MethodName: " + methodOrFieldName);
-//				ctx.info("Parameter: " + parameterNumber + " (" + parameterType + ")");
-//				ctx.info("Property holds: " + holds);
-//				ctx.info("no-fld: " + nofld);
 				
 				/* If nofield is false it means that the reference might get retained in a local field.
 				 * In the case of LentPar it means that the property of lending gets weakened and
@@ -357,11 +348,6 @@ public class Uno extends AbstractAnalyzer {
 			}
 			break;
 		case 'f':  // Field annotation: f NEscField True org.javagrok.test.TestMain _box
-//			ctx.info("---");
-//			ctx.info("Property: " + property);
-//			ctx.info("ClassName: " + className);
-//			ctx.info("FieldName: " + methodOrFieldName);
-//			ctx.info("Property holds: " + holds);
 			addPropertyForField(property, holds, className, methodOrFieldName);
 			break;
 		default:
