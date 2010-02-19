@@ -9,6 +9,7 @@
 
   <property file="${javagrok.dir}/build.properties"/>
   <property name="libs.dir" value="${javagrok.dir}/lib/"/>
+  <property name="javadoc.src" value="**"/>
 
   <!-- default locations for various third party tools -->
   <property name="javac.home" value="${java.home}/.."/>
@@ -164,7 +165,7 @@
     <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
              additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
       <packageset dir="${deploy.dir}/annotated-source">
-        <exclude name="org/javagrok/*/tests/**"/>
+        <include name="${javadoc.src}"/>
       </packageset>
       <classpath>
         <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>

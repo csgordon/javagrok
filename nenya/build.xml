@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <project name="nenya" default="compile" basedir=".">
   <property name="javagrok.dir" value=".."/>
+  <property name="javadoc.src" value="com/threerings/*/**"/>
   <import file="${javagrok.dir}/build-eval.xml"/>
 </project>
