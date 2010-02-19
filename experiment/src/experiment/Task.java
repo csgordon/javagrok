@@ -9,7 +9,6 @@ import java.awt.Font;
 import com.samskivert.swing.Label;
 
 import com.threerings.media.MediaPanel;
-import com.threerings.media.sprite.ImageSprite;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.Mirage;
 
@@ -26,9 +25,9 @@ public abstract class Task
 
     protected abstract void setup (MediaPanel panel);
 
-    protected ImageSprite createSprite (String imagePath)
+    protected Mirage getMirage (String imagePath)
     {
-        return new ImageSprite(_imgr.getMirage(imagePath));
+        return _imgr.getMirage(imagePath);
     }
 
     protected Label createLabel (String text)

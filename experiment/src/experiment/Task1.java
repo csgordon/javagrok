@@ -24,7 +24,7 @@ public class Task1 extends Task
 {
     protected void setup (final MediaPanel panel)
     {
-        final ImageSprite sprite = createSprite("cartman.png");
+        final ImageSprite sprite = new ImageSprite(getMirage("cartman.png"));
         panel.addSprite(sprite);
 
         // moves the sprite back and forth across the display

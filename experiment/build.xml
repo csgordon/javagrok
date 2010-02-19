@@ -40,4 +40,8 @@
   <target name="task1">
     <antcall target="task"><param name="taskno" value="1"/></antcall>
   </target>
+
+  <target name="task2">
+    <antcall target="task"><param name="taskno" value="2"/></antcall>
+  </target>
 </project>
