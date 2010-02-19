@@ -23,17 +23,10 @@ package uno;
 import java.io.*;
 import java.util.*;
 
-import soot.G;
-import soot.PrimType;
-import soot.RefType;
 import soot.*;
-import soot.SootClass;
-import soot.SootMethod;
 import soot.options.Options;
 import uno.analysis.*;
 import uno.query.*;
-import uno.query.Query;
-import uno.query.QueryFactory;
 import uno.toolkit.*;
 import uno.toolkit.Timer;
 
@@ -222,17 +215,17 @@ public class Uno {
 
 				{
 					q=QueryFactory.getUniqQuery(m,-1);
-					q.getTruth(0);
+					Bool truth = q.getTruth(0);
 					if(!printTrace){
-						String text = q.toString();
-						String annot = text.substring(0, text.indexOf(' '))+ " ";
-						Msg.println("m " + annot + c.toString() + " " + m.getName() + " //" + q);
+						printMethodInformation(c, q, m, truth);
 					}
 				}
 				if(!m.isStatic() && !CallGraph.isConstructor(m)){
 					q=QueryFactory.getUniqBaseQuery(m);
-					q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+					Bool truth = q.getTruth(0);
+					if(!printTrace){
+						printMethodInformation(c, q, m, truth);
+					}
 				}
 
 				for(int k=0;k<m.getParameterCount();k++){
@@ -242,33 +235,47 @@ public class Uno {
 					if(m.getParameterType(k) instanceof RefType &&
 						((RefType)m.getParameterType(k)).getClassName().equals("java.lang.String"))
 						continue;
-					
+					Bool truth;
 					if(!m.isStatic()){
-		 			q=QueryFactory.getOwnQuery(m,k);
-		 			q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+			 			q=QueryFactory.getOwnQuery(m,k);
+			 			truth = q.getTruth(0);
+						if(!printTrace){
+							printParameterInformation(c, q, m, k, truth);
+						}
 					}
 					if(!m.isStatic()){
-		 			q=QueryFactory.getOwnParQuery(m,k);
-		 			q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+			 			q=QueryFactory.getOwnParQuery(m,k);
+			 			truth = q.getTruth(0);
+			 			if(!printTrace){
+			 				printParameterInformation(c, q, m, k, truth);
+						}
 					}
 					q=QueryFactory.getUniqQuery(m,k,true);
-					q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+					truth = q.getTruth(0);
+					if(!printTrace){
+						printParameterInformationPlusFld(c, q, m, k, truth, true);
+					}
 					q=QueryFactory.getUniqQuery(m,k,false);
-					q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+					truth = q.getTruth(0);
+					if(!printTrace){
+						printParameterInformationPlusFld(c, q, m, k, truth, false);
+					}
 					q=QueryFactory.getFreshQuery(m,k,true);
-					q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+					truth = q.getTruth(0);
+					if(!printTrace){
+						printParameterInformationPlusFld(c, q, m, k, truth, true);
+					}
 					q=QueryFactory.getNotLeakParQuery(m,k);
-					q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+					truth = q.getTruth(0);
+					if(!printTrace){
+		 				printParameterInformation(c, q, m, k, truth);
+					}
 					if(!m.isStatic()){
-					q=QueryFactory.getStoreQuery(m,k);
-					q.getTruth(0);
-					if(!printTrace){Msg.println("*"+q);}
+						q=QueryFactory.getStoreQuery(m,k);
+						truth = q.getTruth(0);
+						if(!printTrace){
+			 				printParameterInformation(c, q, m, k, truth);
+						}
 					}
 				}
 			}
@@ -282,13 +289,17 @@ public class Uno {
 					continue;
 				
 				q=QueryFactory.getFFieldQuery(f);
-				q.getTruth(0);
-				if(!printTrace){Msg.println("*"+q);}
+				Bool truth = q.getTruth(0);
+				if(!printTrace){
+					printFieldInformation(c, q, f, truth);
+				}
 				q=QueryFactory.getOwnFieldQuery(f);
-				q.getTruth(0);
-				if(!printTrace){Msg.println("*"+q);}
+				truth = q.getTruth(0);
+				if(!printTrace){
+					printFieldInformation(c, q, f, truth);
+				}
 			}
-			Msg.println("\n - - - - - - - - - - - \n");
+			//Msg.println("\n - - - - - - - - - - - \n");
 		}
 		Timer.finish(0);
 
@@ -301,6 +312,37 @@ public class Uno {
 		//}catch(Exception e){ System.out.println(e);}
 
 		//MemoryStat.stop();
+	}
+	private static void printMethodInformation(SootClass c, Query q,
+			SootMethod m, Bool truth) {
+		String text = q.toString();
+		String annot = text.substring(0, text.indexOf(' '))+ " ";
+		Msg.println("m " + annot + truth + " " + c.toString() + " " + m.getName() + " //" + q);
+	}
+	private static void printParameterInformationPlusFld(SootClass c, Query q,
+			SootMethod m, int k, Bool truth, boolean b) {
+		String text = q.toString();
+		String annot = text.substring(0, text.indexOf(' '))+ " ";
+		String nofld = "";
+		if (b) {
+			nofld = "True";
+		}
+		else {
+			nofld = "False";
+		}
+		Msg.println("p " + annot + truth + " " + c.toString() + " " + m.getName() + " " + k + " " + m.getParameterType(k) + " " + nofld + " //" + q);
+	}
+	private static void printParameterInformation(SootClass c, Query q,
+			SootMethod m, int k, Bool truth) {
+		String text = q.toString();
+		String annot = text.substring(0, text.indexOf(' '))+ " ";
+		Msg.println("p " + annot + truth + " " + c.toString() + " " + m.getName() + " " + k + " " + m.getParameterType(k) + " //" + q);
+	}
+	private static void printFieldInformation(SootClass c, Query q,
+			SootField f, Bool truth) {
+		String text = q.toString();
+		String annot = text.substring(0, text.indexOf(' '))+ " ";
+		Msg.println("f " + annot + truth + " " + c.toString() + " " + f.getName() + " //" + q);
 	}
 
 	public static boolean need(int splitnum,int target){

@@ -1,26 +1,290 @@
 package org.javagrok.analysis;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
 
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeScanner;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCTypeAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.util.List;
+
 public class Uno extends AbstractAnalyzer {
 	
-	
+	private HashSet<JCTree> visitedSet = new HashSet<JCTree>();
 
 	@Override
 	public void init(AnalysisContext ctx) {
-		System.out.println("Current dir: " + (new File(".")).toString());
+		File file = new File("../uno-result/out");
+		if (!file.exists()) {
+			ctx.info("UNO: analysis file does not exist (" + file.getAbsolutePath() + ")");
+			return;
+		}
+		try {
+			FileInputStream fstream = new FileInputStream(file);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			
+			String line;
+			ctx.info("UNO: reading and parsing file...");
+			int i = 0;
+			while ((line = br.readLine()) != null) {
+				parseLine(line, ctx);
+				i++;
+			}
+			ctx.info("UNO: Processed " + i + " lines.");
+			in.close();
+		}
+		catch (IOException e) {
+			ctx.info("UNO: Could not read file: " + e.getMessage());
+		}
+		catch (Exception e) {
+			ctx.info("UNO: Caught exception: " + e.getMessage());
+		}
+		ctx.info("UNO: analysis initialized");
 	}
 
-	@Override
-	public void process(AnalysisContext ctx, Set<? extends Element> elements) {
-		// TODO Auto-generated method stub
-
-	}
+	// from interface Analyzer
+    public void process(final AnalysisContext ctx, Set<? extends Element> elements) {
+        for (Element elem : elements) {
+            // we'll get an Element for each top-level class in a compilation unit (source file),
+            // but scanning the AST from the top-level compilation unit will visit all classes
+            // defined therein, which would result in adding annotations multiple times for source
+            // files that define multiple top-level classes; so we specifically find the
+            // JCClassDecl in the JCCompilationUnit that corresponds to the class we're processing
+            // and only traverse its AST subtree
+            Symbol.ClassSymbol csym = (Symbol.ClassSymbol)elem;
+            JCCompilationUnit unit = ctx.getCompilationUnit(elem);
+            for (JCTree def : unit.defs) {
+                if (def.getTag() == JCTree.CLASSDEF && ((JCClassDecl)def).name == csym.name) {
+                    def.accept(new UnoScanner(ctx, unit.getPackageName().toString()));
+                }
+            }
+        }
+    }
 	
-	private void parseLine(String line) {
+    class UnoScanner extends TreeScanner {
+    	
+    	private AnalysisContext ctx;
+		private String packageName;
+		private String className = "";
+    	
+		public UnoScanner(AnalysisContext ctx, String packageName) {
+			this.ctx = ctx;
+			this.packageName = packageName;
+		}
+
+		@Override
+		public void visitClassDef(JCClassDecl tree) {
+			if (visitedSet.contains(tree)) {
+				return;
+			}
+			visitedSet.add(tree);
+			
+			String oldClassName = this.className;
+			// Build correct class name for inner classes
+			if (this.className.equals("")) {
+				this.className = tree.getSimpleName().toString();				
+			}
+			else { 
+				this.className += "$" + tree.getSimpleName().toString();
+			}
+			
+			// Iterate over all fields of the class
+			List<JCTree> members = tree.getMembers();
+			for (JCTree m : members) {
+				if (m instanceof JCVariableDecl) {
+					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
+					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
+					
+					//if (var.getType() is not primitive type) {
+					String key = this.packageName + "." + this.className + "." + var.getName();
+					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
+						ctx.info("Adding annotation to field: " + key);
+						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)
+					}
+					else if (falseFieldProperties.containsKey(key) && falseFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
+						ctx.info("Adding annotation to field: " + key);
+						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is leaked"); // TODO Better text here... :-)
+					}
+					else {
+						// TODO
+						// Most of the time this information isn't available is if the field is of a primitive type.
+						// Would be cool if I could find that out here...
+						//ctx.info("UNO: could not find any NEscField information for field " + key);
+					}
+				}
+			}
+			
+			super.visitClassDef(tree);
+			
+			// Rebuild correct class name when we leave an inner class
+			this.className = oldClassName;
+		}
+		
+        public void visitMethodDef (JCMethodDecl tree) {
+        	if (visitedSet.contains(tree)) {
+				return;
+			}
+			visitedSet.add(tree);
+        	
+        	List<JCTypeAnnotation> receiverAnnotations = tree.getReceiverAnnotations();
+        	String key = this.packageName + "." + this.className + "." + tree.getName();
+        	if (!trueMethodProperties.containsKey(key) && !falseMethodProperties.containsKey(key)) {
+        		ctx.info("UNO: could not find any properties for method " + key);
+        	}
+        	if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
+        		ctx.info("Adding annotation for method: " + key);
+        		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Returns an unique object"); // TODO Better text here... :-)
+        	}
+        	else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
+        		ctx.info("Adding annotation for method: " + key);
+        		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
+        	}
+        	else {
+        		ctx.info("UNO: could not find any UniqRet information for method " + key);
+        	}
+        	
+            ctx.addAnnotation(tree, UnoAnnotation.class, "property", tree.name + " analyzed!");
+            int i = 0; // i is the parameter index
+            for (JCVariableDecl param : tree.params) {
+            	//System.out.println("    " + param.getName());
+            	key = this.packageName + "." + this.className + "." + tree.getName() + "(" + i + ")";
+                
+            	if (trueParameterProperties.containsKey(key) && trueParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
+            		ctx.info("Adding annotation for parameter: " + key);
+            		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Parameter is lent"); // TODO Better text here... :-)
+            	}
+            	else if (falseParameterProperties.containsKey(key) && falseParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
+            		ctx.info("Adding annotation for parameter: " + key);
+            		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Parameter gets captured"); // TODO Better text here... :-)
+            	}
+            	else {
+            		// If the parameter is a primitive type there won't be any property for this parameter.
+            		//ctx.info("UNO: could not find any LentPar information for parameter " + i + " in method " + key.substring(0, key.length()-3));
+            	}
+                i++;
+            }
+        }
+      
+    }
+    
+    private enum UnoProperty {
+    	UNIQRET, LENTPAR, NESCPAR, LENTBASE, OWN, OWNPAR, STORE, NESCFIELD, OWNFIELD, UNIQPAR
+    }
+    
+    private HashMap<String, HashSet<UnoProperty>> trueFieldProperties = new HashMap<String, HashSet<UnoProperty>>();
+    private HashMap<String, HashSet<UnoProperty>> trueMethodProperties = new HashMap<String, HashSet<UnoProperty>>();
+    private HashMap<String, HashSet<UnoProperty>> trueParameterProperties = new HashMap<String, HashSet<UnoProperty>>();
+    private HashMap<String, HashSet<UnoProperty>> falseFieldProperties = new HashMap<String, HashSet<UnoProperty>>();
+    private HashMap<String, HashSet<UnoProperty>> falseMethodProperties = new HashMap<String, HashSet<UnoProperty>>();
+    private HashMap<String, HashSet<UnoProperty>> falseParameterProperties = new HashMap<String, HashSet<UnoProperty>>();
+    
+    UnoProperty getProptertyFromString(String str) {
+    	if ("UniqRet".equals(str)) {
+    		return UnoProperty.UNIQRET;
+    	}
+    	else if ("LentPar".equals(str)) {
+    		return UnoProperty.LENTPAR;
+    	}
+    	else if ("NEscPar".equals(str)) {
+    		return UnoProperty.NESCPAR;
+    	}
+    	else if ("UniqPar".equals(str)) {
+    		return UnoProperty.UNIQPAR;
+    	}
+    	else if ("LentBase".equals(str)) {
+    		return UnoProperty.LENTBASE;
+    	}
+    	else if ("Own".equals(str)) {
+    		return UnoProperty.OWN;
+    	}
+    	else if ("OwnPar".equals(str)) {
+    		return UnoProperty.OWNPAR;
+    	}
+    	else if ("Store".equals(str)) {
+    		return UnoProperty.STORE;
+    	}
+    	else if ("NEscField".equals(str)) {
+    		return UnoProperty.NESCFIELD;
+    	}
+    	else if ("OwnField".equals(str)) {
+    		return UnoProperty.OWNFIELD;
+    	}
+    	if (str == null) {
+    		throw new IllegalArgumentException("str is null");
+    	}
+    	throw new IllegalArgumentException(str + " is not a property");
+     }
+    
+    private void addPropertyForField(String property, boolean holds, String className, String fieldName) {
+    	UnoProperty p = getProptertyFromString(property);
+    	String key = className + "." + fieldName;
+    	HashMap<String, HashSet<UnoProperty>> map;
+    	if (holds) {
+    		map = trueFieldProperties;
+    	}
+    	else {
+    		map = falseFieldProperties;
+    	}
+    	addPropertyToMap(p, key, map);
+    }
+
+	private void addPropertyToMap(UnoProperty p, String key,
+			HashMap<String, HashSet<UnoProperty>> map) {
+		System.out.println("Adding info for key: " + key);
+		HashSet<UnoProperty> set = map.get(key);
+    	if (set != null) {
+    		set.add(p);
+    	}
+    	else {
+    		set = new HashSet<UnoProperty>();
+    		set.add(p);
+    		map.put(key, set);
+    	}
+	}
+    
+    private void addPropertyForMethod(String property, boolean holds, String className, String methodName) {
+    	UnoProperty p = getProptertyFromString(property);
+    	String key = className + "." + methodName;
+    	HashMap<String, HashSet<UnoProperty>> map;
+    	if (holds) {
+    		map = trueMethodProperties;
+    	}
+    	else {
+    		map = falseMethodProperties;
+    	}
+    	addPropertyToMap(p, key, map);
+    }
+    
+    private void addPropertyForParameter(String property, boolean holds, String className, String methodName, int paramIndex) {
+    	UnoProperty p = getProptertyFromString(property);
+    	String key = className + "." + methodName + "(" + paramIndex + ")";
+    	HashMap<String, HashSet<UnoProperty>> map;
+    	if (holds) {
+    		map = trueParameterProperties;
+    	}
+    	else {
+    		map = falseParameterProperties;
+    	}
+    	addPropertyToMap(p, key, map);
+    }
+    
+	private void parseLine(String line, AnalysisContext ctx) {
 		line = removeCommentAndTrim(line);
 		if (line.length() < 2) {
 			throw new IllegalArgumentException("line should be longer");
@@ -28,47 +292,82 @@ public class Uno extends AbstractAnalyzer {
 		// First char tells if its a method annotation or a parameter annotation
 		char firstChar = line.charAt(0);
 		
+		
 		line = line.substring(2).trim();
 		String[] parts = line.split(" ");
-		if (parts.length != 4) {
-			throw new IllegalArgumentException("Method information should have 4 parts");
+		if (parts.length < 4) {
+			String text = "UNO information should have 4 parts";
+			ctx.info("UNO: " + text);
+			throw new IllegalArgumentException(text);
 		}
 		int i = 0;
 		String property = parts[i++];
+		Boolean holds = Boolean.parseBoolean(parts[i++]);  // TODO might be "True?" how to handle it? as false? as true? Maybe best would be to ignore the line then... 
 		String className = parts[i++];
-		String methodName = parts[i++];
+		String methodOrFieldName = parts[i++];
 		
 		
-		Boolean holds = false;
 		switch (firstChar) {
-		case 'm':  // Method annotation
-			holds = Boolean.parseBoolean(parts[i++]);
-			
-			System.out.println("---");
-			System.out.println("Property: " + property);
-			System.out.println("ClassName: " + className);
-			System.out.println("MethodName: " + methodName);
-			System.out.println("Property holds: " + holds);
+		case 'm':  // Method annotation: m UniqRet True org.javagrok.test.TestMain main
+//			ctx.info("---");
+//			ctx.info("Property: " + property);
+//			ctx.info("ClassName: " + className);
+//			ctx.info("MethodName: " + methodOrFieldName);
+//			ctx.info("Property holds: " + holds);
+			addPropertyForMethod(property, holds, className, methodOrFieldName);
 			break;
-		case 'p':  // Parameter annotation		
+		case 'p':  // Parameter annotation: p LentPar True org.javagrok.test.TestMain main 0 java.lang.String[] [True] <-- last one optional
+			if (parts.length < 6) {
+				String text = "Parameter information should have 6 or 7 parts";
+				ctx.info("UNO: " + text);
+				throw new IllegalArgumentException(text);
+			}
 			try {
 				int parameterNumber = Integer.parseInt(parts[i]);
 				i++;
-				String parameterName = parts[i++];
-				holds = Boolean.parseBoolean(parts[i++]);
-				System.out.println("---");
-				System.out.println("Property: " + property);
-				System.out.println("ClassName: " + className);
-				System.out.println("MethodName: " + methodName);
-				System.out.println("Parameter: " + parameterName + " (" + parameterNumber + ")");
-				System.out.println("Property holds: " + holds);
+				String parameterType = parts[i++];
+				String nofield = "";
+				if (parts.length == 7) {
+					nofield = parts[i++];
+				}
+				
+//				ctx.info("---");
+//				ctx.info("Property: " + property);
+//				ctx.info("ClassName: " + className);
+//				ctx.info("MethodName: " + methodOrFieldName);
+//				ctx.info("Parameter: " + parameterNumber + " (" + parameterType + ")");
+//				ctx.info("Property holds: " + holds);
+//				ctx.info("no-fld: " + nofld);
+				
+				/* If nofield is false it means that the reference might get retained in a local field.
+				 * In the case of LentPar it means that the property of lending gets weakened and
+				 * it also includes now that the reference might be retained in a local field and UNO
+				 * would still consider it to be only lent and not retained.
+				 * Note: We are not interested in those properties so we do not add it to the properties
+				 * data structure.
+				 */
+				if (Boolean.parseBoolean(nofield) || nofield.equals("")) {
+					addPropertyForParameter(property, holds, className, methodOrFieldName, parameterNumber); // TODO Handle no-fld field					
+				}
 			} 
 			catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Parameter number was not an integer: " + parts[i]);
+				String text = "Parameter number was not an integer: " + parts[i];
+				ctx.info("UNO: " + text);
+				throw new IllegalArgumentException(text);
 			}
 			break;
+		case 'f':  // Field annotation: f NEscField True org.javagrok.test.TestMain _box
+//			ctx.info("---");
+//			ctx.info("Property: " + property);
+//			ctx.info("ClassName: " + className);
+//			ctx.info("FieldName: " + methodOrFieldName);
+//			ctx.info("Property holds: " + holds);
+			addPropertyForField(property, holds, className, methodOrFieldName);
+			break;
 		default:
-			throw new IllegalArgumentException("line has to begin with either m or p");
+			String text = "line has to begin with either m or p";
+			ctx.info("UNO: " + text);
+			throw new IllegalArgumentException(text);
 		}
 
 	}
