@@ -1,0 +1,112 @@
+\section{Evaluation}
+
+We propose to evaluate our work in two ways: by comparing our inferred
+documentation against existing documentation for a library that is widely
+considered to be of high quality (\textit{exemplar} documentation), and by
+conducting a small user study.
+
+\subsection{Comparison with exemplar documentation}
+
+We will generate documentation by running our our tool on a subset of the
+classes in the \texttt{java.util} package of the Java standard libraries. This
+documentation will be compared with the documentation provided with the
+Java SE Development Kit version 1.6~\cite{JDK6}.
+
+For each class and method in the target code, our tool generates properties for
+insertion into the documentation. Example properties include: ``Argument foo
+may not be null'', or ``This method has no side effects.'' We will compare
+these properties to properties identified in the exemplar documentation and
+classify them via the following criteria\footnote{These are similar to the
+criteria used by Buse and Weimer~\cite{autodoc}.}:
+
+\begin{itemize}
+\item How many properties were inferred by our tool that were not specified by
+  the exemplar documentation.
+\item How many properties were specified by the exemplar documentation that
+  were not inferred by our tool.
+\item In cases where our tool documents a property that is also specified by
+  the exemplar documentation, is our documentation \textit{better},
+  \textit{worse} or about the \textit{same}. We will consider our documentation
+  better if it is more precise, or documents additional conditions for the
+  property. We will consider it the same if it conveys the same information as
+  the exemplar documentation. We will consider it worse in all other cases.
+\end{itemize}
+
+We will specifically consider the frequency with which our tool generates the
+same or better documentation than the exemplar. In that case our tool is at a
+minimum saving the developer the time it takes to write the documentation and
+potentially also improving its quality.
+
+We will also consider the frequency with which our tool fails to document
+properties expressed in the exemplar documentation or generates properties
+classified as worse. In these cases our tool is failing to save the developer
+time, or actively worsening the quality of the documentation.
+
+We will also consider the possibility that our tool generates so many
+properties that it overwhelms the reader, though this more subjective measure
+will be evaluated as a part of the user study.
+
+\subsection{User study}
+
+We will perform a user study where two groups of developers are given a third
+party library (including its source code) and a skeleton program and are asked
+to implement functionality in the program that makes use of the library. One
+group will be provided with the original documentation supplied with the
+library and the other group will be supplied with documentation augmented by
+our tool.
+
+Our preliminary library selection is the Nenya library~\cite{nenya}, which
+provides graphics and animation functionality. Developers will be tasked with
+using the library to create interactive and non-interactive animations in a
+series of simple tasks that require increasingly sophisticated use of the
+library.
+
+We will provide a checklist on which the developers will be asked to
+self-report the following events:
+
+\begin{itemize}
+\item The number of times developers referred to the library API documentation.
+\item The number of times developers referred to the library source code.
+\item The number of times developers experienced unexpected behavior from the
+  library. For example, encountering a null pointer exception because they
+  supplied null as an argument to a library method that they thought would
+  handle nulls.
+\end{itemize}
+
+We will also provide them with instructions on how to access the library
+documentation as well as the library source code to insure that they are not
+otherwise discouraged from referencing either.
+
+We will also record the total time taken to complete the tasks as well as the
+number of tasks completed. We will manually inspect the resulting programs to
+tabulate the number of errors made in using the underlying library. We will
+specifically focus on errors that could have been avoided given the information
+in our enhanced documentation, for example, allowing a null value to be passed
+to a method that does not properly handle null parameters.
+
+Finally, we will conduct an exit survey, asking the developers subjective
+questions about their experiences:
+
+\begin{itemize}
+\item Did you find the documentation to be too detailed, sufficiently detailed
+  or not detailed enough?
+\item Did you find the experience of using this library to be pleasant, normal
+  or frustrating?
+\end{itemize}
+
+We will compare the data from the control group with those from the
+experimental group in the following ways:
+
+\begin{itemize}
+\item Did the experimental group refer to the library source code less
+  frequently?
+\item Were there fewer instances of unexpected library behavior encountered by
+  the experimental group?
+\item Did the experimental group find using the library to be less frustrating?
+\item Was the experimental group more likely than the control group to consider
+  the documentation too detailed?
+\end{itemize}
+
+Our goals are to reduce the frequency with which the developer has to refer to
+the library source code, to make the use of the library less frustrating, and
+to avoid overwhelming the developer with too much detail.
