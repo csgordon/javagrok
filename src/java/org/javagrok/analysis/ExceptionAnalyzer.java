@@ -116,6 +116,9 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 	private String getCurrentBranchPath() {
 	    // TODO: Need to actually expand the whole stack, not just top element
 	    if (current_path.empty()) {
+		// TODO: This isn't always (pun not intended) right either; there are some methods that always
+		// return under conditionals, and the last statement is a throw.  They're not *always* going to
+		// throw the exception.  Maybe we should just say 'under some circumstances'
 		return " always";
 	    }
 	    else {
