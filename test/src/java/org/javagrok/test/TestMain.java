@@ -73,11 +73,11 @@ public class TestMain
     
     private Object someObj;
     
-    void setSomeClass(Object so) {
+    public void setSomeObject(Object so) {
     	someObj = so;
     }
     
-    Object getSomeClass() {
+    public Object getSomeObject() {
     	return someObj;
     }
 }
