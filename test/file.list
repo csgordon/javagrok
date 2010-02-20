@@ -1,5 +1,4 @@
 org.javagrok.test
 #
 org.javagrok.test.TestMain
-org.javagrok.test.SomeClass
 org.javagrok.test.TestMain$IntBox

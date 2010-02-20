@@ -1,7 +1,0 @@
-jtest.util
-#
-jtest.util.AbstractList
-jtest.util.LinkedList
-jtest.util.ConcurrentModificationException
-jtest.util.ConcurrentModificationException
-jtest.util.blabla
