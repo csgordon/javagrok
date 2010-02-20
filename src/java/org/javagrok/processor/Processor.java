@@ -83,6 +83,7 @@ public class Processor extends AbstractProcessor
                 a.process(_ctx, roundEnv.getRootElements());
             } catch (Exception e) {
                 _ctx.warn("Analyzer failed in process() '" + a + "': " + e);
+                e.printStackTrace(System.err);
             }
         }
         return false;
