@@ -1,0 +1,88 @@
+\documentclass{article}
+
+%% Bring items closer together in list environments
+% Prevent infinite loops
+\let\Itemize =\itemize
+\let\Enumerate =\enumerate
+\let\Description =\description
+% Zero the vertical spacing parameters
+\def\Nospacing{\itemsep=0pt\topsep=0pt\partopsep=0pt\parskip=0pt\parsep=0pt}
+% Redefine the environments in terms of the original values
+\renewenvironment{itemize}{\Itemize\Nospacing}{\endlist}
+\renewenvironment{enumerate}{\Enumerate\Nospacing}{\endlist}
+\renewenvironment{description}{\Description\Nospacing}{\endlist}
+
+\usepackage[left=1.0in,top=1.0in,right=1.0in,bottom=1.2in,nohead,nofoot]{geometry}
+\begin{document}
+
+\begin{center}
+\LARGE JavaGrok User Study
+\end{center}
+
+You have been given most of a simple application, and an animation library, Nenya,
+with which to complete the application.  We expect the task to take no more than
+XXX minutes, but you are free to use as much time as you feel necessary.
+
+As you work, we would like you to note down:
+\begin{enumerate}
+\item When you refer to the library documentation.
+\item When you refer to the library source code.
+\item When the Nenya library's behavior surprises you based on the documentation
+you have read.
+\end{enumerate}
+We have provided a space below for each of these categories.  Any unambiguous
+method of counting works fine; we suggest using ticks or hash marks.  Please
+tell whoever is helping you through the study when you start working, and when
+you finish.  When you are done, there is a short survey about your experiences
+and feelings as you completed the test application.
+\section*{}
+
+\hrule
+\vspace{0.2in}
+\section*{Library Documentation}
+
+\section*{}
+\section*{}
+\hrule
+\vspace{0.2in}
+
+\section*{Library Source}
+\section*{}
+\section*{}
+\hrule
+\vspace{0.2in}
+
+
+\section*{Library Surprises}
+\section*{}
+\section*{}
+\hrule
+\vspace{0.2in}
+
+\newpage
+
+\begin{center}
+\LARGE JavaGrok User Study Questionaire
+\end{center}
+
+\begin{enumerate}
+\item Did you find the experience of using this library to be pleasant, normal,
+or frustrating? (circle one)\\
+\item Did you find the library documentation to generally be to too detailed, sufficiently
+detailed, or not detailed enough? (circle one)\\
+\item Did you find the library documentation to be generally very helpful,
+somewhat helpful, or often unhelpful?\\
+\item Did you find the documentation to be easy to read, of acceptable
+readability, or difficult to read?  Note that we are referring to ease of
+finding information, not quality of formatting.\\
+\item Did you find the documentation to be cluttered, okay, or spread out too
+far?\\
+\item Was anything documented that you found unecessary?\\\vspace{1in}
+\item Was anything not documented that you wished had been present?\\\vspace{1in}
+\item What part of using the library did you find to be the most
+frustrating?\\\vspace{1in}
+\item What part of using the library did you find to be the least
+frustrating?\\\vspace{1in}
+\end{enumerate}
+
+\end{document}
