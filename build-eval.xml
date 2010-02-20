@@ -167,6 +167,7 @@
       <classpath>
         <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
         <fileset dir="../lib" includes="jsr305.jar"/>
+        <fileset dir="../lib/javarifier" includes="javarifier.jar"/>
         <pathelement location="${classes.dir}"/>
       </classpath>
       <doclet name="org.javagrok.doclet.Standard" path="../${deploy.dir}/javagrok.jar"/>
