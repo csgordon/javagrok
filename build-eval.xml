@@ -136,7 +136,6 @@
       </chainedmapper>
     </pathconvert>
 
-    <echo>Extracting from ${afu.classes}</echo>
     <java classname="annotations.io.classfile.ClassFileReader" fork="true"
           dir="${deploy.dir}/grok">
       <bootclasspath>
