@@ -1,14 +1,18 @@
 \section{Related Work}
 There is a wealth of work on inferring interesting properties of existing code,
 but most of these are focused on inferring properties suitable for checking.
-Because our goal is not to prove absence of errors, but to simply infer correct
-information that is useful to the developer, some flexibility is available to us
-that is not possible for much of that work.
+Because of this, few projects have performed user studies to evaluate how
+inferred information may assist developers.
 
 The most directly relevant work is Buse and Weimer's system for automatically
 inferring documentation for conditions that will result in a Java method
-throwing an exception~\cite{autodoc}.  We implement a similar symbolic analysis
-to detect the conditions under which some exceptions are thrown.
+throwing an exception~\cite{autodoc}.  We implement a similar analysis
+to detect the conditions under which some exceptions are thrown, though weaker
+because we do not perform full symbolic execution.  They also performed a
+comparison of generated documentation to exemplar documentation for several
+moderately-sized Java projects.  We are the first to perform a user study of how
+helpful inferred documentation can be for programmers in comparison to existing
+documentation.
 
 Analysis of libraries as a separate entity from whole programs, without
 considering documentation, has received broader attention from the software
@@ -35,7 +39,8 @@ essentially drag-and-drop software components to form a documentation skeleton.
 eMoose~\cite{emoose} does a programming-environment version of the
 inter-procedural constraint propagation in our system; it integrates
 documentation about a method being called into the hover text for a programmer
-working at a call site for that method.  Any of these techniques could be used
+working at a call site for that method, and they performed a user study to show
+that the new presentation of documentation helped developers.  Any of these techniques could be used
 in conjunction with our work to further improve the developer experience.
 
 \subsection{Individual Analyses}
@@ -70,6 +75,12 @@ sound. We can also accept unsound annotations if they are still helpful for the
 programmer's understanding of the code.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
-exceptions.  Our exception inference is weaker than theirs, but similar.  One
+exceptions.  Our exception inference is weaker than theirs due to the lack of
+symbolic execution in our system.  One
 possible future extension of our work would be to integrate their exception
-analysis.
+analysis.  They perform a manual comparison of inferred documentation to
+existing documentation for several moderately-sized Java projects considered to
+have decent documentation.  We performed a user study using a library with what
+we felt to be average documentation, comparing the progress and feedback of
+developers using existing documentation, and developers using augmented
+documentation.

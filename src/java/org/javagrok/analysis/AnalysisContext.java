@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import javax.lang.model.element.Element;
 
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.util.Context;
 
 /**
  * Provides useful services to an analysis.
@@ -60,4 +61,9 @@ public interface AnalysisContext
      * Emits a warning log message.
      */
     public void warn (String message);
+
+    /**
+     * Get the inner compiler context, for use with other analyses
+     */
+    public Context getInnerContext();
 }
