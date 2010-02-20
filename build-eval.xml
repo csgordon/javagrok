@@ -94,6 +94,19 @@
     <delete dir="sootOutput"/>
   </target>
 
+  <target name="nullability" depends="prepare"
+          description="Does the nullability inference dance.">
+    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
+    <java jar="${libs.dir}/JavaNonNullInferencer.jar" fork="true">
+        <!-- more heap is needed to get this analysis to run -->
+        <jvmarg value="-Xmx512M"/>
+        <arg value="-d"/>
+        <arg value="${deploy.dir}/JavaNonNullInferencer"/>
+        <arg line="${src.files}"/>
+    </java>
+  </target>
+
   <target name="grok" depends="compile"
           description="Runs the JavaGrok annotation processors.">
     <mkdir dir="${deploy.dir}/grok-classes"/>
@@ -132,6 +145,26 @@
 
   <target name="javadoc" depends="compile"
           description="Merges .jaif annotations into source and runs javadoc.">
+    <antcall target="-gen-annotated"/>
+
+    <echo>Running javadoc...</echo>
+    <mkdir dir="${javadoc.dir}"/>
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
+      <packageset dir="${deploy.dir}/annotated-source">
+        <include name="${javadoc.src}"/>
+      </packageset>
+      <classpath>
+        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="../lib" includes="jsr305.jar"/>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <doclet name="org.javagrok.doclet.Standard" path="../${deploy.dir}/javagrok.jar"/>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+
+  <target name="-gen-annotated">
     <delete dir="${deploy.dir}/annotated-source"/>
     <mkdir dir="${deploy.dir}/annotated-source"/>
     <copy todir="${deploy.dir}/annotated-source">
@@ -157,39 +190,6 @@
       <arg value="-i"/>
       <arg line="${jaif.files}"/>
       <arg line="${src.files}"/>
-    </java>
-
-    <echo>Running javadoc...</echo>
-    <mkdir dir="${javadoc.dir}"/>
-    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
-             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
-      <packageset dir="${deploy.dir}/annotated-source">
-        <include name="${javadoc.src}"/>
-      </packageset>
-      <classpath>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
-        <fileset dir="../lib" includes="jsr305.jar"/>
-        <pathelement location="${classes.dir}"/>
-      </classpath>
-      <doclet name="org.javagrok.doclet.Standard" path="../${deploy.dir}/javagrok.jar"/>
-      <link href="http://java.sun.com/javase/6/docs/api/"/>
-    </javadoc>
-  </target>
-  
-  <target name="nullability" depends="prepare"
-          description="Do the nullability inference dance.">
-    <echo>Nullability Stub</echo>
-    
-    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
-    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
-    
-    <java jar="${libs.dir}/JavaNonNullInferencer.jar" fork="true">
-        <!-- Note that I had to tweak the allowed heap size
-             in order to get this analysis to run -->
-        <jvmarg value="-Xmx512M"/>
-        <arg value="-d"/>
-        <arg value="${deploy.dir}/JavaNonNullInferencer"/>
-        <arg line="${src.files}"/>
     </java>
   </target>
 
