@@ -148,17 +148,10 @@ public class OrientableImageSprite extends ImageSprite
     @Override
     protected void accomodateFrame (int frameIdx, int width, int height)
     {
-        Area area = new Area(
-            new Rectangle(
-                (_ox - _oxoff),
-                (_oy - _oyoff),
-                width,
-                height
-            )
-        );
-
+        _oxoff = width/2;
+        _oyoff = height/2;
+        Area area = new Area(new Rectangle((_ox - _oxoff), (_oy - _oyoff), width, height));
         area.transform(getRotationTransform());
-
         _bounds = area.getBounds();
     }
 
