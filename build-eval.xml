@@ -24,15 +24,6 @@
 
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
-
-    <!-- populate a property with all of our source files as classnames -->
-    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
-    <pathconvert refid="src.fileset" pathsep=" " property="all.classes">
-      <chainedmapper>
-        <mapper type="regexp" from="${src.dir}/(.*)" to="\1"/>
-        <mapper type="package" from="*.java" to="*"/>
-      </chainedmapper>
-    </pathconvert>
   </target>
 
   <target name="clean"
@@ -72,6 +63,15 @@
         <include name="Classes/classes.jar"/>
       </fileset>
     </path>
+
+    <!-- we have to manually enumerate the classes on which javarifier will run -->
+    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="all.classes">
+      <chainedmapper>
+        <mapper type="regexp" from="${src.dir}/(.*)" to="\1"/>
+        <mapper type="package" from="*.java" to="*"/>
+      </chainedmapper>
+    </pathconvert>
 
     <mkdir dir="${deploy.dir}/javarifier"/>
     <java classname="javarifier.Main">
@@ -126,6 +126,17 @@
     <!-- the AFU extractor writes all jaif files to the current directory, so -->
     <!-- we run the JVM inside the dist/grok directory to avoid annoyance -->
     <mkdir dir="${deploy.dir}/grok"/>
+
+    <!-- we have to manually enumerate all classes for AFU -->
+    <fileset dir="${classes.dir}" includes="**/*.class" id="bin.fileset"/>
+    <pathconvert refid="bin.fileset" pathsep=" " property="afu.classes">
+      <chainedmapper>
+        <mapper type="regexp" from="${classes.dir}/(.*)" to="\1"/>
+        <mapper type="package" from="*.class" to="*"/>
+      </chainedmapper>
+    </pathconvert>
+
+    <echo>Extracting from ${afu.classes}</echo>
     <java classname="annotations.io.classfile.ClassFileReader" fork="true"
           dir="${deploy.dir}/grok">
       <bootclasspath>
@@ -139,7 +150,7 @@
         <pathelement location="${deploy.dir}/grok-classes"/>
       </classpath>
       <assertions><enable/></assertions>
-      <arg line="${all.classes}"/>
+      <arg line="${afu.classes}"/>
     </java>
   </target>
 
