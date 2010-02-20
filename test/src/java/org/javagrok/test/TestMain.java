@@ -3,6 +3,9 @@
 
 package org.javagrok.test;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * A simple test program on which to test analyses and JavaGrok.
  */
@@ -29,6 +32,10 @@ public class TestMain
         }
 
         private int _currentValue;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface TestAnnotation {
     }
 
     public static void main (String[] args) {
