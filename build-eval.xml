@@ -94,7 +94,7 @@
     <delete dir="sootOutput"/>
   </target>
 
-  <target name="grok" depends="prepare"
+  <target name="grok" depends="compile"
           description="Runs the JavaGrok annotation processors.">
     <mkdir dir="${deploy.dir}/grok-classes"/>
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
