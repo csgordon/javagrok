@@ -86,10 +86,11 @@ user until they are encountered at runtime.
 Buse and Weimer infer documentation for the conditions that cause some
 exceptions~\cite{autodoc}.  Their analysis locates explicit throws of
 exceptions and performs some symbolic execution along with propagating results
-between methods to determine exceptional input conditions.  Our inference of
-exceptional conditions is modeled after theirs, but we will implement our own
-inference because we can find no existing implementation of such an analysis
-that is readily available.
+between methods to determine exceptional input conditions.  We do not use an
+existing analysis tool for this purpose, as none were available.  Our analysis
+is a fairly simple search for explicit throws, tracking branch statements on the
+way to such statements and propagating some information about thrown runtime
+(unchecked) exceptions between methods.
 
 \subsection{Nullability}
 \label{sec:Nullability}
