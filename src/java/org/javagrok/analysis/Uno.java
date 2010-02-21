@@ -115,6 +115,7 @@ public class Uno extends AbstractAnalyzer {
 					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
 
 					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
+					// Hmmm... but the problem is that Javadoc does not include private stuff into the documentation right?
 					
 					//if (var.getType() is not primitive type) {
 					String key = this.packageName + "." + this.className + "." + var.getName();
@@ -153,12 +154,12 @@ public class Uno extends AbstractAnalyzer {
 			if (!(returnType instanceof JCTree.JCPrimitiveTypeTree)) {
 				if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
 					ctx.info("Adding annotation for method: " + key);
-					ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Returns an unique object"); // TODO Better text here... :-)
+					ctx.addAnnotation(tree, UniqueReturn.class, "property", "Returns an unique object"); // TODO Better text here... :-)
 					annotatedMethods++;
 				}
 				else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
 					ctx.info("Adding annotation for method: " + key);
-					ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
+					ctx.addAnnotation(tree, NonUniqueReturn.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
 					annotatedMethods++;
 				}
 				else {
@@ -182,11 +183,11 @@ public class Uno extends AbstractAnalyzer {
                 
             	if (trueParameterProperties.containsKey(key) && trueParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
             		ctx.info("Adding annotation for parameter: " + key);
-            		ctx.addAnnotation(param, UnoAnnotation.class, "property", "Parameter is lent"); // TODO Better text here... :-)
+            		ctx.addAnnotation(param, NotRetained.class, "property", "Parameter is lent");
             	}
             	else if (falseParameterProperties.containsKey(key) && falseParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
             		ctx.info("Adding annotation for parameter: " + key);
-            		ctx.addAnnotation(param, UnoAnnotation.class, "property", "Parameter gets captured"); // TODO Better text here... :-)
+            		ctx.addAnnotation(param, Retained.class, "property", "Parameter gets captured");
             	}
             	else {
             		//ctx.info("No property for key: " + key);
