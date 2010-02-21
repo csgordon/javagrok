@@ -29,8 +29,6 @@ public class Uno extends AbstractAnalyzer {
 	private int annotatedMethods = 0;
 	private int nonAnnotatedMethods = 0;
 	private boolean emitErrorAboutMissingProperty = true;
-	
-	private HashSet<JCTree> visitedSet = new HashSet<JCTree>();
 
 	@Override
 	public void init(AnalysisContext ctx) {
@@ -137,34 +135,34 @@ public class Uno extends AbstractAnalyzer {
 		
         public void visitMethodDef (JCMethodDecl tree) {
         	if (!unoFileExists) return;
-        	if (visitedSet.contains(tree)) {
-				return;
-			}
-			visitedSet.add(tree);
-        	
-        	List<JCTypeAnnotation> receiverAnnotations = tree.getReceiverAnnotations();
+			
         	String key = this.packageName + "." + this.className + "." + tree.getName();
 
-        	if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
-        		ctx.info("Adding annotation for method: " + key);
-        		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Returns an unique object"); // TODO Better text here... :-)
-        		annotatedMethods++;
-        	}
-        	else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
-        		ctx.info("Adding annotation for method: " + key);
-        		ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
-        		annotatedMethods++;
-        	}
-        	else {
-        		nonAnnotatedMethods++;
-        		if (emitErrorAboutMissingProperty) {
-        			ctx.info("No property for method with key: " + key + ". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
-        			if ((nonAnnotatedMethods - 5) > annotatedMethods) {
-        				ctx.info("Future missing property messages ommited...");
-        				emitErrorAboutMissingProperty = false;
-        			}        			
-        		}
-        	}
+        	JCTree returnType = tree.getReturnType();
+			if (!(returnType instanceof JCTree.JCPrimitiveTypeTree)) {
+				if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
+					ctx.info("Adding annotation for method: " + key);
+					ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Returns an unique object"); // TODO Better text here... :-)
+					annotatedMethods++;
+				}
+				else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
+					ctx.info("Adding annotation for method: " + key);
+					ctx.addAnnotation(tree, UnoAnnotation.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
+					annotatedMethods++;
+				}
+				else {
+					nonAnnotatedMethods++;
+					if (emitErrorAboutMissingProperty) {
+						ctx.info("No property for method with key: " + key + ". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
+						if ((nonAnnotatedMethods - 5) > annotatedMethods) {
+							ctx.info("Future missing property messages ommited...");
+							emitErrorAboutMissingProperty = false;
+						}        			
+					}
+				}	
+			}
+
+        	
         	
             int i = 0; // i is the parameter index
             for (JCVariableDecl param : tree.params) {
@@ -178,6 +176,9 @@ public class Uno extends AbstractAnalyzer {
             	else if (falseParameterProperties.containsKey(key) && falseParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
             		ctx.info("Adding annotation for parameter: " + key);
             		ctx.addAnnotation(param, UnoAnnotation.class, "property", "Parameter gets captured"); // TODO Better text here... :-)
+            	}
+            	else {
+            		//ctx.info("No property for key: " + key);
             	}
                 i++;
             }
@@ -276,6 +277,7 @@ public class Uno extends AbstractAnalyzer {
     private void addPropertyForParameter(String property, boolean holds, String className, String methodName, int paramIndex) {
     	UnoProperty p = getProptertyFromString(property);
     	String key = className + "." + methodName + "(" + paramIndex + ")";
+    	System.out.println("Adding param prop: " + key);
     	HashMap<String, HashSet<UnoProperty>> map;
     	if (holds) {
     		map = trueParameterProperties;
