@@ -29,6 +29,8 @@ public class Uno extends AbstractAnalyzer {
 	private int annotatedMethods = 0;
 	private int nonAnnotatedMethods = 0;
 	private boolean emitErrorAboutMissingProperty = true;
+	
+	private HashSet<String> visitedKeys = new HashSet<String>();
 
 	@Override
 	public void init(AnalysisContext ctx) {
@@ -116,6 +118,10 @@ public class Uno extends AbstractAnalyzer {
 					
 					//if (var.getType() is not primitive type) {
 					String key = this.packageName + "." + this.className + "." + var.getName();
+					if (visitedKeys.contains(key)) {
+						continue;
+					}
+					visitedKeys.add(key);
 					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
 						ctx.info("Adding annotation to field: " + key);
 						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)	
@@ -135,8 +141,13 @@ public class Uno extends AbstractAnalyzer {
 		
         public void visitMethodDef (JCMethodDecl tree) {
         	if (!unoFileExists) return;
-			
         	String key = this.packageName + "." + this.className + "." + tree.getName();
+
+        	if (visitedKeys.contains(key)) {
+				return;
+			}
+			visitedKeys.add(key);
+			
 
         	JCTree returnType = tree.getReturnType();
 			if (!(returnType instanceof JCTree.JCPrimitiveTypeTree)) {
