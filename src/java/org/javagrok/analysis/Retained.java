@@ -1,6 +1,3 @@
-//
-// $Id$
-
 package org.javagrok.analysis;
 
 import java.lang.annotation.Documented;
@@ -18,8 +15,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.CLASS)
 @Documented
-public @interface UnoAnnotation
+public @interface Retained
 {
-    /** The text of the property. */
+	/** The text of the property. */
     public String property ();
 }
