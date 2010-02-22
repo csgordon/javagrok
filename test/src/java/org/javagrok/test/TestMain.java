@@ -5,6 +5,7 @@ package org.javagrok.test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.LinkedList;
 
 /**
  * A simple test program on which to test analyses and JavaGrok.
@@ -78,13 +79,13 @@ public class TestMain
 
     private IntBox _box;
     
-    private Object someObj;
+    private LinkedList<Object> list;
     
     public void setSomeObject(Object so) {
-    	someObj = so;
+    	list.add(so);
     }
     
     public Object getSomeObject() {
-    	return someObj;
+    	return list.getFirst();
     }
 }
