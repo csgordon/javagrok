@@ -1,0 +1,86 @@
+\section{Related Work}
+There is a wealth of work on inferring interesting properties of existing code,
+but most of these are focused on inferring properties suitable for checking.
+Because of this, few projects have performed user studies to evaluate how
+inferred information may assist developers.
+
+The most directly relevant work is Buse and Weimer's system for automatically
+inferring documentation for conditions that will result in a Java method
+throwing an exception~\cite{autodoc}.  We implement a similar analysis
+to detect the conditions under which some exceptions are thrown, though weaker
+because we do not perform full symbolic execution.  They also performed a
+comparison of generated documentation to exemplar documentation for several
+moderately-sized Java projects.  We are the first to perform a user study of how
+helpful inferred documentation can be for programmers in comparison to existing
+documentation.
+
+Analysis of libraries as a separate entity from whole programs, without
+considering documentation, has received broader attention from the software
+engineering community.  Arnout and Meyer performed a study of the .NET
+collections libraries where they manually extracted
+contracts~\cite{findingcontracts}.  Their work is complementary to ours: in some
+sense we are extracting and documenting the implicit contracts of the libraries
+we analyze.
+
+Williams et al.~describe a method for detecting possible deadlocks in Java
+libraries~\cite{deadlocklibs}.  Sankaranarayanan et al.~use inductive logic
+programming to infer precise Datalog specifications of proper use of library
+APIs~\cite{mininglibspecs}.  Their work is intended for consumption by the
+developer, but they do not go so far as to modify whatever documentation a
+library has.  Either of these approaches, or others, could likely be adapted to
+generate additional useful documentation.
+
+Tools for analyzing documentation, particularly in relation to program text,
+have also received some attention.  Schreck, Dallmeier, and Zimmermann describe
+a tool for measuring the quality of software documentation, and how that
+quality varies over time~\cite{evolvedoc}. Tools like Mismar~\cite{mismar} make
+it easier to construct use guides for code bases by allowing the developer to
+essentially drag-and-drop software components to form a documentation skeleton.
+eMoose~\cite{emoose} does a programming-environment version of the
+inter-procedural constraint propagation in our system; it integrates
+documentation about a method being called into the hover text for a programmer
+working at a call site for that method, and they performed a user study to show
+that the new presentation of documentation helped developers.  Any of these techniques could be used
+in conjunction with our work to further improve the developer experience.
+
+\subsection{Individual Analyses}
+
+There has been some recent work in nullability analysis especially for Java
+resulting in two available tools.  Hubert~\cite{NIT} implemented a nullability
+analysis for Java bytecode based on abstract interpretation techniques.  This
+analysis is instantiated in the {\sc NIT} tool.  Ekman and
+Hedin~\cite{NonNullTypeInference} independently implemented a nullability type
+inference analysis.  Both of these tools perform whole program analyses, and
+consequently require modification to fit into our modular analysis framework.
+
+Quinonez, et al.~\cite{Javarifier} described a technique for inference of
+reference immutability in Java and implemented it in a tool called {\sc
+  Javarifier}. Their goal is the inference of annotations for the {\sc Javari}
+language (an extension of Java) which enforces reference immutability
+constraints. TODO: IGJ~\cite{IGJ}, Pidasa~\cite{Pidasa}.
+
+Cherem and Rugina~\cite{UniquenessInference} described a uniqueness inference
+technique using a two-level abstraction. A intraprocedural analysis which is
+flow-sensitive and an interprocedural one that is flow-insensitive. Combined
+they can infer uniqueness information which is used to actively free Java
+object whenever an unique reference gets lost.  Almost at the same time Ma and
+Foster~\cite{Uno} described their inference tool called Uno which uses the same
+algorithmic idea. They infer a variety of alias and encapsulation
+properties. Amongst others: Uniqueness, lending and aliasing.  Aldrich,
+Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
+programmer to understand how data is shared in large software systems.
+They go beyond then just use the alias information for documentation purposes:
+They define type checking rules for their system. Hence their analysis has to be
+sound. We can also accept unsound annotations if they are still helpful for the 
+programmer's understanding of the code.
+
+Buse and Weimer~\cite{autodoc} automatically infer documentation for
+exceptions.  Our exception inference is weaker than theirs due to the lack of
+symbolic execution in our system.  One
+possible future extension of our work would be to integrate their exception
+analysis.  They perform a manual comparison of inferred documentation to
+existing documentation for several moderately-sized Java projects considered to
+have decent documentation.  We performed a user study using a library with what
+we felt to be average documentation, comparing the progress and feedback of
+developers using existing documentation, and developers using augmented
+documentation.

@@ -1,0 +1,118 @@
+UNO: Uniqueness aNd Ownership Inference System
+----------------------------------------------
+
+Last update: 9-13-2007
+
+* What is UNO?
+
+UNO infers uniqueness and ownership patterns in the given 
+class files in bytecodes. Currently UNO uses Soot 2.2.3
+(http://www.sable.mcgill.ca/soot/) to convert bytecodes into 
+an intermediate representation for the analysis.
+
+For more information about uno, please go to:
+http://www.cs.umd.edu/projects/PL/uno/
+
+
+* How to build?
+
+Just run the "build" script.
+
+
+
+* How to run UNO?
+
+uno [options] <output dir> <input list>
+
+where
+
+uno - a script that calls uno.Uno
+output dir - specify the directory that output files are stored
+options - can be
+	-ph : print the class hierarchy
+	-pc : print the call graph
+	-pt : print the trace of predicate inference (see the paper)
+
+The input list is a file of the following format:
+
+<package-line1>
+<package-line2>
+.
+.
+.
+#
+<class-line1>
+<class-line2>
+.
+.
+.
+
+If no package lines are specified, UNO will build a callgraph
+based on all methods that are transitively reachable from methods
+of classes specified by the class lines. If some package lines
+are specified, then any method outside from the packages will be
+removed from the callgraph. 
+
+We find specifying the package lines a good way to manually shrink
+the callgraph, hence reducing the time and space required by UNO
+(currently UNO is time and space demanding.)
+
+Example (from ./examples/test/test.list):
+
+----------------- beginning of the file -------------------------
+uno.test
+#
+uno.test.Subject
+uno.test.ConcreteSubject
+uno.test.Factory
+uno.test.Proxy
+uno.test.Main
+--------------------- end of the file ---------------------------
+
+(You can find the source code for this example in 
+src/uno/test/Test.java.)
+
+
+The output contains the main output from UNO. For each method, and for 
+each parameter in case of ownership, UNO generates an output like 
+(line numbers are added for explanations) :
+
+1:         LentBase ( <java.lang.Object: void <init>()> ) : True
+2:       NEscField-In ( <uno.test.Proxy: uno.test.Subject s> , <uno.test.Proxy: void <init>(uno.test.Subject)> ) : True
+3:         LentBase ( <uno.test.Subject: void setData(int)> ) : True
+4:       NEscField-In ( <uno.test.Proxy: uno.test.Subject s> , <uno.test.Proxy: void setData(int)> ) : True
+5:     NEscField ( <uno.test.Proxy: uno.test.Subject s> ) : True
+6:   NEscPar ( <uno.test.Proxy: void <init>(uno.test.Subject)> , 0 ) : True
+7:   Store ( <uno.test.Proxy: void <init>(uno.test.Subject)> , 0 : True
+8: Own ( <uno.test.Proxy: void <init>(uno.test.Subject)> , 0 )  *called*  : True
+
+Line 8 says that the constructor of Proxy owns its 0th parameter (we treat
+the first parameter as zeroth).  The preceding lines show the reasoning 
+steps UNO took to reach this conclusion. Each line lists a step in
+the reasoning process, and indentation is meaningful, so that a line
+depends on all preceding lines, up to by not including the first line
+at the same indentation level.  For the meanings of the predicates
+(NEscField, LentBase, ...), please refer to our paper, available on
+the UNO web page.
+
+In our example above, the dependencies are (we write a->b if a depends on b):
+
+8 -> 6 and 7
+6 -> 5 -> 2 and 4
+2 -> 1
+4 -> 3
+
+More examples are located in the examples directory.
+
+Notice that currently UNO is memory and time consuming. A restricted 
+callgraph by specifying the package lines will definitely help saving
+time and space. Users may need to adjust the -Xmx<?>M value in the 
+"uno" script.
+
+
+* Please read the license in LICENSE.
+
+
+* Send feedback to Kin Keung Ma <kkma@cs.umd.edu>.
+
+

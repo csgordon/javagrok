@@ -1,0 +1,11 @@
+mkdir -p bin
+rm bin/uno/*.class 
+rm bin/uno/analysis/*.class 
+rm bin/uno/toolkit/*.class 
+rm bin/uno/query/*.class 
+rm bin/uno/test/*.class 
+javac -source 1.6 -classpath "lib/soot-2.2.3.jar:." -sourcepath src/ src/uno/*.java -d bin/
+javac -source 1.6 -classpath "lib/soot-2.2.3.jar:." -sourcepath src/ src/uno/analysis/*.java -d bin/
+javac -source 1.6 -classpath "lib/soot-2.2.3.jar:." -sourcepath src/ src/uno/toolkit/*.java -d bin/
+javac -source 1.6 -classpath "lib/soot-2.2.3.jar:." -sourcepath src/ src/uno/query/*.java -d bin/
+javac -source 1.6 -classpath "lib/soot-2.2.3.jar:." -sourcepath src/ src/uno/test/*.java -d bin/

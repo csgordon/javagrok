@@ -1,0 +1,144 @@
+/*
+ * Created on Mar 20, 2006
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+package uno.toolkit;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+/**
+ * @author kkma
+ *
+ * TODO To change the template for this generated type comment go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+public class LazySet {
+
+	public static int ID = 0;
+	private static int max_size = 0;
+	
+	private int id;
+	private Set actualContent;
+	private boolean hasActualContent;
+	private String name;
+	private Set thisContent;
+	private int color;
+
+	private static int cur_color = 0;
+	
+	public LazySet(String name){
+		color = cur_color;
+		actualContent = null;
+		hasActualContent = false;
+		this.name = name;
+		thisContent = new HashSet();
+		id = ++ID;
+		
+	}
+
+	public void clear(){
+		thisContent.clear();
+	}
+	
+	public boolean add(Object o) {
+		if(o==null) return false;
+		//if (o instanceof LazySet){
+		//	LazySet s = (LazySet)o;
+		//	if(s.thisContent.size()<=1)
+		//		for(Iterator i=s.thisContent.iterator();i.hasNext();)
+		//			thisContent.add(i.next());
+		//	else return thisContent.add(s);
+		//	return true;
+		//}
+		//else
+			return thisContent.add(o);
+	}
+	public boolean contains(Object o) {
+		//System.out.println("contains");
+		if(hasActualContent==false){
+			flatten();
+		}
+		return actualContent.contains(o);
+	}
+	private void flatten() {
+		actualContent = new HashSet();
+		cur_color += 7;
+		getContent(actualContent);
+		
+		hasActualContent = true;
+		
+		if(actualContent.size()>max_size){
+			max_size = actualContent.size();
+			//System.out.println("    ("+max_size+") from " + name);
+		}
+		
+//		System.out.print(name + " : ");
+//		for(Iterator i=this.iterator();i.hasNext();){
+//			System.out.print(" | "+i.next());
+//		}
+//		System.out.println(" |");
+	}
+	
+	private void getContent(Set contentBag){
+		if(color==cur_color) return;
+		color = cur_color;
+		if(hasActualContent==true){
+			contentBag.addAll(actualContent);
+			return;
+		}
+		for(Iterator i=thisContent.iterator();i.hasNext();){
+			Object obj = i.next();
+			if(obj instanceof LazySet){
+				((LazySet)obj).getContent(contentBag);
+			}
+			else{				
+				contentBag.add(obj);
+			}
+		}	
+	}
+
+	public Iterator iterator() {
+		//System.out.println("iterator");
+		if(hasActualContent==false){
+			flatten();
+		}
+		return actualContent.iterator();
+	}
+	public boolean addAll(LazySet c) {
+		if(c==null) return false;
+		return add(c);
+	}
+	//public String toString(){
+	//	String s = "{"+id+"/"+name+": ";
+	//	for(Iterator i=thisContent.iterator();i.hasNext();){
+	//		Object obj = i.next();
+	//		if(obj instanceof LazySet){
+	//			s+="<"+((LazySet)obj).id+","+((LazySet)obj).name+">";
+	//		}
+	//		else
+	//			s += obj.toString();
+	//		if(i.hasNext()) s+=",";
+	//	}
+	//	
+	//	return s + "}";
+	//}
+	public String toString(){
+		String s = "{"+id+": ";
+		for(Iterator i=thisContent.iterator();i.hasNext();){
+			Object obj = i.next();
+			if(obj instanceof LazySet){
+				s+="<"+((LazySet)obj).id+">";
+			}
+			else
+				s += obj.toString();
+			if(i.hasNext()) s+=",";
+		}
+		
+		return s + "}";
+	}
+}
