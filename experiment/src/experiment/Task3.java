@@ -32,13 +32,15 @@ public class Task3 extends Task
     protected static class CircleSprite extends Sprite
     {
         public CircleSprite () {
-            super(50, 50);
-            setOriginOffset(25, 25);
+            super(2*RADIUS, 2*RADIUS);
+            setOriginOffset(RADIUS, RADIUS);
         }
 
         public void paint (Graphics2D gfx) {
             gfx.setColor(Color.red);
             gfx.fillOval(_bounds.x, _bounds.y, _bounds.width, _bounds.height);
         }
+
+        protected static final int RADIUS = 25;
     }
 }
