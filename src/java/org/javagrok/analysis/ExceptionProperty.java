@@ -3,6 +3,7 @@
 
 package org.javagrok.analysis;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,6 +15,7 @@ import java.lang.annotation.Target;
  * TODO: maybe we should split this up into ParamProperty, MethodProperty, FieldProperty and
  * ClassProperty?
  */
+@Documented
 @Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface ExceptionProperty
