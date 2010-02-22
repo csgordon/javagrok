@@ -22,6 +22,7 @@ import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCTypeAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.Name;
 
 public class Uno extends AbstractAnalyzer {
 	
@@ -98,6 +99,10 @@ public class Uno extends AbstractAnalyzer {
 		@Override
 		public void visitClassDef(JCClassDecl tree) {
 			if (!unoFileExists) return;
+			Name name = tree.getSimpleName();
+			if (name == null || "".equals(name.toString())) {
+        		return; // Ignore classes without a name.
+        	}
 			
 			String oldClassName = this.className;
 			// Build correct class name for inner classes
@@ -109,30 +114,30 @@ public class Uno extends AbstractAnalyzer {
 			}
 			
 			// Iterate over all fields of the class
-			List<JCTree> members = tree.getMembers();
-			for (JCTree m : members) {
-				if (m instanceof JCVariableDecl) {
-					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
-
-					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
-					// Hmmm... but the problem is that Javadoc does not include private stuff into the documentation right?
-					
-					//if (var.getType() is not primitive type) {
-					String key = this.packageName + "." + this.className + "." + var.getName();
-					if (visitedKeys.contains(key)) {
-						continue;
-					}
-					visitedKeys.add(key);
-					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
-						ctx.info("Adding annotation to field: " + key);
-						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)	
-					}
-					else if (falseFieldProperties.containsKey(key) && falseFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
-						ctx.info("Adding annotation to field: " + key);
-						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is leaked"); // TODO Better text here... :-)
-					}
-				}
-			}
+//			List<JCTree> members = tree.getMembers();
+//			for (JCTree m : members) {
+//				if (m instanceof JCVariableDecl) {
+//					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
+//
+//					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
+//					// Hmmm... but the problem is that Javadoc does not include private stuff into the documentation anyway, right?
+//					
+//					//if (var.getType() is not primitive type) {
+//					String key = this.packageName + "." + this.className + "." + var.getName();
+//					if (visitedKeys.contains(key)) {
+//						continue;
+//					}
+//					visitedKeys.add(key);
+//					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
+//						ctx.info("UNO: Adding annotation to field: " + key);
+//						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)	
+//					}
+//					else if (falseFieldProperties.containsKey(key) && falseFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
+//						ctx.info("UNO: Adding annotation to field: " + key);
+//						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is leaked"); // TODO Better text here... :-)
+//					}
+//				}
+//			}
 			
 			super.visitClassDef(tree);
 			
@@ -142,7 +147,7 @@ public class Uno extends AbstractAnalyzer {
 		
         public void visitMethodDef (JCMethodDecl tree) {
         	if (!unoFileExists) return;
-        	String key = this.packageName + "." + this.className + "." + tree.getName();
+			String key = this.packageName + "." + this.className + "." + tree.getName();
 
         	if (visitedKeys.contains(key)) {
 				return;
@@ -153,21 +158,21 @@ public class Uno extends AbstractAnalyzer {
         	JCTree returnType = tree.getReturnType();
 			if (!(returnType instanceof JCTree.JCPrimitiveTypeTree)) {
 				if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
-					ctx.info("Adding annotation for method: " + key);
+					ctx.info("UNO: Adding annotation for method: " + key);
 					ctx.addAnnotation(tree, UniqueReturn.class, "property", "Returns an unique object"); // TODO Better text here... :-)
 					annotatedMethods++;
 				}
 				else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
-					ctx.info("Adding annotation for method: " + key);
+					ctx.info("UNO: Adding annotation for method: " + key);
 					ctx.addAnnotation(tree, NonUniqueReturn.class, "property", "Method does not return an unique object"); // TODO Better text here... :-)
 					annotatedMethods++;
 				}
 				else {
 					nonAnnotatedMethods++;
 					if (emitErrorAboutMissingProperty) {
-						ctx.info("No property for method with key: " + key + ". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
+						ctx.info("UNO: No property for method with key: \"" + key + "\". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
 						if ((nonAnnotatedMethods - 5) > annotatedMethods) {
-							ctx.info("Future missing property messages ommited...");
+							ctx.info("UNO: Future missing property messages ommited...");
 							emitErrorAboutMissingProperty = false;
 						}        			
 					}
@@ -182,11 +187,11 @@ public class Uno extends AbstractAnalyzer {
             	key = this.packageName + "." + this.className + "." + tree.getName() + "(" + i + ")";
                 
             	if (trueParameterProperties.containsKey(key) && trueParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
-            		ctx.info("Adding annotation for parameter: " + key);
+            		ctx.info("UNO: Adding annotation for parameter: " + key);
             		ctx.addAnnotation(param, NotRetained.class, "property", "Parameter is lent");
             	}
             	else if (falseParameterProperties.containsKey(key) && falseParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
-            		ctx.info("Adding annotation for parameter: " + key);
+            		ctx.info("UNO: Adding annotation for parameter: " + key);
             		ctx.addAnnotation(param, Retained.class, "property", "Parameter gets captured");
             	}
             	else {
@@ -261,7 +266,6 @@ public class Uno extends AbstractAnalyzer {
 
 	private void addPropertyToMap(UnoProperty p, String key,
 			HashMap<String, HashSet<UnoProperty>> map) {
-		System.out.println("Adding info for key: " + key);
 		HashSet<UnoProperty> set = map.get(key);
     	if (set != null) {
     		set.add(p);
@@ -289,7 +293,6 @@ public class Uno extends AbstractAnalyzer {
     private void addPropertyForParameter(String property, boolean holds, String className, String methodName, int paramIndex) {
     	UnoProperty p = getProptertyFromString(property);
     	String key = className + "." + methodName + "(" + paramIndex + ")";
-    	System.out.println("Adding param prop: " + key);
     	HashMap<String, HashSet<UnoProperty>> map;
     	if (holds) {
     		map = trueParameterProperties;
