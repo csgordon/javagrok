@@ -45,7 +45,10 @@
 
   <target name="jar" depends="compile"
           description="Builds compiled classes into a jar file.">
-    <jar destfile="${deploy.dir}/${ant.project.name}.jar" basedir="${classes.dir}"/>
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar">
+      <fileset dir="${classes.dir}" includes="**"/>
+      <fileset dir="${deploy.dir}/annotated-source" includes="**" excludes="**/*.unannotated"/>
+    </jar>
   </target>
 
   <target name="javarifier" depends="compile"
