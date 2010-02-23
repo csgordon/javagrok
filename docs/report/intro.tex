@@ -35,74 +35,8 @@ We will also developed a tool, JavaGrok, to automate the process of applying a
 suite of analyses to a library code base and integrating their results into the
 Javadoc documentation.
 
-Our tool will annotate methods with the information if the method returns a 
-unique reference (that means a reference to an object that is not referenced 
-by any other reference). We think that this information is helpful to the 
-programmer because we think it is curcial to now if one is the sole owner of 
-an object or not. For a example considering a list object. If one is the sole
-owner of the list then one can be sure that after adding an element to the list
-and calling a method somewhere in a library the list is guaranteed to still 
-contain exactly one elment, because the list was not reachable from anywhere
-else.
-
-Furthermore JavaGrok also documents parameters and tells the client
-of those functions if a previously unique reference is still unique after the 
-called method to which the object was passed as an argument. Analogously to 
-above, this information is useful to find out if one is still the sole owner
-when one passes a unique reference to a method. Based on our own experience
-as programmers we think that knowing such facts helps preventing bugs.
-
 Our hypothesis is that the properties and facts explained above help the 
 client of a library to accomplish a programming task in which the programmer
 has to use this library without any prior knowledge about it.
 In section~\ref{sec:Evaluation} we will discuss our results of our user study
 whether our hypothesis proved true.
-
-Here is an example what our tool is capable of doing. Given the following
-source code:
-
-\begin{lstlisting}
-public class TestMain
-{
-		private LinkedList<Object> list;
-		
-		public TestMain() {
-			list = new LinkedList<Object>();
-		}
-		
-    public void setSomeObject(Object so) {
-    	list.add(so);
-    }
-    
-		public Object getSomeObject(int x) {
-			if (x < 0) throw new IllegalArgumentException();
-    	return list.get(x  list.size());
-    }
-}
-\end{lstlisting}
-
-Our tool will create annotations as shown in the following code listing.
-
-\begin{lstlisting}
-public class TestMain
-{
-	private LinkedList<Object> list;
-
-	@UniqueReturn
-	public ListMain() {
-		list = new LinkedList<Object>();
-	}
-		
-  public void setSomeObject(@NotLentPar Object so) {
-		list.add(so);
-  }
-		
-	@NonUniqueReturn
-	@ExceptionProperty(throwsWhen="IllegalArgumentException when (x < 0)", 
-				exceptionsThrown="explicitly throws IllegalArgumentException");
-  public Object getSomeObject(int x) {
-		if (x < 0) throw new IllegalArgumentException();
-   	return list.get(x\%list.size());
-  }
-}
-\end{lstlisting}
