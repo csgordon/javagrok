@@ -3,35 +3,23 @@
 
 package experiment;
 
-import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
 import com.threerings.media.MediaPanel;
-import com.threerings.media.util.LinePath;
-import com.threerings.util.DirectionUtil;
-import com.threerings.media.sprite.OrientableImageSprite;
 
 /**
- * Displays a bug on the screen that crawls where the user clicks the mouse.
+ * Displays a bug on the screen that moves where the user clicks the mouse.
  */
 public class Task2 extends Task
 {
     protected void setup (final MediaPanel panel)
     {
-        final OrientableImageSprite sprite = new OrientableImageSprite(getMirage("ladybug.png"));
-        panel.addSprite(sprite);
+        // Step 1: Create an OrientableImageSprite using the getMirage("ladybug.png") image and add
+        // it to the display. Center the ladybug image in the middle of the window using the
+        // setLocation() method.
 
-        // start at the center of the display
-        sprite.setLocation(panel.getWidth()/2, panel.getHeight()/2);
-
-        // listens for mouse clicks and moves the sprite to the clicked location
-        panel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked (MouseEvent ev) {
-                sprite.setOrientation(DirectionUtil.getDirection(
-                                          sprite.getX(), sprite.getY(), ev.getX(), ev.getY()));
-                sprite.move(new LinePath(new Point(ev.getX(), ev.getY()), 1000));
-            }
-        });
+        // Step 2: Add a listener to MediaPanel that listens for mouse clicks. Move the ladybug
+        // sprite to the point at which the user clicks, using a LinePath. Use
+        // DirectionUtil.getDirection() to compute an orientation constant and pass that to
+        // setOrientation() on the ladybug sprite to cause the ladybug to orient in the direction
+        // of motion.
     }
 }
