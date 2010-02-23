@@ -1,5 +1,6 @@
 \documentclass{acm_proc_article-sp}
 \usepackage{url}
+\usepackage{listings}
 
 %% Bring items closer together in list environments
 % Prevent infinite loops
@@ -19,6 +20,13 @@
 \makeatother
 
 \begin{document}
+\lstset{
+	language=Java,
+	numbers=left,
+	tabsize=2,
+	showstringspaces=false,
+	basicstyle=\ttfamily\tiny
+}
 \conferenceinfo{UWCSE503}{'10 Seattle, WA USA}
 
 \title{JavaGrok: Automatic Inference of Documentation for Under-documented Code}
