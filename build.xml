@@ -178,6 +178,7 @@
         <include name="experiment/rsrc/**"/>
         <include name="experiment/build.xml"/>
         <include name="experiment/index.html"/>
+        <include name="experiment/checklist.pdf"/>
       </fileset>
     </zip>
   </target>
