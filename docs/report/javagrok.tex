@@ -1,0 +1,85 @@
+\documentclass{acm_proc_article-sp}
+\usepackage{url}
+
+%% Bring items closer together in list environments
+% Prevent infinite loops
+\let\Itemize =\itemize
+\let\Enumerate =\enumerate
+\let\Description =\description
+% Zero the vertical spacing parameters
+\def\Nospacing{\itemsep=0pt\topsep=0pt\partopsep=0pt\parskip=0pt\parsep=0pt}
+% Redefine the environments in terms of the original values
+\renewenvironment{itemize}{\Itemize\Nospacing}{\endlist}
+\renewenvironment{enumerate}{\Enumerate\Nospacing}{\endlist}
+\renewenvironment{description}{\Description\Nospacing}{\endlist}
+
+% Disable the copyright and boilerplate for now
+\makeatletter
+\let\@copyrightspace\relax
+\makeatother
+
+\begin{document}
+\conferenceinfo{UWCSE503}{'10 Seattle, WA USA}
+
+\title{JavaGrok: Automatic Inference of Documentation for Under-documented Code}
+
+\numberofauthors{1} 
+\author{
+\alignauthor
+Colin S. Gordon, Reto Conconi, Gilbert Bernstein, Michael Bayne\\
+       \affaddr{University of Washington}\\
+       \affaddr{Seattle, WA USA}\\
+       \email{\{csgordon,conconir,gilbo,mdb\}@cs.washington.edu}
+}
+
+\maketitle
+\begin{abstract}
+Modern software development increasingly involves the use of third party
+libraries. Developers now routinely locate and learn the APIs of myriad
+libraries in the course of a single software development project. This process
+is made more difficult by the fact that many libraries are poorly documented.
+The developer often has to read the library source code or resort to trial and
+error to determine how to correctly use the library. These methods of learning
+about the library are time consuming and error prone.
+
+We present a method to automatically augment library API documentation with invariants
+inferred by a variety of static analyses. These include argument nullability,
+argument and receiver mutation, argument leaking and capturing, and conditions
+that will cause exceptions to be thrown.
+
+We also present a manual comparison of inferred information against an existing
+code base considered to have good documentation, and perform a user study to
+evaluate the usefulness of the additional documentation for developers.
+\end{abstract}
+
+% These categories are from the ACM CCS (Computing Classification System)
+% http://portal.acm.org/ccs.cfm
+\category{F.3.1}{Specifying and Verifying and Reasoning about
+Programs}{Specification techniques}
+\category{D.2.7}{Distribution, Maintenance, and Enhancement}{Documentation}
+\category{D.2.13}{Software Engineering}{Reusable Software}
+
+% These "terms" are from the ACM's official General Terms classifications.
+% http://www.acm.org/about/class/1998
+\terms{Documentation, Human Factors, Languages}
+
+\keywords{Documentation Inference, Software Documentation, Static Analysis}
+
+\input{intro.tex}
+
+\input{approach.tex}
+
+\input{evaluation.tex}
+
+\input{related.tex}
+
+\input{conclusion.tex}
+
+%ACKNOWLEDGMENTS are optional
+\section{Acknowledgments}
+The authors would like to thank the Great Pumpkin.
+
+\bibliographystyle{abbrv}
+\bibliography{javagrok}
+
+\end{document}

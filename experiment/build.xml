@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project name="experiment" default="compile" basedir=".">
+  <property name="src.dir"     value="src"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+
+  <path id="build.classpath">
+    <pathelement location="${classes.dir}"/>
+    <fileset dir="nenya/dist" includes="nenya.jar"/>
+  </path>
+
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${classes.dir}"/>
+  </target>
+
+  <target name="clean" description="Cleans out build results.">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compiles the code.">
+    <javac debug="on" source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${classes.dir}" classpathref="build.classpath">
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+  </target>
+
+  <target name="task" depends="compile">
+    <fail unless="taskno">No task number provided. Did you mean "ant task1"?</fail>
+    <java fork="true" classname="experiment.TaskRunner">
+      <classpath>
+        <path refid="build.classpath"/>
+        <pathelement path="."/>
+      </classpath>
+      <arg value="${taskno}"/>
+    </java>
+  </target>
+
+  <target name="task1">
+    <antcall target="task"><param name="taskno" value="1"/></antcall>
+  </target>
+
+  <target name="task2">
+    <antcall target="task"><param name="taskno" value="2"/></antcall>
+  </target>
+
+  <target name="task3">
+    <antcall target="task"><param name="taskno" value="3"/></antcall>
+  </target>
+
+  <target name="task4">
+    <antcall target="task"><param name="taskno" value="4"/></antcall>
+  </target>
+</project>
