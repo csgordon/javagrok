@@ -166,7 +166,9 @@
 
   <target name="exp-zip" depends="dist"
           description="Packages up the experiment files.">
-    <ant dir="nenya" target="dist"/>
+    <exec executable="ant" dir="nenya">
+      <arg line="dist"/>
+    </exec>
     <zip destfile="dist/experiment.zip">
       <fileset dir=".">
         <include name="experiment/nenya/src/**"/>
