@@ -6,7 +6,7 @@
 
   <path id="build.classpath">
     <pathelement location="${classes.dir}"/>
-    <fileset dir="../nenya/dist" includes="nenya.jar"/>
+    <fileset dir="nenya/dist" includes="nenya.jar"/>
   </path>
 
   <target name="prepare">
