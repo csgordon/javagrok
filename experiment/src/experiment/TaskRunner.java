@@ -8,8 +8,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import javax.swing.SwingUtilities;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
 
 import com.samskivert.util.Logger;
 import com.samskivert.util.TerseLogFormatter;
