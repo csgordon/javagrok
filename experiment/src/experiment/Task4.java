@@ -3,13 +3,7 @@
 
 package experiment;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
 import com.threerings.media.MediaPanel;
-import com.threerings.media.sprite.Sprite;
 
 /**
  * Extends task 3 by allowing the user to click and drag on existing sprites to move them around
@@ -17,54 +11,27 @@ import com.threerings.media.sprite.Sprite;
  */
 public class Task4 extends Task
 {
-    protected Sprite _pressed;
+    // Step 1: Copy the code for your circle sprite from Task 3. You will be reusing it in this
+    // exercise.
+
+    // Override the hitTest() method in your circle sprite and implement it such that it returns
+    // true if the x and y coordinates are inside your circle, false if not.
 
     protected void setup (final MediaPanel panel)
     {
-        panel.addMouseListener(new MouseAdapter() {
-            public void mousePressed (MouseEvent ev) {
-                _pressed = panel.getSpriteManager().getHighestHitSprite(ev.getX(), ev.getY());
-                // if they didn't click on an existing sprite, create a new one
-                if (_pressed == null) {
-                    _pressed = new CircleSprite();
-                    _pressed.setLocation(ev.getX(), ev.getY());
-                    panel.addSprite(_pressed);
-                }
-            }
+        // Step 2: Add a MouseListener to the MediaPanel that listens for mouse pressed and mouse
+        // released events. Add a MouseMotionListener to the MediaPanel that listens for mouse
+        // dragged events.
 
-            public void mouseReleased (MouseEvent e) {
-                _pressed = null;
-            }
-        });
+        // When the mouse is pressed, use panel.getSpriteManager().getHighestHitSprite() to
+        // determine whether a sprite was clicked on by the mouse. If no sprite was clicked, create
+        // a new circle sprite and place it at the location. If a sprite was clicked, cause
+        // subsequent "mouse dragged" events to update the location of that sprite with the
+        // location of the mouse. When you received a mouse released event, stop moving the pressed
+        // sprite.
 
-        panel.addMouseMotionListener(new MouseAdapter() {
-            public void mouseDragged (MouseEvent ev) {
-                if (_pressed != null) {
-                    _pressed.setLocation(ev.getX(), ev.getY());
-                }
-            }
-        });
-    }
-
-    protected static class CircleSprite extends Sprite
-    {
-        public CircleSprite () {
-            super(2*RADIUS, 2*RADIUS);
-            setOriginOffset(RADIUS, RADIUS);
-        }
-
-        public void paint (Graphics2D gfx) {
-            gfx.setColor(Color.red);
-            gfx.fillOval(_bounds.x, _bounds.y, _bounds.width, _bounds.height);
-        }
-
-        public boolean hitTest (int x, int y) {
-            int cx = _bounds.x + _oxoff;
-            int cy = _bounds.y + _oyoff;
-            float dx = x - cx, dy = y - cy;
-            return dx*dx + dy*dy <= RADIUS*RADIUS;
-        }
-
-        protected static final int RADIUS = 25;
+        // You can choose whether a newly created sprite starts in the "pressed" state (and is thus
+        // immediately draggable if the user clicks on an empty location triggering the creation of
+        // a new sprite and then drags the mouse) or not.
     }
 }
