@@ -1,0 +1,17 @@
+syntax: glob
+dist
+build.properties
+docs/*/*.aux
+docs/*/*.log
+docs/*/*.bbl
+docs/*/*.blg
+docs/*/*.dvi
+docs/*/*.pdf
+experiment/*.aux
+experiment/*.log
+experiment/*.bbl
+experiment/*.blg
+experiment/*.dvi
+experiment/*.pdf
+*/.DS_Store
+.DS_Store
