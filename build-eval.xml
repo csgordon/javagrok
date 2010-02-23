@@ -139,8 +139,8 @@
     <java classname="annotations.io.classfile.ClassFileReader" fork="true"
           dir="${deploy.dir}/grok">
       <bootclasspath>
-        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
-        <fileset dir="${java.home}" includes="lib/rt.jar"/>
+        <fileset dir="${javac.home}" includes="${basedir}/../lib/javac.jar"/>
+        <fileset dir="${java.home}" includes="${basedir}/../lib/rt.jar"/>
       </bootclasspath>
       <classpath>
         <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
