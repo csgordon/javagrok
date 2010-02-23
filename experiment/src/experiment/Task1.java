@@ -3,51 +3,37 @@
 
 package experiment;
 
-import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import com.samskivert.swing.Label;
-
 import com.threerings.media.MediaPanel;
-import com.threerings.media.animation.FloatingTextAnimation;
-import com.threerings.media.sprite.ImageSprite;
-import com.threerings.media.sprite.PathAdapter;
-import com.threerings.media.sprite.Sprite;
-import com.threerings.media.util.LinePath;
-import com.threerings.media.util.Path;
 
 /**
- * Displays a simple sprite on the screen, moving back and forth.
+ * Displays a simple sprite on the screen, moving back and forth. Intercepts clicks on that sprite
  */
 public class Task1 extends Task
 {
     protected void setup (final MediaPanel panel)
     {
-        final ImageSprite sprite = new ImageSprite(getMirage("cartman.png"));
-        panel.addSprite(sprite);
+        // Step 1: Create an ImageSprite with the image "cartman.png" and add it to the MediaPanel
+        // supplied as an argument.
 
-        // moves the sprite back and forth across the display
-        final int y = (panel.getHeight()-sprite.getHeight())/2;
-        final int lx = 0, rx = panel.getWidth()-sprite.getWidth();
-        sprite.addSpriteObserver(new PathAdapter() {
-            public void pathCompleted (Sprite sprite, Path path, long when) {
-                if (sprite.getX() == lx) {
-                    sprite.move(new LinePath(lx, y, rx, y, 1000));
-                } else {
-                    sprite.move(new LinePath(rx, y, lx, y, 1000));
-                }
-            }
-        });
-        sprite.move(new LinePath(lx, y, rx, y, 1000));
+        // You will want to call getMirage("cartman.png") (which is defined in Task, the parent
+        // class of this task skeleton) to obtain the image that you will supply to the
+        // ImageSprite.
 
-        // listens for mouse clicks and checks for intersection with the sprite
-        panel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked (MouseEvent ev) {
-                String text = sprite.hitTest(ev.getX(), ev.getY()) ? "Ouch!" : "Ha ha!";
-                panel.addAnimation(
-                    new FloatingTextAnimation(createLabel(text), ev.getX(), ev.getY()));
-            }
-        });
+        // Step 2: Move the ImageSprite on a Path back and forth across the window. You will want
+        // to use the LinePath class to move the sprite. The LinePath will only move the Sprite
+        // from one point to another, so you will have to add a PathObserver to the Sprite to
+        // receive notification when the Sprite reaches the end of its path. At that point, set the
+        // sprite on a new path going back in the opposite direction, so that you achieve an
+        // oscilating motion back and forth across the window.
+
+        // Step 3: Add a MouseListener to the MediaPanel to be notified of mouse clicks. When the
+        // user clicks the mouse, use the hitTest() method on the Sprite to determine whether or
+        // not the user clicked on the sprite. In either case, you will create a
+        // FloatingTextAnimation to emit feedback to the user. The FloatingTextAnimation takes a
+        // Label in its constructor, use the createLabel() method defined in Task (our superclass)
+        // to create that label. If the click hits the sprite, create a label that says "Ouch!", if
+        // it misses the sprite, create a label that says "Ha ha!"
+
+        // Congratulations. You have just created a "punch Cartman" game. :)
     }
 }
