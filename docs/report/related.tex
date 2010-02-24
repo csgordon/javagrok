@@ -64,17 +64,18 @@ technique using a two-level abstraction: a combination of a flow-sensitive
 intraprocedural analysis with a flow-insensitive interprocedural analysis. 
 They can infer uniqueness information which is used to actively free Java
 object whenever an unique reference is lost.  Ma and
-Foster~\cite{Uno} describe their inference tool Uno that uses the same
+Foster~\cite{Uno} describe their inference tool Uno that uses a similar
 algorithmic idea. They infer a variety of alias and encapsulation
-properties, including uniqueness, lending and aliasing.  Aldrich,
-Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
-programmer to understand how data is shared in large software systems.
-They go beyond then just use the alias information for documentation purposes:
-They define type checking rules for their system. Hence their analysis has to be
-sound. In contrast we can also accept unsound annotations if they are still helpful for the 
-programmer's understanding of the code. None of the above
-have performed a user study to see how the inferred information can help a
-programmer to understand unsufficently documented code.
+properties, including uniqueness, lending and aliasing. In their evaluation
+they focus on statistics: for example how many times UNO could infer a certain property.
+Aldrich, Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
+programmer to understand how data is shared in large software systems. 
+They do not use their alias annotations for documentation purposes, but instead use
+it to type-check code; hence their inference must be sound. In their evaluation
+they mainly show how much time they needed to annotate the source code by hand. Only
+after that they compared what their inference tools was able to infer automatically.
+None of the above have performed a user study to see how the inferred information
+can help a programmer to understand unsufficently documented code.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
 exceptions.  Our exception inference is weaker than theirs due to the lack of

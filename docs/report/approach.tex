@@ -1,14 +1,14 @@
 \section{Technical Approach}
 To infer information about Java code we use existing inference tools and
 combine their output. We have additionally developed a simple framework to aid
-in writing our own analyses, should that prove necessary.
+in writing our own analyses.
 
 To combine the results of disparate analyses we have to convert their results
 into a common format at some point in our toolchain.  We will use the JAIF
 (Java Annotation Index File) format for that purpose.  Some anaylses generate
 results directly in JAIF format, some provide annotated bytecodes which can be
 easily extracted into JAIF format, and others provide textual results for which
-we will write simple translators into JAIF format.
+we will read the results into a our framework.
 
 \begin{figure}
 \centering
@@ -17,12 +17,8 @@ we will write simple translators into JAIF format.
 \label{fig:toolchain}
 \end{figure}
 
-In the following section we describe our simple analysis framework.  In
-sections~\ref{sec:Javarifier} through~\ref{sec:Nullability} we describe each of
-the existing analyses we will be using in our evaluation and how we will
-integrate its results into our toolchain. In section~\ref{sec:jaif2html} we
-explain the final step of our process which is to integrate the various
-analysis into the Javadoc generation process.
+In the following section we describe our analysis framework and how we
+integrate all the tools into JavaGrok
 
 Figure \ref{fig:toolchain} shows the stages in our toolchain.
 
@@ -40,14 +36,7 @@ are then extracted into external annotation files.
 
 Once the results of the various analyses have been collected into a set of
 annotation files, we use the annotation file utilities~\cite{AFU} to merge
-those annotations back into the original library source. We then use a custom
-Javadoc doclet~\cite{doclet} to augment the original Javadoc documentation (if
-any) with the information represented by the analysis annotations.
-
-For each analysis, we provide a mapping from the annotation data to either a
-textual or iconic representation of the constraints it describes. For example,
-a method parameter annotated with \texttt{@Nullable} may result in the text
-``(null allowed)'' being appended to the documentation for that parameter. We
-will also investigate representing very common annotations such as nullability
-in a compact iconic form to avoid overwhelming any existing documentation with
-our analysis-derived additions.
+those annotations back into the original library source. Of course this source
+can now be used either directly by looking at the annotated source code. But
+we also let javadoc run over the source code to generate html documentation
+which now include our annotations.
