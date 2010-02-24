@@ -2,11 +2,11 @@
 
 Here is an example what our tool is capable of doing.
 Note that by just looking at the method interface of 
-public Object getAll() a programmer does not know
-that getAll() will leak it's reference to it's
+\texttt{public Object getAll()} a programmer does not know
+that \texttt{getAll()} will leak it's reference to it's
 internal representation. This might be a big surprise
 if the list of objects that get's returned keeps growing
-even though the caller of getAll() does not add those object.
+even though the caller of \texttt{getAll()} does not add those object.
 
 
 \begin{lstlisting}
@@ -53,3 +53,11 @@ public class A
   }
 }
 \end{lstlisting}
+
+In the resulting Javadoc html document our inferred annotations
+for \texttt{getAll()} will show up like this:\\
+\\
+{\bf getAll}\\
+\\
+@NonUniqueReturn\\
+public Object getAll()\\
