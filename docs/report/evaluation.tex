@@ -20,12 +20,12 @@ documentation nor source.
 The experiment will involve two groups of developers, each given a library with
 which they are unfamiliar and a set of programming tasks to be implemented
 using the functionality provided by the library. One group will be provided
-with augmented documentation and the other will be provided with unaugmented
-documentation.
+with augmented documentation and the other will be provided with original,
+unmodified documentation.
 
 The members of each group will be provided with equivalent development
 environments (the Eclipse IDE, configured to provide ready access to the
-augmented or unaugmented documentation as well as the library source code).
+augmented or unmodified documentation as well as the library source code).
 Additionally the subjects will be shown how to access both the library
 documentation and source code to reduce the likelihood that differing
 familiarity with the development environment influences the subject's decision
@@ -61,19 +61,26 @@ work. The survey questions will include:
 To identify problems with our experiment design and gauge the level of
 difficulty of our programming tasks, we conducted a dry run of our experiment,
 where the authors (minus the one who designed the experiment tasks) acted as
-non-control-group subjects. The results were humbling and informative.
+non-control-group subjects. 
+The programming tasks revolved around using an animation library, Nenya, to put
+together several simple animations, with some guidance for each task as to which
+parts of the library would probably be useful.
+The results were humbling and informative.
 
 Small omissions in the instructions for the tasks resulted in substantial
-wasted time on the part of the subjects. Further, the questions encountered by
-the subjects were invariably answered neither by the documentation nor the
+wasted time on the part of the subjects. Further, most questions encountered by
+the subjects were answered neither by the documentation nor the
 source code. This was partly due to the lack of results from two of the
 inference algorithms (nullability and mutability) which were not available due
 to technical difficulties at the time of the experiement. At least one of the
 questions encountered by one of the subjects would likely have been addressed
-by nullability information.
+by nullability information.  A more common reason for unanswered questions was
+unfamiliarity with the kind of task at hand, leading to more questions about
+higher-level intended use of the library, rather than questions about the
+properties we infer.
 
 We also had not provided a standard Eclipse environment in our dry run, and
-discovered that developers using the command line may be biased against
+discovered that developers using the command line with simpler editors may be biased against
 checking the source code for information on library usage because of difficulty
 in locating the necessary source file among the experiment files.
 
