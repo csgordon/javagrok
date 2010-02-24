@@ -69,12 +69,6 @@ algorithmic idea. They infer a variety of alias and encapsulation
 properties. Amongst others: Uniqueness, lending and aliasing.  Aldrich,
 Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
 programmer to understand how data is shared in large software systems.
-They go beyond then just use the alias information for documentation purposes:
-They define type checking rules for their system. Hence their analysis has to be
-sound. We can also accept unsound annotations if they are still helpful for the 
-programmer's understanding of the code. None of the above
-have performed a user study to see how the inferred information can help a
-programmer to understand unsufficently documented code.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
 exceptions.  Our exception inference is weaker than theirs due to the lack of
