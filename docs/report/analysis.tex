@@ -126,14 +126,8 @@ In heavily object oriented languages like java, every variable is nullable
 special value null.  Because of this ubiquity, one common mistake is to call
 methods with null parameters they are unprepared to handle, or to erroneously
 assume that returned values are never null.  Well documented libraries, like
-the Java collections framework, will frequently spell out when variables are
-assumed to be nullable or not-null when an ambiguity seems likely.
+the Java collections framework, frequently spell out when variables are
+assumed to be nullable or not-null.
 
-By means of a nullability inference~\cite{NIT,NonNullTypeInference} we can add
-similarly useful type decorations to documentation.  Although two Java
-nullability inferences are freely available, they are both whole program
-analyses and therefore ill-suited to our target application: library
-documentation.  We plan to first try adapting their existing analysis code, or
-failing that re-implement a modular version of their analysis within our own
-framework.
-
+By means of a nullability type inference~\cite{NonNullTypeInference} we can add
+similarly useful type decorations to documentation.  Although the JastAdd analysis we've chosen to use doesn't not require a whole program, it does make a closed world assumption.  This leads to optimistic annotation inferences when run on library code.  \texttt{@NonNull} indicates that the user should assume that an argument or method return value will not assume the value \texttt{null}.

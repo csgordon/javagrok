@@ -50,8 +50,7 @@ resulting in two available tools.  Hubert~\cite{NIT} implemented a nullability
 analysis for Java bytecode based on abstract interpretation techniques.  This
 analysis is instantiated in the {\sc NIT} tool.  Ekman and
 Hedin~\cite{NonNullTypeInference} independently implemented a nullability type
-inference analysis.  Both of these tools perform whole program analyses, and
-consequently require modification to fit into our modular analysis framework.
+inference analysis.  Both of these tools make closed world assumptions, but the Ekman and Hedin's JastAdd inferencer does not require a whole program analysis---hence our decision to use it.  (Further details on further nullability analysis tools and discussion should be here in the final version.  Didn't have time right now to get to it.)
 
 Quinonez, et al.~\cite{Javarifier} described a technique for inference of
 reference immutability in Java and implemented it in a tool called {\sc

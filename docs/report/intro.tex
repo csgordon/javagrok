@@ -11,32 +11,53 @@ code will save them weeks of effort---now face a thoroughly unenviable task:
 grok a lump of un(der)documented code and figure out its interface well enough
 to solve their original problem.
 
-Ideally, we would have an army of ingenious, classically trained Shakespearean
-typing monkeys, ready to provide high-quality documentation for all our
-programs and libraries at the drop of a hat.  However in reality, we, the
-unlucky developers often must make do with a single use case or oblique e-mail
-offering advice---if we get anything at all.  Sitting at our desks, we curse
-fate, the code in front of us, and the anonymous (or not so anonymous)
-programmer responsible for our pain.  We wonder, wouldn't it be nice if we
-could just push a button and get some useful, if not perfect documentation?
+%Ideally, we would have an army of ingenious, classically trained Shakespearean
+%typing monkeys, ready to provide high-quality documentation for all our
+%programs and libraries at the drop of a hat.  However in reality, we, the
+%unlucky developers often must make do with a single use case or oblique e-mail
+%offering advice---if we get anything at all.  Sitting at our desks, we curse
+%fate, the code in front of us, and the anonymous (or not so anonymous)
+%programmer responsible for our pain.  We wonder, wouldn't it be nice if we
+%could just push a button and get some useful, if not perfect documentation?
 
-We propose that such documentation can be provided automatically via the
-application of existing static analysis techniques to the code along with
-translation of their results into human readable form and integration with any
-documentation that may have been provided for the library. We specifically
-consider nullability, mutability, leaking and capturing and exceptional
-condition analyses, though others may also yield useful documentation. We will
-evaluate the effectiveness of these analyses by comparing the documentation
-they generate to known good documentation, and by conducting a user study where
-two groups of developers perform programming tasks involving a library, one
-with analysis augmented documentation and one without.
+We wonder, wouldn't it be nice if we could just push a button and get some useful, albeit imperfect documentation?
 
-We will also developed a tool, JavaGrok, to automate the process of applying a
-suite of analyses to a library code base and integrating their results into the
-Javadoc documentation.
+The prototype tool we describe here, JavaGrok, seeks to do just this.  By
+applying existing static analyses to library source code and then
+translating the results into human readable form, we are able to
+automatically construct or augment javadoc documentation.
+Using this tool, we
+consider the hypothesis that a significant amount of user pain and frustration
+with un(der)documented libraries is due to confusion about the kinds of
+nit-picky/formal properties discoverable via the
+considered analyses. (specifically nullability, mutability,
+leaking and capturing, and exceptional condition analyses)
+Here, we distinguish between confusions about formal properties
+and conceptual
+or higher level confusions about the proper way to use a library.
 
-Our hypothesis is that the properties and facts explained above help the 
-client of a library to accomplish a programming task in which the programmer
-has to use this library without any prior knowledge about it.
-In section~\ref{sec:Evaluation} we will discuss our results of our user study
-whether our hypothesis proved true.
+To explore this hypothesis we are conducting a user study, comparing developers'
+experience using a poorly documented library with and without our
+annotations.  We look at the participants' experience as revealed
+by how frequently the
+documentation fails to help resolve confusions, how frequently source
+code is referred to instead of documentation, and via qualitative exit
+questionnaires.  We will hopefully find out something useful.
+
+Although there has been some previous work on automatic
+documentation annotation(CITE), this is the first attempt at a user study
+to directly address the question
+``Is automatically generated documentation helpful?''
+Previous work sought to answer the question
+``Is automatically generated documentation accurate,
+as compared with exemplar user documentation?''
+While this question is certainly interesting in its own right,
+we believe that determining whether the documentation is helpful
+at all is a more pressing concern.
+
+%Our hypothesis is that the properties and facts explained above help the 
+%client of a library to accomplish a programming task in which the programmer
+%has to use this library without any prior knowledge about it.
+%In section~\ref{sec:Evaluation} we will discuss our results of our user study
+%whether our hypothesis proved true.
+
