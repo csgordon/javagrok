@@ -11,16 +11,16 @@ to detect the conditions under which some exceptions are thrown, though weaker
 because we do not perform full symbolic execution.  They also performed a
 comparison of generated documentation to exemplar documentation for several
 moderately-sized Java projects.  We are the first to perform a user study of how
-helpful inferred documentation can be for programmers in comparison to existing
+helpful to programmers these inferred properties can be when used to augment existing
 documentation.
 
 Analysis of libraries as a separate entity from whole programs, without
-considering documentation, has received broader attention from the software
+considering documentation, has been considered by the software
 engineering community.  Arnout and Meyer performed a study of the .NET
 collections libraries where they manually extracted
 contracts~\cite{findingcontracts}.  Their work is complementary to ours: in some
-sense we are extracting and documenting the implicit contracts of the libraries
-we analyze.
+sense we are extracting and documenting the implicit contracts of libraries,
+while they extract the implicit contracts and present them for static checking.
 
 Williams et al.~describe a method for detecting possible deadlocks in Java
 libraries~\cite{deadlocklibs}.  Sankaranarayanan et al.~use inductive logic
@@ -34,10 +34,10 @@ Tools for analyzing documentation, particularly in relation to program text,
 have also received some attention.  Schreck, Dallmeier, and Zimmermann describe
 a tool for measuring the quality of software documentation, and how that
 quality varies over time~\cite{evolvedoc}. Tools like Mismar~\cite{mismar} make
-it easier to construct use guides for code bases by allowing the developer to
+it easier to construct usage guides for code bases by allowing the developer to
 essentially drag-and-drop software components to form a documentation skeleton.
-eMoose~\cite{emoose} does a programming-environment version of the
-inter-procedural constraint propagation in our system; it integrates
+eMoose~\cite{emoose} performs a programming-environment version of
+inter-procedural constraint propagation; it integrates
 documentation about a method being called into the hover text for a programmer
 working at a call site for that method, and they performed a user study to show
 that the new presentation of documentation helped developers.  Any of these techniques could be used
@@ -45,7 +45,7 @@ in conjunction with our work to further improve the developer experience.
 
 \subsection{Individual Analyses}
 
-There has been some recent work in nullability analysis especially for Java
+There has been some recent work in nullability analysis for Java
 resulting in two available tools.  Hubert~\cite{NIT} implemented a nullability
 analysis for Java bytecode based on abstract interpretation techniques.  This
 analysis is instantiated in the {\sc NIT} tool.  Ekman and
@@ -60,23 +60,29 @@ language (an extension of Java) which enforces reference immutability
 constraints. TODO: IGJ~\cite{IGJ}, Pidasa~\cite{Pidasa}.
 
 Cherem and Rugina~\cite{UniquenessInference} described a uniqueness inference
-technique using a two-level abstraction. A intraprocedural analysis which is
-flow-sensitive and an interprocedural one that is flow-insensitive. Combined
-they can infer uniqueness information which is used to actively free Java
-object whenever an unique reference gets lost.  Almost at the same time Ma and
-Foster~\cite{Uno} described their inference tool called Uno which uses the same
+technique using a two-level abstraction: a combination of a flow-sensitive
+intraprocedural analysis with a flow-insensitive interprocedural analysis. 
+They can infer uniqueness information which is used to actively free Java
+object whenever an unique reference is lost.  Ma and
+Foster~\cite{Uno} describe their inference tool Uno that uses the same
 algorithmic idea. They infer a variety of alias and encapsulation
-properties. Amongst others: Uniqueness, lending and aliasing.  Aldrich,
+properties, including uniqueness, lending and aliasing.  Aldrich,
 Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
 programmer to understand how data is shared in large software systems.
+They go beyond then just use the alias information for documentation purposes:
+They define type checking rules for their system. Hence their analysis has to be
+sound. In contrast we can also accept unsound annotations if they are still helpful for the 
+programmer's understanding of the code. None of the above
+have performed a user study to see how the inferred information can help a
+programmer to understand unsufficently documented code.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
 exceptions.  Our exception inference is weaker than theirs due to the lack of
 symbolic execution in our system.  One
 possible future extension of our work would be to integrate their exception
-analysis.  They perform a manual comparison of inferred documentation to
+analysis.  They evaluated their tool through a manual comparison of inferred documentation to
 existing documentation for several moderately-sized Java projects considered to
-have decent documentation.  We performed a user study using a library with what
+have decent documentation.  We performed a live user study using a library with what
 we felt to be average documentation, comparing the progress and feedback of
-developers using existing documentation, and developers using augmented
+developers using existing documentation to that of developers using augmented
 documentation.
