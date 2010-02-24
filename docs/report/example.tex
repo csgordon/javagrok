@@ -1,15 +1,17 @@
 \section{Example}
 \label{sec:Example}
 
-Here is an example what our tool is capable of doing.
-Note that by just looking at the method interface of 
-\texttt{public Object getAll()} a programmer does not know
-that \texttt{getAll()} will leak it's reference to it's
-internal representation. This might be a big surprise
+Consider Figure \ref{fig:preannotation}, a na\"ive collection object.
+Simply looking at the method interface of 
+\texttt{public Object getAll()}, a programmer does not know
+that \texttt{getAll()} will leak a reference to its
+internal representation. This might be surprising
 if the list of objects that get's returned keeps growing
 even though the caller of \texttt{getAll()} does not add those objects.
+%\\\\ % TODO: remove this alignment hack.  added when the first 1-2 lines of the
+% following listing appeared on the first page, the rest on the second page.
 
-
+\begin{figure}[h]
 \begin{lstlisting}
 public class A
 {
@@ -28,12 +30,19 @@ public class A
   }
 }
 \end{lstlisting}
+\label{fig:preannotation}
+\caption{An example unannotated class.}
+\end{figure}
 
-But with the annotations of our tool a programmer can 
+But with information about reference leaks and caputures added, a programmer can 
 determine that she or he will not have an uniqe reference
-to the list of all objects. And might first copy the content 
-of the list into an own, newly created list.
+to the list of all objects.  Knowing the reference is still shared by the
+library, a developer may decide to copy the content 
+of the list into a newly created list.  Figure \ref{fig:postannotation}
+shows a class annotated with reference leak and capture information produced by
+our tool.
 
+\begin{figure}[h]
 \begin{lstlisting}
 public class A
 {
@@ -54,11 +63,18 @@ public class A
   }
 }
 \end{lstlisting}
+\label{fig:postannotation}
+\caption{An example unannotated class.}
+\end{figure}
 
-In the resulting Javadoc html document our inferred annotations
-for \texttt{getAll()} will show up like this:\\
+For a simple example such as this, inspecting the library code is not a
+significant burden for the developer.  But as library size and complexity grow,
+it is preferable to refer only to condensed documentation rather than
+deciphering library code.
+Fortunately Javadoc will reproduce any source annotations in the HTML
+documentation it produces.  For \texttt{getAll()}, the documentation will
+include:\\
 \\
-{\bf getAll}\\
+{\bf getAll}()\\
 \\
 @NonUniqueReturn\\
-public Object getAll()\\

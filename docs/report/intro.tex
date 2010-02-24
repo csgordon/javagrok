@@ -4,11 +4,11 @@ Despite their best intentions, many developers routinely fail to provide
 adequate or any documentation of the code they write.  Whether because of bad
 practice, laziness or a sincere belief on the part of programmers that their
 code will soon be thrown away, much code in regular use remains undocumented.
-New developers join the team, the code gets handed off to another group, or
+New developers join the team, the code is handed off to another group, or
 perhaps even posted publicly on the Internet.  By various means, this code
 finds its way into the hands of programmers who---having been assured that this
 code will save them weeks of effort---now face a thoroughly unenviable task:
-grok a lump of un(der)documented code and figure out its interface well enough
+grok a lump of un(der)documented code and learn its interface well enough
 to solve their original problem.
 
 %Ideally, we would have an army of ingenious, classically trained Shakespearean
@@ -20,40 +20,43 @@ to solve their original problem.
 %programmer responsible for our pain.  We wonder, wouldn't it be nice if we
 %could just push a button and get some useful, if not perfect documentation?
 
-We wonder, wouldn't it be nice if we could just push a button and get some useful, albeit imperfect documentation?
+%We wonder, wouldn't it be nice if we could just push a button and get some useful, albeit imperfect documentation?
+We believe it would be useful to have a tool that could generate partial
+documentation of at least simple properties.
 
 The prototype tool we describe here, JavaGrok, seeks to do just this.  By
-applying existing static analyses to library source code and then
+applying static analyses to library source code and then
 translating the results into human readable form, we are able to
-automatically construct or augment javadoc documentation.
+automatically construct or augment Javadoc documentation.
 Using this tool, we
 consider the hypothesis that a significant amount of user pain and frustration
-with un(der)documented libraries is due to confusion about the kinds of
-nit-picky/formal properties discoverable via the
-considered analyses. (specifically nullability, mutability,
-leaking and capturing, and exceptional condition analyses)
+with un(der)documented libraries is due to confusion about
+properties discoverable via static analyses. We consider analyses for nullability, mutability,
+reference leaking and capturing, and exceptional conditions.
 Here, we distinguish between confusions about formal properties
 and conceptual
-or higher level confusions about the proper way to use a library.
+or higher level confusions about the proper way to use a library, focusing on
+the formal properties.
 
-To explore this hypothesis we are conducting a user study, comparing developers'
+To explore this hypothesis we conduct a user study, comparing developers'
 experience using a poorly documented library with and without our
 annotations.  We look at the participants' experience as revealed
 by how frequently the
 documentation fails to help resolve confusions, how frequently source
 code is referred to instead of documentation, and via qualitative exit
-questionnaires.  We will hopefully find out something useful.
+questionnaires.  We plan to use this feedback to evaluate whether the augmented
+documentation reduced developer confusion.
 
 Although there has been some previous work on automatic
-documentation annotation(CITE), this is the first attempt at a user study
+documentation annotation~\cite{autodoc}, this is the first user study
 to directly address the question
 ``Is automatically generated documentation helpful?''
 Previous work sought to answer the question
-``Is automatically generated documentation accurate,
-as compared with exemplar user documentation?''
+``Is automatically generated documentation accurate or more informative than
+exemplar user documentation?''
 While this question is certainly interesting in its own right,
-we believe that determining whether the documentation is helpful
-at all is a more pressing concern.
+we believe that determining whether the generated documentation is effective in aiding
+developers to be a crucial question.
 
 %Our hypothesis is that the properties and facts explained above help the 
 %client of a library to accomplish a programming task in which the programmer
