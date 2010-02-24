@@ -76,10 +76,12 @@ properties, including uniqueness, lending and aliasing. In their evaluation
 they focus on statistics: for example how many times UNO could infer a certain property.
 Aldrich, Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
 programmer to understand how data is shared in large software systems. 
-They do not use their alias annotations for documentation purposes, but instead use
-it to type-check code; hence their inference must be sound. In their evaluation
-they mainly show how much time they needed to annotate the source code by hand. Only
-after that they compared what their inference tools was able to infer automatically.
+They do not use their alias annotations for documentation purposes.  Their
+annotations must also be sound for type-checking. In their evaluation
+they mainly show how much time they needed to annotate the source code by hand.
+They implement inference for their annotations, but found the inference to
+produce too much information to be useful for developers (the results were too
+precise).
 None of the above have performed a user study to see how the inferred information
 can help a programmer to understand unsufficently documented code.
 
