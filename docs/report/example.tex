@@ -1,0 +1,63 @@
+\section{Example}
+
+Here is an example what our tool is capable of doing.
+Note that by just looking at the method interface of 
+\texttt{public Object getAll()} a programmer does not know
+that \texttt{getAll()} will leak it's reference to it's
+internal representation. This might be a big surprise
+if the list of objects that get's returned keeps growing
+even though the caller of \texttt{getAll()} does not add those object.
+
+
+\begin{lstlisting}
+public class A
+{
+	private LinkedList<Object> list;
+		
+	public A() {
+		list = new LinkedList<Object>();
+	}
+		
+  public void add(Object o) {
+   	list.add(o);
+  }
+    
+	public List<Object> getAll() {
+		return list;
+  }
+}
+\end{lstlisting}
+
+But with the annotations of our tool a programmer can 
+determine that she or he will not have an uniqe reference
+to the list of all objects. And might first copy the content 
+of the list into an own, newly created list.
+
+\begin{lstlisting}
+public class A
+{
+	private LinkedList<Object> list;
+	
+	@UniqueReturn
+	public A() {
+		list = new LinkedList<Object>();
+	}
+		
+  public void add(@Retained Object o) {
+   	list.add(o);
+  }
+  
+	@NonUniqueReturn
+	public List<Object> getAll() {
+		return list;
+  }
+}
+\end{lstlisting}
+
+In the resulting Javadoc html document our inferred annotations
+for \texttt{getAll()} will show up like this:\\
+\\
+{\bf getAll}\\
+\\
+@NonUniqueReturn\\
+public Object getAll()\\
