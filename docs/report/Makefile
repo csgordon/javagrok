@@ -9,9 +9,9 @@ all: pdf
 
 pdf: dvi
 	dvipdf $(DVIFILE) $(PDFFILE)
-	
+
 ps: dvi
-	dvips $(DVIFILE) -o $(PSFILE)
+	dvips -T letter -o $(PSFILE) $(DVIFILE)
 
 dvi: $(TEXFILE:%=%.tex) $(BIBFILE)
 	latex $(TEXFILE)
