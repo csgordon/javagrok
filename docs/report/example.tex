@@ -2,11 +2,11 @@
 \label{sec:Example}
 
 Consider Figure \ref{fig:pre}, a na\"ive collection object.
-Simply looking at the method interface of 
-\texttt{public Object getAll()}, a programmer does not know
+A programmer looking at the method interface of 
+\texttt{public Object getAll()} does not know
 that \texttt{getAll()} will leak a reference to its
 internal representation. This might be surprising
-if the list of objects that get's returned keeps growing
+if the list of objects that gets returned keeps growing
 even though the caller of \texttt{getAll()} does not add those objects.
 
 \begin{figure}[h]
@@ -67,7 +67,7 @@ public class A
 
 For a simple example such as this, inspecting the library code is not a
 significant burden for the developer.  But as library size and complexity grow,
-it is preferable to refer only to condensed documentation rather than
+it is preferable to refer to condensed documentation rather than
 deciphering library code.
 Fortunately Javadoc will reproduce any source annotations in the HTML
 documentation it produces.  For \texttt{getAll()}, the documentation will
