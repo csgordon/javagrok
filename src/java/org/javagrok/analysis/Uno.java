@@ -35,7 +35,7 @@ public class Uno extends AbstractAnalyzer {
 
 	@Override
 	public void init(AnalysisContext ctx) {
-		File file = new File("../uno-result/out");
+		File file = new File("dist/uno-result/out");
 		if (!file.exists()) {
 			ctx.info("UNO: analysis file does not exist (" + file.getAbsolutePath() + ")");
 			return;
