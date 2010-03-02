@@ -1,0 +1,6 @@
+mkdir -p bin
+rm bin/uno/*.class 
+rm bin/uno/analysis/*.class 
+rm bin/uno/toolkit/*.class 
+rm bin/uno/query/*.class 
+rm bin/uno/test/*.class 
