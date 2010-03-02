@@ -110,6 +110,24 @@
     </java>
   </target>
 
+  <target name="uno" depends="compile"
+          description="Runs the UNO inferencer on the compiled code.">
+    <copy todir="${javagrok.dir}/uno/bin">
+      <fileset dir="${classes.dir}" includes="**"/>
+    </copy>
+    <java classname="uno.Uno" fork="true" maxmemory="1024M">
+      <classpath>
+        <fileset dir="${javagrok.dir}/uno/lib">
+          <include name="soot-2.2.3.jar"/>
+          <include name="uno.jar"/>
+        </fileset>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <arg value="${deploy.dir}/uno-result"/>
+      <arg value="file.list"/>
+    </java>
+  </target>
+
   <target name="grok" depends="compile"
           description="Runs the JavaGrok annotation processors.">
     <mkdir dir="${deploy.dir}/grok-classes"/>
