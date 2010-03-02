@@ -112,9 +112,6 @@
 
   <target name="uno" depends="compile"
           description="Runs the UNO inferencer on the compiled code.">
-    <copy todir="${javagrok.dir}/uno/bin">
-      <fileset dir="${classes.dir}" includes="**"/>
-    </copy>
     <java classname="uno.Uno" fork="true" maxmemory="1024M">
       <classpath>
         <fileset dir="${javagrok.dir}/uno/lib">
