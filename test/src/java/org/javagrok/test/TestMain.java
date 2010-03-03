@@ -13,7 +13,6 @@ import java.util.List;
  */
 public class TestMain
 {
-	
     /** A little box, that holds an integer. */
     public static class IntBox {
         /** The initial value stored in the box. */
@@ -30,8 +29,9 @@ public class TestMain
         }
         
         public int five() {
-        	lastIntBoxOnWhichFiveWasCalled = this; // five() does not lend the receiver --> @NotLentThis!
-        	return 5;
+            // five() does not lend the receiver --> @NotLentThis!
+            lastIntBoxOnWhichFiveWasCalled = this;
+            return 5;
         }
 
         /** Increments the boxed integer by the specified amount. */
@@ -90,27 +90,27 @@ public class TestMain
     private IntBox _box;
     
     private LinkedList<Object> list;
-	
-	public void setSomeObject(Object so) {
-		list.add(so);
-	}
-	
-	public void setSomeObject2(Object so) {
-		list.add(new Object());
-	}
+    
+    public void setSomeObject(Object so) {
+        list.add(so);
+    }
+    
+    public void setSomeObject2(Object so) {
+        list.add(new Object());
+    }
 
-	public Object getSomeObject(int x) {
-		if (x < 0) throw new IllegalArgumentException();
-		return list.get(x % list.size());
-	}
-	
-	public List<Object> getAll() {
-		return list;
-	}
-	
-	public List<Object> getAll2() {
-		LinkedList<Object> linkedList = new LinkedList<Object>();
-		linkedList.addAll(this.list);
-		return linkedList;
-	}
+    public Object getSomeObject(int x) {
+        if (x < 0) throw new IllegalArgumentException();
+        return list.get(x % list.size());
+    }
+    
+    public List<Object> getAll() {
+        return list;
+    }
+    
+    public List<Object> getAll2() {
+        LinkedList<Object> linkedList = new LinkedList<Object>();
+        linkedList.addAll(this.list);
+        return linkedList;
+    }
 }
