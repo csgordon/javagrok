@@ -127,6 +127,7 @@
 
   <target name="grok" depends="compile"
           description="Runs the JavaGrok annotation processors.">
+    <delete dir="${deploy.dir}/grok-classes"/>
     <mkdir dir="${deploy.dir}/grok-classes"/>
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
            source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
@@ -171,11 +172,36 @@
     </java>
   </target>
 
-  <target name="javadoc" depends="compile"
-          description="Merges .jaif annotations into source and runs javadoc.">
-    <antcall target="-gen-annotated"/>
+  <target name="annotate-source" depends="compile">
+    <delete dir="${deploy.dir}/annotated-source"/>
+    <mkdir dir="${deploy.dir}/annotated-source"/>
+    <copy todir="${deploy.dir}/annotated-source">
+      <fileset dir="${src.dir}" includes="**/*.java"/>
+    </copy>
 
-    <echo>Running javadoc...</echo>
+    <fileset dir="${deploy.dir}" includes="**/*.jaif" id="jaif.fileset"/>
+    <pathconvert refid="jaif.fileset" pathsep=" " property="jaif.files"/>
+    <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
+
+    <java classname="annotator.Main" fork="true">
+      <bootclasspath>
+        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
+        <fileset dir="${java.home}" includes="lib/rt.jar"/>
+      </bootclasspath>
+      <classpath>
+        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <assertions><enable/></assertions>
+      <arg value="-i"/>
+      <arg line="${jaif.files}"/>
+      <arg line="${src.files}"/>
+    </java>
+  </target>
+
+  <target name="javadoc" depends="annotate-source"
+          description="Merges .jaif annotations into source and runs javadoc.">
     <mkdir dir="${javadoc.dir}"/>
     <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
              additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
@@ -192,35 +218,6 @@
               path="${javagrok.dir}/${deploy.dir}/javagrok.jar"/>
       <link href="http://java.sun.com/javase/6/docs/api/"/>
     </javadoc>
-  </target>
-
-  <target name="-gen-annotated">
-    <delete dir="${deploy.dir}/annotated-source"/>
-    <mkdir dir="${deploy.dir}/annotated-source"/>
-    <copy todir="${deploy.dir}/annotated-source">
-      <fileset dir="${src.dir}" includes="**/*.java"/>
-    </copy>
-
-    <fileset dir="${deploy.dir}" includes="**/*.jaif" id="jaif.fileset"/>
-    <pathconvert refid="jaif.fileset" pathsep=" " property="jaif.files"/>
-    <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
-    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
-
-    <echo>Inserting annotations into source...</echo>
-    <java classname="annotator.Main" fork="true">
-      <bootclasspath>
-        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
-        <fileset dir="${java.home}" includes="lib/rt.jar"/>
-      </bootclasspath>
-      <classpath>
-        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
-        <pathelement location="${classes.dir}"/>
-      </classpath>
-      <assertions><enable/></assertions>
-      <arg value="-i"/>
-      <arg line="${jaif.files}"/>
-      <arg line="${src.files}"/>
-    </java>
   </target>
 
 </project>
