@@ -132,7 +132,7 @@
            source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${deploy.dir}/grok-classes">
       <classpath>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
         <pathelement location="${deploy.dir}/grok-classes"/>
       </classpath>
       <!--<compilerarg value="-Xlint"/>
@@ -163,7 +163,7 @@
       <classpath>
         <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
         <fileset dir="${libs.dir}" includes="jsr305.jar"/>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
         <pathelement location="${deploy.dir}/grok-classes"/>
       </classpath>
       <assertions><enable/></assertions>
@@ -183,12 +183,13 @@
         <include name="${javadoc.src}"/>
       </packageset>
       <classpath>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
-        <fileset dir="../lib" includes="jsr305.jar"/>
-        <fileset dir="../lib/javarifier" includes="javarifier.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/lib" includes="jsr305.jar"/>
+        <fileset dir="${javagrok.dir}/lib/javarifier" includes="javarifier.jar"/>
         <pathelement location="${classes.dir}"/>
       </classpath>
-      <doclet name="org.javagrok.doclet.Standard" path="../${deploy.dir}/javagrok.jar"/>
+      <doclet name="org.javagrok.doclet.Standard"
+              path="${javagrok.dir}/${deploy.dir}/javagrok.jar"/>
       <link href="http://java.sun.com/javase/6/docs/api/"/>
     </javadoc>
   </target>
