@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<project name="uclisp" default="compile" basedir=".">
+  <property name="javagrok.dir" value=".."/>
+  <import file="${javagrok.dir}/build-eval.xml"/>
+</project>
