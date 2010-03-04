@@ -93,6 +93,10 @@
       	<provider classname="org.javagrok.analysis.Uno"/>
       </service>
     </jar>
+    <!-- build a jar file with our analysis annotations for compiling annotated code -->
+    <jar destfile="${deploy.dir}/javagrok-annotations.jar" basedir="${classes.dir}">
+      <include name="org/javagrok/analysis/**"/>
+    </jar>
   </target>
 
   <!-- compiles our unit tests and runs them -->

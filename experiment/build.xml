@@ -6,6 +6,7 @@
 
   <path id="build.classpath">
     <pathelement location="${classes.dir}"/>
+    <fileset dir="lib" includes="javagrok-annotations.jar"/>
   </path>
 
   <target name="prepare">
@@ -20,8 +21,8 @@
   <target name="compile" depends="prepare" description="Compiles the code.">
     <javac debug="on" source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${classes.dir}" classpathref="build.classpath">
-      <compilerarg value="-Xlint"/>
-      <compilerarg value="-Xlint:-serial"/>
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
     </javac>
   </target>
 
