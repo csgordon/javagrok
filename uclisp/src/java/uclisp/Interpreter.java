@@ -79,7 +79,7 @@ public class Interpreter
 
             if (fn == null) {
                 try {
-                    Class bic = Class.forName("B" + nm);
+                    Class bic = Class.forName("uclisp.B" + nm);
                     // create an instance of the builtin and insert it into
                     // the global environment
                     fn = (Function)bic.newInstance();
@@ -140,7 +140,8 @@ public class Interpreter
     public static void main (String[] args)
     {
         if (args.length != 1) {
-            System.out.println("Usage: java Interpreter source_file");
+            System.out.println("Usage: java uclisp.Interpreter source_file");
+            System.exit(255);
             return;
         }
 
