@@ -26,30 +26,22 @@
     </javac>
   </target>
 
-  <target name="task" depends="compile">
-    <fail unless="taskno">No task number provided. Did you mean "ant task1"?</fail>
-    <java fork="true" classname="experiment.TaskRunner">
-      <classpath>
-        <path refid="build.classpath"/>
-        <pathelement path="."/>
-      </classpath>
-      <arg value="${taskno}"/>
+  <target name="test" depends="compile">
+    <fail unless="program">No program name provided. Try "ant fact".</fail>
+    <java fork="true" classname="uclisp.Interpreter" classpathref="build.classpath">
+      <arg value="lisp/${program}.lisp"/>
     </java>
   </target>
 
-  <target name="task1">
-    <antcall target="task"><param name="taskno" value="1"/></antcall>
+  <target name="hello" description="Runs the Hello World test program.">
+    <antcall target="test"><param name="program" value="hello"/></antcall>
   </target>
 
-  <target name="task2">
-    <antcall target="task"><param name="taskno" value="2"/></antcall>
+  <target name="fact" description="Runs the factorial test program.">
+    <antcall target="test"><param name="program" value="fact"/></antcall>
   </target>
 
-  <target name="task3">
-    <antcall target="task"><param name="taskno" value="3"/></antcall>
-  </target>
-
-  <target name="task4">
-    <antcall target="task"><param name="taskno" value="4"/></antcall>
+  <target name="towers" description="Runs the Towers of Hanoi test program.">
+    <antcall target="test"><param name="program" value="towers"/></antcall>
   </target>
 </project>
