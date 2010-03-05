@@ -5,6 +5,7 @@ package org.javagrok.analysis;
 
 import java.lang.annotation.Annotation;
 import javax.lang.model.element.Element;
+import javax.annotation.processing.ProcessingEnvironment;
 
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
@@ -66,4 +67,9 @@ public interface AnalysisContext
      * Get the inner compiler context, for use with other analyses
      */
     public Context getInnerContext();
+
+    /**
+     * Get the inner processing environment
+     */
+    public ProcessingEnvironment getProcEnv();
 }

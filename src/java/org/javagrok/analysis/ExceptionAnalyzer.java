@@ -19,10 +19,16 @@ import com.sun.tools.javac.comp.Todo;
 import com.sun.tools.javac.comp.Env;
 import com.sun.source.tree.*;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.main.JavaCompiler;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.HashMap;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  * Exception analysis
@@ -34,125 +40,116 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
     }
     private class ExceptionScanner extends TreeScanner {
 	private final AnalysisContext ctx;
-	private List<String> exns;
-	private List<String> cond_exns;
-	private Stack<Pair<BoolSign,JCExpression>> current_path;
-	private Stack<JCClassDecl> current_class;
-	private Stack<JCMethodDecl> current_method;
-	private class Pair<X,Y> {
-	    public X a;
-	    public Y b;
-	    public Pair(X a, Y b) {
-		this.a = a;
-		this.b = b;
-	    }
-	}
+	private HashMap<String,String> map;
+	private JCCompilationUnit compunit;
+	private String className = "";
+
 	public ExceptionScanner(final AnalysisContext ctx) {
 	    this.ctx = ctx;
-	    current_class = new Stack<JCClassDecl>();
-	    current_method = new Stack<JCMethodDecl>();
-	    exns = new ArrayList<String>();
-	    cond_exns = new ArrayList<String>();
-	    current_path = new Stack<Pair<BoolSign,JCExpression>>();
-	}
-	public void visitClassDef (JCClassDecl tree) {
-	    ctx.info("Visiting class "+ (tree.name.length()==0 ? "<anon class>" : tree.name));
-	    ctx.info("Symbol: "+tree.sym);
-	    //if (tree.name.length() > 0) {
-	    //    ctx.addAnnotation(tree, ExceptionProperty.class,
-	    //    		  "property", tree.name + " analyzed by exception analysis!");
-	    //}
-	    current_class.push(tree);
-	    super.visitClassDef(tree);
-	    current_class.pop();
-	}
-	public void visitMethodDef (JCMethodDecl tree) {
-	    if (tree == null) {
-		throw new IllegalArgumentException("Method declaration shouldn't be null!");
-	    }
-	    //ctx.info("Visiting method "+tree.name+" in "+tree.sym+" of "+tree.sym.owner);
-	    if (tree.sym != null) {
-		exns.clear();
-		cond_exns.clear();
-	    }
-	    current_method.push(tree);
-	    super.visitMethodDef(tree);
-	    if (tree.sym != null) {
-		String exnlist = "";
-		String condexns = "";
-		if (!exns.isEmpty()) {
-		    for (String s : exns) {
-			exnlist += " " + s;
+	    try {
+		File f = new File(".splat");
+		if (f.exists()) {
+		    // build map
+		    map = new HashMap<String,String>();
+		    BufferedReader reader = new BufferedReader(new FileReader(".splat"));
+		    while (reader.ready()) {
+			String line = reader.readLine();
+			// Should really have a better delimiter...
+			String[] parts = line.split("-JAVAGROK-");
+			map.put(parts[0],parts[1]);
+			ctx.info("Mapping "+parts[0]+" to "+parts[1]);
 		    }
-		}
-		if (!cond_exns.isEmpty()) {
-		    for (String s : cond_exns) {
-			condexns += "<br>" + s;
-		    }
-		}
-		if (exnlist.length() > 0 || condexns.length() > 0) {
-		    //ctx.info("Method "+current_class.peek().name+"."+tree.name+" throws"+exnlist);
-		    ctx.addAnnotation(tree, ExceptionProperty.class,
-				      "exceptionsThrown", "explicitly throws"+exnlist,
-				      "throwsWhen", condexns);
+		    reader.close();
+		} else {
+		    map = null;
 		}
 	    }
-	    current_method.pop();
-	}
-	public void visitIf(JCIf tree) {
-	    scan(tree.cond);
-	    current_path.push(new Pair<BoolSign,JCExpression>(BoolSign.POS,tree.cond));
-	    scan(tree.thenpart);
-	    current_path.peek().a = BoolSign.NEG;
-	    scan(tree.elsepart);
-	    current_path.pop();
-	}
-	private String extractExceptionType(JCExpression e) {
-	    if (e.getKind() == Tree.Kind.NEW_CLASS)
-		return ((JCNewClass)e).getIdentifier().toString();
-	    else
-		return "Unknown: "+e.getKind()+"("+e+")";
-	}
-	private String getCurrentBranchPath() {
-	    // TODO: Need to actually expand the whole stack, not just top element
-	    if (current_path.empty()) {
-		// TODO: This isn't always (pun not intended) right either; there are some methods that always
-		// return under conditionals, and the last statement is a throw.  They're not *always* going to
-		// throw the exception.  Maybe we should just say 'under some circumstances'
-		return " always";
-	    }
-	    else {
-	        return " when "+(current_path.peek().a == BoolSign.NEG ? "!(" : "(")+current_path.peek().b+")";
+	    catch (IOException e) {
+		throw new RuntimeException("IO Error!");
 	    }
 	}
-	public void visitThrow(JCThrow tree) {
-	    super.visitThrow(tree);
-	    String exn = extractExceptionType(tree.getExpression());
-	    //ctx.info(current_class.peek().name+"."+current_method.peek().name+" throws "+exn+getCurrentBranchPath());
-	    if (!exns.contains(exn))
-		exns.add(exn);
-	    cond_exns.add(exn+getCurrentBranchPath());
-	}
-	public void visitApply(JCMethodInvocation tree) {
-	    super.visitApply(tree);
-	    //ctx.info("**Importing: "+tree.meth.sym+" owned by "+tree.meth.sym.owner+" |"+tree.meth.type);
-	    if (tree.meth.getKind() == Tree.Kind.MEMBER_SELECT) {
-	        JCFieldAccess access = (JCFieldAccess)tree.meth;
-		//ctx.info("Need to import exception analysis for "+access.type+" "+access.selected.type+"."+access.name);
-		//ctx.info("Symbol: "+access.sym+" owned by "+access.sym.owner);
-		if (access.type != null && access.type.getThrownTypes() != null && !access.type.getThrownTypes().isEmpty()) {
-		    //ctx.info("*** This method might throw!");
+	private String resolveParameterList(JCMethodDecl tree) {
+		String paramList = "";
+		boolean first = true;
+		
+		for (JCVariableDecl var : tree.getParameters()) {
+			String str = resolveTypeToString(var.getType());
+			
+			
+			if (first) {
+				first = false;
+				paramList = str;
+			} 
+			else {
+				paramList = paramList + "," + str;					
+			}
 		}
-	        //if (access.selected.getKind() == Tree.Kind.IDENTIFIER) {
-	        //    JCIdent id = (JCIdent)access.selected;
-	        //    ctx.info("MORE INFO: "+id.type+"/"+id.sym);
-	        //}
-	    } else if (tree.meth.getKind() == Tree.Kind.IDENTIFIER) {
-	        JCIdent id = (JCIdent)tree.meth;
-		//ctx.info("Need to import exception analysis for "+id.sym+" with type "+id.type);
+		
+		
+		return paramList;
+	}
+	// Helper method to resolve a JCTree which is supposed
+	// to represent a type into a string which can be
+	// used to generate a key for the hash map.
+	private String resolveTypeToString(JCTree type) {
+		String typeString = "";
+		if (type == null) {
+			return "void";
+		}
+		
+		if (type instanceof JCTree.JCTypeApply) {
+			type = ((JCTree.JCTypeApply) type).getType();
+		}
+		
+		if (type instanceof JCTree.JCIdent) {
+			typeString = ((JCTree.JCIdent) type).name.toString();//sym.getQualifiedName().toString();
+		}
+		else if (type instanceof JCTree.JCPrimitiveTypeTree) {
+			typeString = ((JCTree.JCPrimitiveTypeTree) type).getPrimitiveTypeKind().toString().toLowerCase();
+		}
+		else if (type instanceof JCTree.JCArrayTypeTree) {
+			typeString = resolveTypeToString(((JCTree.JCArrayTypeTree) type).elemtype) + "[]";
+		}
+		else {
+			typeString = type.getClass().getName();					
+		}
+		
+		return typeString;
+	}
+	public void setCompilationUnit(JCCompilationUnit unit) {
+	    //ctx.info("ExceptionAnalyzer examining "+unit.sourcefile);
+	    compunit = unit;
+	}
+	public void visitClassDef(JCClassDecl tree) {
+	    String oldName = className;
+	    if (className.equals("")) {
+		this.className = tree.getSimpleName().toString();
 	    } else {
-	        ctx.info("Method invocation on SOMETHING");
+		this.className += "$" + tree.getSimpleName().toString();
 	    }
+	    super.visitClassDef(tree);
+	    className = oldName;
+	}
+
+	public void visitMethodDef (JCMethodDecl tree) {
+	//    ctx.info("Visiting method "+tree.name+" in "+tree.sym);
+	//    ctx.info("Visiting method "+compunit.getPackageName()+"."+this.className
+	//	    +"("+resolveTypeToString(tree.getReturnType())+")"+tree.sym//tree.getName()+"("+resolveParameterList(tree)+")"
+	//	    );
+	    if (map != null) {
+		//String location = compunit.sourcefile+":"+tree.getStartPosition();
+		String location = compunit.getPackageName()+"."+this.className+"("+resolveTypeToString(tree.getReturnType())+")"+tree.sym;
+		String annot = map.get(location);
+		if (annot != null) {
+		    ctx.info("Method "+tree.name+" annotated: "+annot);
+		    ctx.addAnnotation(tree, ExceptionProperty.class,
+				      "throwsWhen", annot);
+		}
+		else {
+		    //ctx.info("Didn't match "+location);
+		}
+	    }
+	    super.visitMethodDef(tree);
 	}
     }
 
@@ -166,33 +163,23 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
     public void process (final AnalysisContext ctx, Set<? extends Element> elements)
     {
 	try {
-        for (Element elem : elements) {
-            // we'll get an Element for each top-level class in a compilation unit (source file),
-            // but scanning the AST from the top-level compilation unit will visit all classes
-            // defined therein, which would result in adding annotations multiple times for source
-            // files that define multiple top-level classes; so we specifically find the
-            // JCClassDecl in the JCCompilationUnit that corresponds to the class we're processing
-            // and only traverse its AST subtree
-            Symbol.ClassSymbol csym = (Symbol.ClassSymbol)elem;
-            JCCompilationUnit unit = ctx.getCompilationUnit(elem);
-	    Enter e = Enter.instance(ctx.getInnerContext());
-	    //e.visitTopLevel(unit);
-	    Todo todo = Todo.instance(ctx.getInnerContext());
-	    Attr attr = Attr.instance(ctx.getInnerContext());
-	    for (Env<AttrContext> env : todo) {
-	        attr.attribClass(env.tree.pos(), env.enclClass.sym);
-	        //compileStates.put(env, CompileState.ATTR);
+	    ExceptionScanner scanner = new ExceptionScanner(ctx);
+	    for (Element elem : elements) {
+		// we'll get an Element for each top-level class in a compilation unit (source file),
+		// but scanning the AST from the top-level compilation unit will visit all classes
+		// defined therein, which would result in adding annotations multiple times for source
+		// files that define multiple top-level classes; so we specifically find the
+		// JCClassDecl in the JCCompilationUnit that corresponds to the class we're processing
+		// and only traverse its AST subtree
+		Symbol.ClassSymbol csym = (Symbol.ClassSymbol)elem;
+		JCCompilationUnit unit = ctx.getCompilationUnit(elem);
+		scanner.setCompilationUnit(unit);
+		for (JCTree def : unit.defs) {
+		    if (def.getTag() == JCTree.CLASSDEF && ((JCClassDecl)def).name == csym.name) {
+			def.accept(scanner);
+		    }
+		}
 	    }
-            for (JCTree def : unit.defs) {
-                if (def.getTag() == JCTree.CLASSDEF && ((JCClassDecl)def).name == csym.name) {
-		    //def.accept(attr);
-		    //attr.visitClassDef((JCClassDecl)def);
-		    //e.visitClassDef((JCClassDecl)def);
-		    //attr.attribClass(def.pos(), csym);
-                    def.accept(new ExceptionScanner(ctx));
-                }
-            }
-        }
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}

@@ -22,7 +22,7 @@ public @interface ExceptionProperty
 {
     /** The text of the property. */
     public String throwsWhen ();
-    public String exceptionsThrown ();
+    //public String exceptionsThrown ();
 
     //public String methodsCalled ();
 

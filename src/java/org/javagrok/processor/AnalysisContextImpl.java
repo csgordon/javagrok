@@ -135,6 +135,10 @@ public class AnalysisContextImpl implements AnalysisContext
 	return _ctx;
     }
 
+    public ProcessingEnvironment getProcEnv() {
+	return _procEnv;
+    }
+
     protected ProcessingEnvironment _procEnv;
     protected Trees _trees;
     protected TreeMaker _tmaker;

@@ -154,6 +154,8 @@
       <compilerarg value="-Xlint:-serial"/>
       <compilerarg value="-processor"/>
       <compilerarg value="org.javagrok.processor.Processor"/>
+      <compilerarg value="-processor"/>
+      <compilerarg value="org.javagrok.processor.ExceptionProcessor"/>
     </javac>
 
     <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
