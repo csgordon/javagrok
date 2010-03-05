@@ -17,7 +17,6 @@ uclisp.Blt
 uclisp.Interpreter
 uclisp.UserFunction
 uclisp.Bdiv
-uclisp.Nil
 uclisp.Bsetq
 uclisp.TextAreaOutputStream
 uclisp.Bgte

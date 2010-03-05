@@ -52,7 +52,25 @@ complete. </p>
   below, along with an explanation of the meaning of the annotation. </p>
 
 <ul>
-<li> TBD
+<li><strong>@UniqueReturn</strong><br /> You might find this annotation in front of 
+a method declaration. It indicates that the returned reference is
+the unique reference to this object.</li>
+
+<li><strong>@NonUniqueReturn</strong><br /> Contrairiwise this annotation in front of
+a method declaration indicates that the returned reference is not the only reference
+existing to the referenced object.</li>
+
+<li><strong>@Retained</strong><br /> You might find this annotation in front of a method
+parameter. It indicates that this method (or one of its overriding methods in a 
+subclass) does retain the reference in at least one possible path. So if your reference
+to the object you pass into that method was the unique reference, then the reference
+might not be unique afterwards anymore.</li>
+
+<li><strong>@NotRetained</strong><br /> You might find this annotation in front of a method
+parameter. It indicates that this method (or one of its overriding methods in a 
+subclass) does <strong>not</strong> retain the reference in at least one possible path. 
+So if you pass a unique reference into that method then the uniqueness of the reference
+will be preserved by that method.</li>
 </ul>
 
 <h3>Experiment Procedure</h3>
@@ -119,7 +137,8 @@ interpreter is available here: </p>
 
 <h3>Submitting Results</h3>
 
-TBD
+To submit your findings we provide a checklist which you should have received as
+a printed copy!
 
 </body>
 </html>
