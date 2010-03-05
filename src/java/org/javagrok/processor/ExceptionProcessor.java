@@ -411,6 +411,15 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    // args is a list of actual arguments, the formals are in callee.params
 	    // We want to propagate exceptions from callee to caller if the args contain formals of the caller.
 	    // We use the args to replace the callee's formals in the conditions for the exceptions it throws.
+	    //List<JCVariableDecl> callee_formals = callee.params;
+	    //List<JCExpression> callee_actuals = args;
+	    //Iterator<JCVariableDecl> itformal = callee_formals.iterator();
+	    //Iterator<JCExpression> itactual = callee_actuals.iterator();
+	    //HashMap<Name,Name> replacements = new HashMap<Name,Name>();
+	    //while (itformal.hasNext()) {
+	    //    JCVariableDecl  = itformal.next();
+	    //    JCExpression 
+	    //}
 	}
 	public void finished() {
 	    writer.close();
