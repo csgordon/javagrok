@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="experiment" default="compile" basedir=".">
+  <property name="src.dir"     value="src"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+
+  <path id="build.classpath">
+    <pathelement location="${classes.dir}"/>
+    <fileset dir="lib" includes="javagrok-annotations.jar"/>
+  </path>
+
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${classes.dir}"/>
+  </target>
+
+  <target name="clean" description="Cleans out build results.">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compiles the code.">
+    <javac debug="on" source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${classes.dir}" classpathref="build.classpath">
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
+    </javac>
+  </target>
+
+  <target name="test" depends="compile">
+    <fail unless="program">No program name provided. Try "ant fact".</fail>
+    <java fork="true" classname="uclisp.Interpreter" classpathref="build.classpath">
+      <arg value="lisp/${program}.lisp"/>
+    </java>
+  </target>
+
+  <target name="hello" description="Runs the Hello World test program.">
+    <antcall target="test"><param name="program" value="hello"/></antcall>
+  </target>
+
+  <target name="fact" description="Runs the factorial test program.">
+    <antcall target="test"><param name="program" value="fact"/></antcall>
+  </target>
+
+  <target name="towers" description="Runs the Towers of Hanoi test program.">
+    <antcall target="test"><param name="program" value="towers"/></antcall>
+  </target>
+	
+  <target name="car" description="Runs the Car test program.">
+    <antcall target="test"><param name="program" value="car"/></antcall>
+  </target>
+  <target name="cdr" description="Runs the Cdr test program.">
+    <antcall target="test"><param name="program" value="cdr"/></antcall>
+  </target>
+  <target name="min" description="Runs the Min test program.">
+    <antcall target="test"><param name="program" value="min"/></antcall>
+  </target>
+  <target name="cons" description="Runs the Cons test program.">
+    <antcall target="test"><param name="program" value="cons"/></antcall>
+  </target>
+</project>
