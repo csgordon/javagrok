@@ -53,7 +53,7 @@ public class Interpreter
 
     public Object interpret (Progn progn) throws RunTimeException
     {
-        Object result = Nil.nil;
+        Object result = List.nil;
         for (List l = progn.sexps; !l.isNil(); l = l.cdr) {
             result = evaluateSExp(l.car);
         }
@@ -67,7 +67,6 @@ public class Interpreter
     {
         if ((sexp instanceof Integer) ||
             (sexp instanceof String) ||
-            (sexp instanceof Nil) ||
             (sexp instanceof Function) ||
             (sexp instanceof List)) {
             return sexp;
@@ -88,7 +87,7 @@ public class Interpreter
     {
         Object val = env.get(sexp);
         if (val != null) return val;
-        return Nil.nil;
+        return List.nil;
     }
 
     Object evaluateCall (List sexp) throws RunTimeException

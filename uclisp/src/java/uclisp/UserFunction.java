@@ -33,7 +33,7 @@ public class UserFunction extends Function
             // shadow this variable
             Object oval = interp.env.get(name);
             if (oval != null) shadowed.put(name, oval);
-            else shadowed.put(name, new Nil());
+            else shadowed.put(name, List.nil);
 
             // evaluate the argument and bind it to the variable
             interp.env.put(name, interp.evaluateSExp(val));
@@ -45,7 +45,7 @@ public class UserFunction extends Function
         // copy the values of the shadowed variables back into the environment
         for (Map.Entry<String,Object> entry : shadowed.entrySet()) {
             Object oval = entry.getValue();
-            if (oval instanceof Nil) interp.env.remove(entry.getKey());
+            if (oval == List.nil) interp.env.remove(entry.getKey());
             else interp.env.put(entry.getKey(), oval);
         }
 

@@ -11,7 +11,7 @@ public class Bexample extends Function
     public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
-        return Nil.nil;
+        return List.nil;
     }
 
     public int numArguments ()

@@ -11,7 +11,7 @@ public class Bprogn extends Function
     public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
-        Object rv = Nil.nil;
+        Object rv = List.nil;
         while (!args.isNil()) {
             rv = interp.evaluateSExp(args.car);
             args = args.cdr;

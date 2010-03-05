@@ -20,7 +20,7 @@ public class Bif extends Function
                 return interp.evaluateSExp(args.elementAt(2));
 
             } else {
-                return Nil.nil;
+                return List.nil;
             }
 
         } catch (ClassCastException cce) {

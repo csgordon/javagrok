@@ -28,7 +28,7 @@ public class Bdefun extends Function
             // create a new user function with this stuff
             interp.env.put(name, new UserFunction(name, alist, body));
 
-            return Nil.nil;
+            return List.nil;
 
         } catch (ClassCastException cce) {
             throw new RunTimeException(cce.toString(), args);

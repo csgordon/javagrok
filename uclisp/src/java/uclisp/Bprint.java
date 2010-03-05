@@ -27,7 +27,7 @@ public class Bprint extends Function
         }
         _out.print(buf.toString());
         _out.flush();
-        return Nil.nil;
+        return List.nil;
     }
 
     //
@@ -40,7 +40,7 @@ public class Bprint extends Function
             (v instanceof Integer)) {
             buf.append(v);
 
-        } else if (v instanceof Nil) {
+        } else if (v == List.nil) {
             buf.append("nil");
 
         } else if (v instanceof List) {

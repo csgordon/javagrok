@@ -75,7 +75,7 @@ public class Parser
 
         case Scanner.TT_WORD:
             if (_scanner.sval.equals("nil")) {
-                return new Nil();
+                return List.nil;
             } else if (quoted) {
                 return _scanner.sval;
             } else {

@@ -17,7 +17,7 @@ public class Bwhile extends Function
                 interp.interpret(new Progn(args.cdr));
                 cond = (Integer)interp.evaluateSExp(args.car);
             }
-            return Nil.nil;
+            return List.nil;
 
         } catch (ClassCastException cce) {
             throw new RunTimeException("Non-integer type used for " +
