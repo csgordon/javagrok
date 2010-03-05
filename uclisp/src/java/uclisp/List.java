@@ -27,20 +27,20 @@ public class List
         return  (index == 0) ? car : cdr.elementAt(index-1);
     }
 
-    public boolean isEmpty ()
+    public boolean isNil ()
     {
         return this == nil;
     }
 
     public int size ()
     {
-        return isEmpty() ? 0 : (cdr.size() + 1);
+        return isNil() ? 0 : (cdr.size() + 1);
     }
 
     public List reverse ()
     {
         List rev = List.nil, iter = this;
-        while (!iter.isEmpty()) {
+        while (!iter.isNil()) {
             rev = rev.cons(iter.car);
             iter = iter.cdr;
         }
@@ -50,7 +50,7 @@ public class List
     @Override public String toString ()
     {
         StringBuilder buf = new StringBuilder("(");
-        for (List l = this; !l.isEmpty(); l = l.cdr) {
+        for (List l = this; !l.isNil(); l = l.cdr) {
             if (buf.length() > 1) {
                 buf.append(" ");
             }

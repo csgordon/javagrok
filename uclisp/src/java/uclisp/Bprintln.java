@@ -8,10 +8,10 @@ public class Bprintln extends Bprint
     //
     // Bprintln public member functions
 
-    public Object evaluate (Interpreter interp, List sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
-        Object v = super.evaluate(interp, sexp);
+        Object v = super.evaluate(interp, args);
         _out.println("");
         return v;
     }

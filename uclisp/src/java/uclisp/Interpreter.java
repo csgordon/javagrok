@@ -51,20 +51,13 @@ public class Interpreter
     //
     // Interpreter public member functions
 
-    public Object interpret (Object sexp) throws RunTimeException
+    public Object interpret (Progn progn) throws RunTimeException
     {
-        // we use Progn internally for defun and while bodies
-        if (sexp instanceof Progn) {
-            List sexps = ((Progn)sexp).list;
-            Object result = null;
-            for (List l = sexps; !l.isEmpty(); l = l.cdr) {
-                result = evaluateSExp(l.car);
-            }
-            return result;
-
-        } else {
-            return evaluateSExp(sexp);
+        Object result = Nil.nil;
+        for (List l = progn.sexps; !l.isNil(); l = l.cdr) {
+            result = evaluateSExp(l.car);
         }
+        return result;
     }
 
     //
@@ -76,14 +69,14 @@ public class Interpreter
             (sexp instanceof String) ||
             (sexp instanceof Nil) ||
             (sexp instanceof Function) ||
-            (sexp instanceof QuotedList)) {
+            (sexp instanceof List)) {
             return sexp;
 
         } else if (sexp instanceof Name) {
             return getValue(sexp.toString());
 
-        } else if (sexp instanceof List) {
-            return evaluateCall((List)sexp);
+        } else if (sexp instanceof Apply) {
+            return evaluateCall(((Apply)sexp).sexp);
 
         } else {
             throw new RunTimeException("Unknown sexp type: " +
@@ -95,7 +88,7 @@ public class Interpreter
     {
         Object val = env.get(sexp);
         if (val != null) return val;
-        return new Nil();
+        return Nil.nil;
     }
 
     Object evaluateCall (List sexp) throws RunTimeException

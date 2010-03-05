@@ -5,10 +5,10 @@ package uclisp;
 
 public class Progn
 {
-    public final List list;
+    public final List sexps;
 
-    public Progn (List list)
+    public Progn (List sexps)
     {
-        this.list = list;
+        this.sexps = sexps;
     }
 }

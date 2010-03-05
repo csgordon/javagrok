@@ -11,7 +11,7 @@ public class Function
     public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public int numArguments ()

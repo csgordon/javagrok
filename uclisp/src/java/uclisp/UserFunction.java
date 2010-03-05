@@ -11,11 +11,11 @@ public class UserFunction extends Function
     //
     // UserFunction public constructor
 
-    public UserFunction (String name, List args, List sexps)
+    public UserFunction (String name, List args, List progn)
     {
         _name = name;
         _args = args;
-        _sexps = new Progn(sexps);
+        _progn = new Progn(progn);
     }
 
     //
@@ -40,7 +40,7 @@ public class UserFunction extends Function
         }
 
         // evaluate the sexps that constitute this function
-        Object result = interp.interpret(_sexps);
+        Object result = interp.interpret(_progn);
 
         // copy the values of the shadowed variables back into the environment
         for (Map.Entry<String,Object> entry : shadowed.entrySet()) {
@@ -67,5 +67,5 @@ public class UserFunction extends Function
 
     String _name;
     List _args;
-    Progn _sexps;
+    Progn _progn;
 }

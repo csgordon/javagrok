@@ -97,7 +97,7 @@ public class Parser
                                          _scanner.lineno(), "");
 
             } catch (EndOfListException e) {
-                return quoted ? new QuotedList(list.reverse()) : list.reverse();
+                return quoted ? list.reverse() : new Apply(list.reverse());
             }
         }
 

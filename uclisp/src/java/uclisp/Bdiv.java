@@ -8,21 +8,21 @@ public class Bdiv extends Function
     //
     // Bdiv public member functions
 
-    public Object evaluate (Interpreter interp, List sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
         try {
-            Integer l = (Integer)interp.evaluateSExp(sexp.elementAt(0));
-            Integer r = (Integer)interp.evaluateSExp(sexp.elementAt(1));
+            Integer l = (Integer)interp.evaluateSExp(args.elementAt(0));
+            Integer r = (Integer)interp.evaluateSExp(args.elementAt(1));
 
             if (l.intValue() == 0)
-                throw new RunTimeException("Division by zero.", sexp);
+                throw new RunTimeException("Division by zero.", args);
 
             return new Integer(r.intValue()/l.intValue());
 
         } catch (ClassCastException cce) {
             throw new RunTimeException("Non-integer type used for " +
-                                       "subtraction expression.", sexp);
+                                       "subtraction expression.", args);
         }
     }
 

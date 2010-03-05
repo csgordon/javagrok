@@ -8,28 +8,28 @@ public class Bwhile extends Function
     //
     // Bwhile public member functions
 
-    public Object evaluate (Interpreter interp, List sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
         try {
-            Integer cond = (Integer)interp.evaluateSExp(sexp.car);
+            Integer cond = (Integer)interp.evaluateSExp(args.car);
             while (cond.intValue() != 0) {
-                interp.interpret(new Progn(sexp.cdr));
-                cond = (Integer)interp.evaluateSExp(sexp.car);
+                interp.interpret(new Progn(args.cdr));
+                cond = (Integer)interp.evaluateSExp(args.car);
             }
-            return new Nil();
+            return Nil.nil;
 
         } catch (ClassCastException cce) {
             throw new RunTimeException("Non-integer type used for " +
-                                       "while expression.", sexp);
+                                       "while expression.", args);
         }
     }
 
-    public void verifyArguments (List sexp) throws RunTimeException
+    public void verifyArguments (List args) throws RunTimeException
     {
-        if (sexp.size() < 2) {
+        if (args.size() < 2) {
             throw new RunTimeException("Incorrect number of arguments " +
-                                       "to while.", sexp);
+                                       "to while.", args);
         }
     }
 }

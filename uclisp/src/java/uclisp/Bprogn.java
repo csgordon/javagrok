@@ -8,13 +8,13 @@ public class Bprogn extends Function
     //
     // Bprogn public member functions
 
-    public Object evaluate (Interpreter interp, List sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
-        Object rv = new Nil();
-        while (!sexp.isEmpty()) {
-            rv = interp.evaluateSExp(sexp.car);
-            sexp = sexp.cdr;
+        Object rv = Nil.nil;
+        while (!args.isNil()) {
+            rv = interp.evaluateSExp(args.car);
+            args = args.cdr;
         }
         return rv;
     }

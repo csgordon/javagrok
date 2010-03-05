@@ -121,7 +121,7 @@ public class Value
     protected String listToString (List list, String separator)
     {
         StringBuilder buf = new StringBuilder();
-        for (List l = list; !l.isEmpty(); l = l.cdr) {
+        for (List l = list; !l.isNil(); l = l.cdr) {
             if (buf.length() > 0) {
                 buf.append(separator);
             }

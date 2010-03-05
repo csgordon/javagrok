@@ -8,10 +8,10 @@ public class Bexample extends Function
     //
     // Bexample public member functions
 
-    public Object evaluate (Interpreter interp, List sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
-        return new Nil();
+        return Nil.nil;
     }
 
     public int numArguments ()
@@ -19,8 +19,8 @@ public class Bexample extends Function
         return 0;
     }
 
-    public void verifyArguments (List sexp) throws RunTimeException
+    public void verifyArguments (List args) throws RunTimeException
     {
-        super.verifyArguments(sexp);
+        super.verifyArguments(args);
     }
 }
