@@ -47,6 +47,18 @@ public class List
         return rev;
     }
 
+    @Override public String toString ()
+    {
+        StringBuilder buf = new StringBuilder("(");
+        for (List l = this; !l.isEmpty(); l = l.cdr) {
+            if (buf.length() > 1) {
+                buf.append(" ");
+            }
+            buf.append(l.car);
+        }
+        return buf.append(")").toString();
+    }
+
     protected List (Object car, List cdr)
     {
         this.car = car;
