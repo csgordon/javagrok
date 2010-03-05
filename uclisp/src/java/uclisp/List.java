@@ -39,7 +39,8 @@ public class List
 
     public List reverse ()
     {
-        List rev = List.nil, iter = this;
+        List rev = List.nil;
+        List iter = this;
         while (!iter.isNil()) {
             rev = rev.cons(iter.car);
             iter = iter.cdr;
