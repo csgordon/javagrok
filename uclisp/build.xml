@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<project name="uclisp" default="compile" basedir=".">
+  <property name="javagrok.dir" value=".."/>
+  <property name="javadoc.src" value="uclisp/**"/>
+  <import file="${javagrok.dir}/build-eval.xml"/>
+
+  <target name="dist" description="Rebuilds, analyzes and javadocs everything.">
+    <antcall target="clean"/>
+    <antcall target="uno"/>
+    <antcall target="grok"/>
+    <antcall target="javadoc"/>
+    <antcall target="jar"/>
+  </target>
+</project>
