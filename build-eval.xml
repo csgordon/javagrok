@@ -148,6 +148,23 @@
 
   <target name="grok" depends="compile"
           description="Runs the JavaGrok annotation processors.">
+    <!-- first we run with the exception processor -->
+    <delete dir="${deploy.dir}/grok-classes"/>
+    <mkdir dir="${deploy.dir}/grok-classes"/>
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${deploy.dir}/grok-classes">
+      <classpath>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <pathelement location="${deploy.dir}/grok-classes"/>
+      </classpath>
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
+      <compilerarg value="-processor"/>
+      <compilerarg value="org.javagrok.processor.ExceptionProcessor"/>
+    </javac>
+
+    <!-- then we run the other processors -->
     <delete dir="${deploy.dir}/grok-classes"/>
     <mkdir dir="${deploy.dir}/grok-classes"/>
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
@@ -161,8 +178,6 @@
       <compilerarg value="-Xlint:-serial"/>-->
       <compilerarg value="-processor"/>
       <compilerarg value="org.javagrok.processor.Processor"/>
-      <compilerarg value="-processor"/>
-      <compilerarg value="org.javagrok.processor.ExceptionProcessor"/>
     </javac>
 
     <!-- now extract the annotations from the classfiles -->
