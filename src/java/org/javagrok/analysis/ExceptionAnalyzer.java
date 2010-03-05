@@ -54,6 +54,7 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 		    BufferedReader reader = new BufferedReader(new FileReader(".splat"));
 		    while (reader.ready()) {
 			String line = reader.readLine();
+			ctx.info("::"+line);
 			// Should really have a better delimiter...
 			String[] parts = line.split("-JAVAGROK-");
 			map.put(parts[0],parts[1]);
