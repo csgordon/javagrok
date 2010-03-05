@@ -3,25 +3,23 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Blte extends Function
 {
     //
     // Blte public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
         try {
-            Integer l = (Integer)interp.evaluateSExp(sexp.elementAt(0));
-            Integer r = (Integer)interp.evaluateSExp(sexp.elementAt(1));
+            Integer l = (Integer)interp.evaluateSExp(args.elementAt(0));
+            Integer r = (Integer)interp.evaluateSExp(args.elementAt(1));
 
             return new Integer(l.intValue() <= r.intValue() ? 1 : 0);
 
         } catch (ClassCastException cce) {
             throw new RunTimeException("Non-integer type used for " +
-                                       "comparison expression.", sexp);
+                                       "comparison expression.", args);
         }
     }
 

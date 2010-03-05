@@ -1,47 +1,45 @@
 //
-// Bsetq - a builtin function to setq out an sexp
+// Bsetq - a builtin function to rebind a name to a value
 
 package uclisp;
-
-import java.util.Vector;
 
 public class Bsetq extends Function
 {
     //
     // Bsetq public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
         Object rhs = null;
 
-        for (int i = 0; i < sexp.size(); i += 2) {
+        for (int i = 0; i < args.size(); i += 2) {
             try {
-                String lhs = ((Name)sexp.elementAt(i)).toString();
+                String lhs = ((Name)args.elementAt(i)).toString();
                 Object orhs = interp.env.get(lhs);
-                rhs = interp.evaluateSExp(sexp.elementAt(i+1));
+                rhs = interp.evaluateSExp(args.elementAt(i+1));
 
                 if ((orhs != null) &&
                     (orhs.getClass() != rhs.getClass())) {
-                    throw new RunTimeException("Type mismatch error.", sexp);
+                    throw new RunTimeException("Type mismatch error.", args);
                 }
 
                 interp.env.put(lhs, rhs);
 
             } catch (ClassCastException cce) {
-                throw new RunTimeException(cce.toString(), sexp);
+                throw new RunTimeException(cce.toString(), args);
             }
         }
 
         return rhs;
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List args) throws RunTimeException
     {
-        if (sexp.size() < 2)
-            throw new RunTimeException("Too few arguments to setq.", sexp);
-        if (sexp.size() % 2 != 0)
+        if (args.size() < 2)
+            throw new RunTimeException("Too few arguments to setq.", args);
+        if (args.size() % 2 != 0)
             throw new RunTimeException("setq requires variable " +
-                                       "value pairs.", sexp);
+                                       "value pairs.", args);
     }
 }

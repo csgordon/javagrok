@@ -3,21 +3,19 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Bmul extends Function
 {
     //
     // Bmul public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
         try {
             int prod = 1;
 
-            for (int i = 0; i < sexp.size(); i++) {
-                Integer ival = (Integer)interp.evaluateSExp(sexp.elementAt(i));
+            for (int i = 0; i < args.size(); i++) {
+                Integer ival = (Integer)interp.evaluateSExp(args.elementAt(i));
                 prod *= ival.intValue();
             }
 
@@ -25,14 +23,14 @@ public class Bmul extends Function
 
         } catch (ClassCastException cce) {
             throw new RunTimeException("Non-integer type used for " +
-                                       "multiplication expression.", sexp);
+                                       "multiplication expression.", args);
         }
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List args) throws RunTimeException
     {
-        if (sexp.size() < 2)
+        if (args.size() < 2)
             throw new RunTimeException("Incorrect number of arguments " +
-                                       "to mul.", sexp);
+                                       "to mul.", args);
     }
 }

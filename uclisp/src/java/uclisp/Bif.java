@@ -3,39 +3,36 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Bif extends Function
 {
     //
     // Bif public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
         try {
-            Integer cond = (Integer)interp.evaluateSExp(sexp.firstElement());
-
+            Integer cond = (Integer)interp.evaluateSExp(args.car);
             if (cond.intValue() != 0) {
-                return interp.evaluateSExp(sexp.elementAt(1));
+                return interp.evaluateSExp(args.elementAt(1));
 
-            } else if (sexp.size() == 3) {
-                return interp.evaluateSExp(sexp.elementAt(2));
+            } else if (args.size() == 3) {
+                return interp.evaluateSExp(args.elementAt(2));
 
             } else {
-                return new Nil();
+                return List.nil;
             }
 
         } catch (ClassCastException cce) {
             throw new RunTimeException("Non-integer type used for " +
-                                       "conditional expression.", sexp);
+                                       "conditional expression.", args);
         }
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List args) throws RunTimeException
     {
-        if ((sexp.size() != 2) && (sexp.size() != 3))
+        if ((args.size() != 2) && (args.size() != 3))
             throw new RunTimeException("Incorrect number of arguments " +
-                                       "to if.", sexp);
+                                       "to if.", args);
     }
 }

@@ -3,17 +3,15 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Function
 {
     //
     // Function public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public int numArguments ()
@@ -26,7 +24,7 @@ public class Function
         return getClass().getName().substring(1);
     }
 
-    public void verifyArguments (Vector sexp)
+    public void verifyArguments (List sexp)
         throws RunTimeException
     {
         if (numArguments() == -1) return;

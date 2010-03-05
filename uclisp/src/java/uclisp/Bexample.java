@@ -3,17 +3,15 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Bexample extends Function
 {
     //
     // Bexample public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List args)
         throws RunTimeException
     {
-        return new Nil();
+        return List.nil;
     }
 
     public int numArguments ()
@@ -21,8 +19,8 @@ public class Bexample extends Function
         return 0;
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List args) throws RunTimeException
     {
-        super.verifyArguments(sexp);
+        super.verifyArguments(args);
     }
 }

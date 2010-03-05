@@ -3,10 +3,8 @@
 
 package uclisp;
 
-import java.io.InputStream;
 import java.io.IOException;
-
-import java.util.Vector;
+import java.io.Reader;
 
 class EndOfListException extends Exception
 {
@@ -17,7 +15,7 @@ public class Parser
     //
     // Parser public constructor
 
-    Parser (InputStream in)
+    Parser (Reader in)
     {
         _scanner = new Scanner(in);
     }
@@ -27,15 +25,15 @@ public class Parser
 
     // parse the input stream. function definitions are parsed as calls to the
     // function defun and the interpreter will work it all out
-    public List parse () throws ParseException
+    public Progn parse () throws ParseException
     {
-        List sexps = new List();
+        List sexps = List.nil;
 
         // insert everything into one big top level list for execution
         try {
             Object val;
-            while ((val = parseSExp()) != null) sexps.addElement(val);
-            return sexps;
+            while ((val = parseSExp()) != null) sexps = sexps.cons(val);
+            return new Progn(sexps.reverse());
 
         } catch (IOException ioe) {
             throw new ParseException("IOException: " + ioe,
@@ -77,7 +75,7 @@ public class Parser
 
         case Scanner.TT_WORD:
             if (_scanner.sval.equals("nil")) {
-                return new Nil();
+                return List.nil;
             } else if (quoted) {
                 return _scanner.sval;
             } else {
@@ -88,18 +86,18 @@ public class Parser
             return _scanner.sval;
 
         case '(': {
-            Vector list = (quoted ? new List() : new Vector());
+            List list = List.nil;
 
             try {
                 Object sexp;
-                while ((sexp = parseSExp()) != null) list.addElement(sexp);
+                while ((sexp = parseSExp()) != null) list = list.cons(sexp);
 
                 // uh oh, hit EOF
                 throw new ParseException("Premature end of sexp.",
                                          _scanner.lineno(), "");
 
             } catch (EndOfListException e) {
-                return list;
+                return quoted ? list.reverse() : new Apply(list.reverse());
             }
         }
 

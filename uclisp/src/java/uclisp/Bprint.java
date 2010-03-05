@@ -5,62 +5,8 @@ package uclisp;
 
 import java.io.PrintStream;
 
-import java.util.Vector;
-
 public class Bprint extends Function
 {
-    //
-    // Bprint public member functions
-
-    public Object evaluate (Interpreter interp, Vector sexp)
-        throws RunTimeException
-    {
-        return evaluate(interp, sexp, "");
-    }
-
-    public Object evaluate (Interpreter interp, Vector sexp, String sep)
-        throws RunTimeException
-    {
-        for (int i = 0; i < sexp.size(); i++) {
-            if (i > 0) {
-                _out.print(sep);
-            }
-            printValue(interp, sexp.elementAt(i));
-        }
-        _out.flush();
-        return new Nil();
-    }
-
-    //
-    // Bprint protected member functions
-
-    public void printValue (Interpreter interp, Object v)
-        throws RunTimeException
-    {
-        if ((v instanceof String) ||
-            (v instanceof Integer)) {
-            _out.print(v);
-
-        } else if (v instanceof Nil) {
-            _out.print("nil");
-
-        } else if (v instanceof List) {
-            _out.print("(");
-            evaluate(interp, (Vector)v, " ");
-            _out.print(")");
-
-        } else if (v instanceof Name) {
-            printValue(interp, interp.evaluateSExp(v));
-
-        } else if (v instanceof Vector) {
-            printValue(interp, interp.evaluateSExp(v));
-
-        } else {
-            throw new RunTimeException("print: invalid type: " +
-                                       v.getClass().getName(), v);
-        }
-    }
-
     //
     // Bprint public static member functions
 
@@ -70,7 +16,57 @@ public class Bprint extends Function
     }
 
     //
+    // Bprint public member functions
+
+    public Object evaluate (Interpreter interp, List args)
+        throws RunTimeException
+    {
+        StringBuilder buf = new StringBuilder();
+        for (List l = args; !l.isNil(); l = l.cdr) {
+            formatValue(interp, l.car, buf);
+        }
+        _out.print(buf.toString());
+        _out.flush();
+        return List.nil;
+    }
+
+    //
+    // Bprint protected member functions
+
+    protected void formatValue (Interpreter interp, Object v, StringBuilder buf)
+        throws RunTimeException
+    {
+        if ((v instanceof String) ||
+            (v instanceof Integer)) {
+            buf.append(v);
+
+        } else if (v == List.nil) {
+            buf.append("nil");
+
+        } else if (v instanceof List) {
+            buf.append("(");
+            for (List l = (List)v; !l.isNil(); l = l.cdr) {
+                if (l != v) {
+                    buf.append(" ");
+                }
+                formatValue(interp, l.car, buf);
+            }
+            buf.append(")");
+
+        } else if (v instanceof Name) {
+            formatValue(interp, interp.evaluateSExp(v), buf);
+
+        } else if (v instanceof Apply) {
+            formatValue(interp, interp.evaluateSExp(v), buf);
+
+        } else {
+            throw new RunTimeException("print: invalid type: " +
+                                       v.getClass().getName(), v);
+        }
+    }
+
+    //
     // Bprint protected static data members
 
-    static PrintStream _out = System.out;
+    protected static PrintStream _out = System.out;
 }
