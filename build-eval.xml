@@ -127,12 +127,13 @@
 
   <target name="grok" depends="compile"
           description="Runs the JavaGrok annotation processors.">
+    <delete dir="${deploy.dir}/grok-classes"/>
     <mkdir dir="${deploy.dir}/grok-classes"/>
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
            source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${deploy.dir}/grok-classes">
       <classpath>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
         <pathelement location="${deploy.dir}/grok-classes"/>
       </classpath>
       <!--<compilerarg value="-Xlint"/>
@@ -163,7 +164,7 @@
       <classpath>
         <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
         <fileset dir="${libs.dir}" includes="jsr305.jar"/>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
         <pathelement location="${deploy.dir}/grok-classes"/>
       </classpath>
       <assertions><enable/></assertions>
@@ -171,29 +172,7 @@
     </java>
   </target>
 
-  <target name="javadoc" depends="compile"
-          description="Merges .jaif annotations into source and runs javadoc.">
-    <antcall target="-gen-annotated"/>
-
-    <echo>Running javadoc...</echo>
-    <mkdir dir="${javadoc.dir}"/>
-    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
-             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
-      <packageset dir="${deploy.dir}/annotated-source">
-        <include name="${javadoc.src}"/>
-      </packageset>
-      <classpath>
-        <fileset dir="../${deploy.dir}" includes="javagrok.jar"/>
-        <fileset dir="../lib" includes="jsr305.jar"/>
-        <fileset dir="../lib/javarifier" includes="javarifier.jar"/>
-        <pathelement location="${classes.dir}"/>
-      </classpath>
-      <doclet name="org.javagrok.doclet.Standard" path="../${deploy.dir}/javagrok.jar"/>
-      <link href="http://java.sun.com/javase/6/docs/api/"/>
-    </javadoc>
-  </target>
-
-  <target name="-gen-annotated">
+  <target name="annotate-source" depends="compile">
     <delete dir="${deploy.dir}/annotated-source"/>
     <mkdir dir="${deploy.dir}/annotated-source"/>
     <copy todir="${deploy.dir}/annotated-source">
@@ -205,7 +184,6 @@
     <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
 
-    <echo>Inserting annotations into source...</echo>
     <java classname="annotator.Main" fork="true">
       <bootclasspath>
         <fileset dir="${javac.home}" includes="lib/javac.jar"/>
@@ -220,6 +198,26 @@
       <arg line="${jaif.files}"/>
       <arg line="${src.files}"/>
     </java>
+  </target>
+
+  <target name="javadoc" depends="annotate-source"
+          description="Merges .jaif annotations into source and runs javadoc.">
+    <mkdir dir="${javadoc.dir}"/>
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
+      <packageset dir="${deploy.dir}/annotated-source">
+        <include name="${javadoc.src}"/>
+      </packageset>
+      <classpath>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/lib" includes="jsr305.jar"/>
+        <fileset dir="${javagrok.dir}/lib/javarifier" includes="javarifier.jar"/>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <doclet name="org.javagrok.doclet.Standard"
+              path="${javagrok.dir}/${deploy.dir}/javagrok.jar"/>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
   </target>
 
 </project>

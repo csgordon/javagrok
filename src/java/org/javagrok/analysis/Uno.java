@@ -19,6 +19,7 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCTypeAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.List;
@@ -26,8 +27,19 @@ import com.sun.tools.javac.util.Name;
 
 public class Uno extends AbstractAnalyzer {
 	
+	private static boolean ADD_NOT_ESCAPING = false;
+	private static boolean ADD_ESCAPING = false;
+	
+	private static boolean ADD_NOT_RETAINED = true;
+	private static boolean ADD_RETAINED = true;
+
+	private static boolean ADD_UNIQUE_RETURN = true;
+	private static boolean ADD_NONUNIQUE_RETURN = true;
+	
+	private static boolean ADD_NOT_RETAINED_THIS = false;
+	private static boolean ADD_RETAINED_THIS = false;
+	
 	private boolean unoFileExists = false;
-	private int annotatedMethods = 0;
 	private int nonAnnotatedMethods = 0;
 	private boolean emitErrorAboutMissingProperty = true;
 	
@@ -87,7 +99,8 @@ public class Uno extends AbstractAnalyzer {
 	
     class UnoScanner extends TreeScanner {
     	
-    	private AnalysisContext ctx;
+    	private static final int NUMBER_OF_MISSING_INFORMATION_TO_DISPLAY = 5;
+		private AnalysisContext ctx;
 		private String packageName;
 		private String className = "";
     	
@@ -114,30 +127,37 @@ public class Uno extends AbstractAnalyzer {
 			}
 			
 			// Iterate over all fields of the class
-//			List<JCTree> members = tree.getMembers();
-//			for (JCTree m : members) {
-//				if (m instanceof JCVariableDecl) {
-//					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
-//
-//					// TODO How to find out if field is private? Because leaking is only interesting in the case of private fields.
-//					// Hmmm... but the problem is that Javadoc does not include private stuff into the documentation anyway, right?
-//					
-//					//if (var.getType() is not primitive type) {
-//					String key = this.packageName + "." + this.className + "." + var.getName();
-//					if (visitedKeys.contains(key)) {
-//						continue;
-//					}
-//					visitedKeys.add(key);
-//					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
-//						ctx.info("UNO: Adding annotation to field: " + key);
-//						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is never leaked"); // TODO Better text here... :-)	
-//					}
-//					else if (falseFieldProperties.containsKey(key) && falseFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
-//						ctx.info("UNO: Adding annotation to field: " + key);
-//						ctx.addAnnotation(var, UnoAnnotation.class, "property", "Field is leaked"); // TODO Better text here... :-)
-//					}
-//				}
-//			}
+			List<JCTree> members = tree.getMembers();
+			for (JCTree m : members) {
+				if (m instanceof JCVariableDecl) {
+					JCVariableDecl var = (JCVariableDecl) m; // var is a field of the class
+
+					JCModifiers modifiers = var.getModifiers();
+					
+					String key = this.packageName + "." + this.className + "." + var.getName();
+									
+					//if (visitedKeys.contains(key) || !modifiers.getFlags().contains(Modifier.PRIVATE)) {
+					if (visitedKeys.contains(key) || !modifiers.toString().contains("private")) {
+						continue;
+					}
+					visitedKeys.add(key);
+					if (trueFieldProperties.containsKey(key) && trueFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
+						if (ADD_NOT_ESCAPING) {
+							ctx.info("UNO: Adding annotation to field: " + key + " : @NotEscaping");							
+							ctx.addAnnotation(var, NotEscaping.class);
+						}
+					}
+					else if (falseFieldProperties.containsKey(key) && falseFieldProperties.get(key).contains(UnoProperty.NESCFIELD)) {
+						if (ADD_ESCAPING) {
+							ctx.info("UNO: Adding annotation to field: " + key + " : @Escaping");
+							ctx.addAnnotation(var, Escaping.class);							
+						}
+					}
+					else {
+						//ctx.info("UNO: Can't find NESCFIELD field information for key: " + key);
+					}
+				}
+			}
 			
 			super.visitClassDef(tree);
 			
@@ -147,59 +167,132 @@ public class Uno extends AbstractAnalyzer {
 		
         public void visitMethodDef (JCMethodDecl tree) {
         	if (!unoFileExists) return;
-			String key = this.packageName + "." + this.className + "." + tree.getName();
+			JCTree returnType = tree.getReturnType();
+			String returnTypeString = resolveTypeToString(returnType);
+			
+			String key = this.packageName + "." + this.className + " " + returnTypeString + " " + tree.getName() + "(" + resolveParameterList(tree) + ")" ;
 
         	if (visitedKeys.contains(key)) {
 				return;
 			}
 			visitedKeys.add(key);
 			
-
-        	JCTree returnType = tree.getReturnType();
-			if (!(returnType instanceof JCTree.JCPrimitiveTypeTree)) {
+			// Add uniqueness information of returned object
+			if (!(returnType instanceof JCTree.JCPrimitiveTypeTree) && !"java.lang.String".equals(resolveTypeToString(returnType))) {
 				if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
-					ctx.info("UNO: Adding annotation for method: " + key);
-					ctx.addAnnotation(tree, UniqueReturn.class);
-					annotatedMethods++;
+					if (ADD_UNIQUE_RETURN) {
+						ctx.info("UNO: Adding annotation for method: " + key + " : @UniqueReturn");
+						ctx.addAnnotation(tree, UniqueReturn.class);						
+					}
 				}
 				else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.UNIQRET)) {
-					ctx.info("UNO: Adding annotation for method: " + key);
-					ctx.addAnnotation(tree, NonUniqueReturn.class);
-					annotatedMethods++;
+					if (ADD_NONUNIQUE_RETURN) {
+						ctx.info("UNO: Adding annotation for method: " + key + " : @NonUniqueReturn");
+						ctx.addAnnotation(tree, NonUniqueReturn.class);						
+					}
 				}
 				else {
 					nonAnnotatedMethods++;
 					if (emitErrorAboutMissingProperty) {
 						ctx.info("UNO: No property for method with key: \"" + key + "\". Was the file we read in from UNO really generated with the same source code we are analyzing now?");        			
-						if ((nonAnnotatedMethods - 5) > annotatedMethods) {
+						if (nonAnnotatedMethods > NUMBER_OF_MISSING_INFORMATION_TO_DISPLAY) {
 							ctx.info("UNO: Future missing property messages ommited...");
 							emitErrorAboutMissingProperty = false;
 						}        			
 					}
 				}	
 			}
-
+			
+			// Add retention information of receiver object
+			
+			if (trueMethodProperties.containsKey(key) && trueMethodProperties.get(key).contains(UnoProperty.LENTBASE)) {
+				if (ADD_NOT_RETAINED_THIS) {
+					ctx.info("UNO: Adding annotation for method: " + key + " : @NotRetainedThis");
+					ctx.addAnnotation(tree, NotRetainedThis.class);
+				}
+			}
+			else if (falseMethodProperties.containsKey(key) && falseMethodProperties.get(key).contains(UnoProperty.LENTBASE)) {
+				if (ADD_RETAINED_THIS) {
+					ctx.info("UNO: Adding annotation for method: " + key + " : @RetainedThis");
+					ctx.addAnnotation(tree, RetainedThis.class);
+				}
+			}
+			else {
+				//ctx.info("UNO: Can't find LentThis field information for key: " + key);
+			}
         	
-        	
+			// Add parameter retention information
             int i = 0; // i is the parameter index
             for (JCVariableDecl param : tree.params) {
-            	//System.out.println("    " + param.getName());
-            	key = this.packageName + "." + this.className + "." + tree.getName() + "(" + i + ")";
-                
+            	key = this.packageName + "." + this.className + " " + returnTypeString + " " + tree.getName() + "(" + resolveParameterList(tree) + ")" + "[" + i + "]";
             	if (trueParameterProperties.containsKey(key) && trueParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
-            		ctx.info("UNO: Adding annotation for parameter: " + key);
-            		ctx.addAnnotation(param, NotRetained.class);
+            		if (ADD_NOT_RETAINED) {
+            			ctx.info("UNO: Adding annotation for parameter: " + key + " : @NotRetained");
+            			ctx.addAnnotation(param, NotRetained.class);            			
+            		}
             	}
             	else if (falseParameterProperties.containsKey(key) && falseParameterProperties.get(key).contains(UnoProperty.LENTPAR)) {
-            		ctx.info("UNO: Adding annotation for parameter: " + key);
-            		ctx.addAnnotation(param, Retained.class);
+            		if (ADD_RETAINED) {
+            			ctx.info("UNO: Adding annotation for parameter: " + key + " : @Retained");
+            			ctx.addAnnotation(param, Retained.class);            			
+            		}
             	}
             	else {
-            		//ctx.info("No property for key: " + key);
+            		//ctx.info("UNO: No property for parameter with key: \"" + key + "\".");        			
             	}
                 i++;
             }
         }
+
+		private String resolveParameterList(JCMethodDecl tree) {
+			String paramList = "";
+			boolean first = true;
+			
+			for (JCVariableDecl var : tree.getParameters()) {
+				String str = resolveTypeToString(var.getType());
+				
+				
+				if (first) {
+					first = false;
+					paramList = str;
+				} 
+				else {
+					paramList = paramList + "," + str;					
+				}
+			}
+			
+			
+			return paramList;
+		}
+		
+		// Helper method to resolve a JCTree which is supposed
+		// to represent a type into a string which can be
+		// used to generate a key for the hash map.
+		private String resolveTypeToString(JCTree type) {
+			String typeString = "";
+			if (type == null) {
+				return "void";
+			}
+			
+			if (type instanceof JCTree.JCTypeApply) {
+				type = ((JCTree.JCTypeApply) type).getType();
+			}
+			
+			if (type instanceof JCTree.JCIdent) {
+				typeString = ((JCTree.JCIdent) type).sym.getQualifiedName().toString();
+			}
+			else if (type instanceof JCTree.JCPrimitiveTypeTree) {
+				typeString = ((JCTree.JCPrimitiveTypeTree) type).getPrimitiveTypeKind().toString().toLowerCase();
+			}
+			else if (type instanceof JCTree.JCArrayTypeTree) {
+				typeString = resolveTypeToString(((JCTree.JCArrayTypeTree) type).elemtype) + "[]";
+			}
+			else {
+				typeString = type.getClass().getName();					
+			}
+			
+			return typeString;
+		}
       
     }
     
@@ -277,9 +370,9 @@ public class Uno extends AbstractAnalyzer {
     	}
 	}
     
-    private void addPropertyForMethod(String property, boolean holds, String className, String methodName) {
+    private void addPropertyForMethod(String property, boolean holds, String className, String methodName, String returnType) {
     	UnoProperty p = getProptertyFromString(property);
-    	String key = className + "." + methodName;
+    	String key = className + " " + returnType + " " + methodName;
     	HashMap<String, HashSet<UnoProperty>> map;
     	if (holds) {
     		map = trueMethodProperties;
@@ -290,9 +383,9 @@ public class Uno extends AbstractAnalyzer {
     	addPropertyToMap(p, key, map);
     }
     
-    private void addPropertyForParameter(String property, boolean holds, String className, String methodName, int paramIndex) {
+    private void addPropertyForParameter(String property, boolean holds, String className, String methodName, int paramIndex, String returnType) {
     	UnoProperty p = getProptertyFromString(property);
-    	String key = className + "." + methodName + "(" + paramIndex + ")";
+    	String key = className + " " + returnType + " " + methodName + "[" + paramIndex + "]";
     	HashMap<String, HashSet<UnoProperty>> map;
     	if (holds) {
     		map = trueParameterProperties;
@@ -319,30 +412,33 @@ public class Uno extends AbstractAnalyzer {
 			ctx.info("UNO: " + text);
 			throw new IllegalArgumentException(text);
 		}
-		int i = 0;
-		String property = parts[i++];
-		Boolean holds = Boolean.parseBoolean(parts[i++]);  // TODO might be "True?" how to handle it? as false? as true? Maybe best would be to ignore the line then... 
-		String className = parts[i++];
-		String methodOrFieldName = parts[i++];
-		
+
+		String property = parts[0];
+		Boolean holds = Boolean.parseBoolean(parts[1]);  // TODO might be "True?" how to handle it? as false? as true? Maybe best would be to ignore the line then... 
+		String className = parts[2];
+		String methodOrFieldName;
+		String returnType;
 		
 		switch (firstChar) {
-		case 'm':  // Method annotation: m UniqRet True org.javagrok.test.TestMain main
-			addPropertyForMethod(property, holds, className, methodOrFieldName);
+		case 'm':  // Method annotation: m UniqRet True org.javagrok.test.TestMain void main(java.lang.String[])
+			returnType = parts[3];
+			methodOrFieldName = parts[4];
+			addPropertyForMethod(property, holds, className, methodOrFieldName, returnType);
 			break;
-		case 'p':  // Parameter annotation: p LentPar True org.javagrok.test.TestMain main 0 java.lang.String[] [True] <-- last one optional
+		case 'p':  // Parameter annotation: p NEscPar True org.javagrok.test.TestMain void main(java.lang.String[]) 0 java.lang.String[] [True] <-- last one optional
 			if (parts.length < 6) {
 				String text = "Parameter information should have 6 or 7 parts";
 				ctx.info("UNO: " + text);
 				throw new IllegalArgumentException(text);
 			}
 			try {
-				int parameterNumber = Integer.parseInt(parts[i]);
-				i++;
-				String parameterType = parts[i++];
+				returnType = parts[3];
+				methodOrFieldName = parts[4];
+				int parameterNumber = Integer.parseInt(parts[5]);
+				String parameterType = parts[6];
 				String nofield = "";
-				if (parts.length == 7) {
-					nofield = parts[i++];
+				if (parts.length == 8) {
+					nofield = parts[7];
 				}
 				
 				/* If nofield is false it means that the reference might get retained in a local field.
@@ -353,16 +449,17 @@ public class Uno extends AbstractAnalyzer {
 				 * data structure.
 				 */
 				if (Boolean.parseBoolean(nofield) || nofield.equals("")) {
-					addPropertyForParameter(property, holds, className, methodOrFieldName, parameterNumber); // TODO Handle no-fld field					
+					addPropertyForParameter(property, holds, className, methodOrFieldName, parameterNumber, returnType);					
 				}
 			} 
 			catch (NumberFormatException e) {
-				String text = "Parameter number was not an integer: " + parts[i];
+				String text = "Parameter number was not an integer";
 				ctx.info("UNO: " + text);
 				throw new IllegalArgumentException(text);
 			}
 			break;
 		case 'f':  // Field annotation: f NEscField True org.javagrok.test.TestMain _box
+			methodOrFieldName = parts[3];
 			addPropertyForField(property, holds, className, methodOrFieldName);
 			break;
 		default:

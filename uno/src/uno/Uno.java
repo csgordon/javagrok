@@ -317,8 +317,25 @@ public class Uno {
 			SootMethod m, Bool truth) {
 		String text = q.toString();
 		String annot = text.substring(0, text.indexOf(' '))+ " ";
-		Msg.println("m " + annot + truth + " " + c.toString() + " " + m.getName() + " //" + q);
+		Msg.println("m " + annot + truth + " " + c.toString() + " " + m.getReturnType() + " " + m.getName() + "(" + unwrapParameters(m) + ") //" + q);
 	}
+	
+	private static String unwrapParameters(SootMethod m) {
+		String paramList = "";
+		boolean first = true;
+		
+		for (Object o : m.getParameterTypes()) {
+			if (first) {
+				first = false;
+				paramList = o.toString();				
+			}
+			else {
+				paramList = paramList + "," + o.toString();	
+			}
+		}
+		return paramList;
+	}
+	
 	private static void printParameterInformationPlusFld(SootClass c, Query q,
 			SootMethod m, int k, Bool truth, boolean b) {
 		String text = q.toString();
@@ -330,13 +347,13 @@ public class Uno {
 		else {
 			nofld = "False";
 		}
-		Msg.println("p " + annot + truth + " " + c.toString() + " " + m.getName() + " " + k + " " + m.getParameterType(k) + " " + nofld + " //" + q);
+		Msg.println("p " + annot + truth + " " + c.toString() + " " + m.getReturnType() + " " + m.getName() + "(" + unwrapParameters(m) + ") " + k + " " + m.getParameterType(k) + " " + nofld + " //" + q);
 	}
 	private static void printParameterInformation(SootClass c, Query q,
 			SootMethod m, int k, Bool truth) {
 		String text = q.toString();
 		String annot = text.substring(0, text.indexOf(' '))+ " ";
-		Msg.println("p " + annot + truth + " " + c.toString() + " " + m.getName() + " " + k + " " + m.getParameterType(k) + " //" + q);
+		Msg.println("p " + annot + truth + " " + c.toString() + " " + m.getReturnType() + " " + m.getName() + "(" + unwrapParameters(m) + ") " + k + " " + m.getParameterType(k) + " //" + q);
 	}
 	private static void printFieldInformation(SootClass c, Query q,
 			SootField f, Bool truth) {
