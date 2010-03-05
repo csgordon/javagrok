@@ -3,8 +3,6 @@
 
 package uclisp;
 
-import java.io.PrintStream;
-
 import java.util.Vector;
 
 public class Bprintln extends Bprint

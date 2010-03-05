@@ -4,7 +4,6 @@
 package uclisp;
 
 import java.io.InputStream;
-import java.io.IOException;
 import java.io.StreamTokenizer;
 
 public class Scanner extends StreamTokenizer
