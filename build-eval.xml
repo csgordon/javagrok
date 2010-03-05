@@ -104,10 +104,31 @@
     <java jar="${libs.dir}/JavaNonNullInferencer.jar" fork="true">
         <!-- more heap is needed to get this analysis to run -->
         <jvmarg value="-Xmx512M"/>
-        <arg value="-d"/>
-        <arg value="${deploy.dir}/JavaNonNullInferencer"/>
+        <arg value="-d"/><arg value="${deploy.dir}/JavaNonNullInferencer"/>
+        <arg value="-import"/><arg value="org.javagrok.analysis.NonNull"/>
         <arg line="${src.files}"/>
     </java>
+
+    <!-- now we compile the annotated source and extract the annotations -->
+    <delete dir="${deploy.dir}/null-classes"/>
+    <mkdir dir="${deploy.dir}/null-classes"/>
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${deploy.dir}/JavaNonNullInferencer" destdir="${deploy.dir}/null-classes">
+      <classpath>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok-annotations.jar"/>
+      </classpath>
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
+    </javac>
+
+    <!-- finally extract the annotations from the classfiles -->
+    <delete dir="${deploy.dir}/null"/>
+    <mkdir dir="${deploy.dir}/null"/>
+    <antcall target="-extract-annotations">
+      <param name="jaif.dir" value="${deploy.dir}/null"/>
+      <param name="aclasses.dir" value="${deploy.dir}/null-classes"/>
+    </antcall>
   </target>
 
   <target name="uno" depends="compile"
@@ -140,37 +161,15 @@
       <compilerarg value="-Xlint:-serial"/>-->
       <compilerarg value="-processor"/>
       <compilerarg value="org.javagrok.processor.Processor"/>
+      <compilerarg value="-processor"/>
+      <compilerarg value="org.javagrok.processor.ExceptionProcessor"/>
     </javac>
 
-    <!-- the AFU extractor writes all jaif files to the current directory, so -->
-    <!-- we run the JVM inside the dist/grok directory to avoid annoyance -->
-    <mkdir dir="${deploy.dir}/grok"/>
-
-    <!-- we have to manually enumerate all classes for AFU -->
-    <fileset dir="${classes.dir}" includes="**/*.class" id="bin.fileset"/>
-    <pathconvert refid="bin.fileset" pathsep=" " property="afu.classes">
-      <chainedmapper>
-        <mapper type="regexp" from="${classes.dir}/(.*)" to="\1"/>
-        <mapper type="package" from="*.class" to="*"/>
-      </chainedmapper>
-    </pathconvert>
-
-    <java classname="annotations.io.classfile.ClassFileReader" fork="true"
-          dir="${deploy.dir}/grok">
-      <bootclasspath>
-        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
-        <fileset dir="${java.home}" includes="lib/rt.jar"/>
-        <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
-      </bootclasspath>
-      <classpath>
-        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
-        <fileset dir="${libs.dir}" includes="jsr305.jar"/>
-        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
-        <pathelement location="${deploy.dir}/grok-classes"/>
-      </classpath>
-      <assertions><enable/></assertions>
-      <arg line="${afu.classes}"/>
-    </java>
+    <!-- now extract the annotations from the classfiles -->
+    <antcall target="-extract-annotations">
+      <param name="jaif.dir" value="${deploy.dir}/grok"/>
+      <param name="aclasses.dir" value="${deploy.dir}/grok-classes"/>
+    </antcall>
   </target>
 
   <target name="annotate-source" depends="compile">
@@ -185,6 +184,7 @@
     <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
 
+    <echo>Annotating using ${jaif.files}</echo>
     <java classname="annotator.Main" fork="true">
       <bootclasspath>
         <fileset dir="${javac.home}" includes="lib/javac.jar"/>
@@ -222,4 +222,38 @@
     </javadoc>
   </target>
 
+  <target name="-extract-annotations">
+    <fail unless="jaif.dir">jaif.dir must indicate where to place jaif files</fail>
+    <fail unless="aclasses.dir">aclasses.dir must specify location of annotated class files</fail>
+
+    <!-- the AFU extractor writes all jaif files to the current directory, so -->
+    <!-- we run the JVM inside the directory where we want the jaif files -->
+    <mkdir dir="${jaif.dir}"/>
+
+    <!-- we have to manually enumerate all classes for AFU -->
+    <fileset dir="${aclasses.dir}" includes="**/*.class" id="bin.fileset"/>
+    <pathconvert refid="bin.fileset" pathsep=" " property="afu.classes">
+      <chainedmapper>
+        <mapper type="regexp" from="${aclasses.dir}/(.*)" to="\1"/>
+        <mapper type="package" from="*.class" to="*"/>
+      </chainedmapper>
+    </pathconvert>
+
+    <java classname="annotations.io.classfile.ClassFileReader" fork="true"
+          dir="${jaif.dir}">
+      <bootclasspath>
+        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
+        <fileset dir="${java.home}" includes="lib/rt.jar"/>
+        <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
+      </bootclasspath>
+      <classpath>
+        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
+        <fileset dir="${libs.dir}" includes="jsr305.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <pathelement location="${aclasses.dir}"/>
+      </classpath>
+      <assertions><enable/></assertions>
+      <arg line="${afu.classes}"/>
+    </java>
+  </target>
 </project>
