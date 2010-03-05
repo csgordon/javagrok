@@ -11,8 +11,8 @@ public class Bcdr extends Function
      * 
      * Welcome to the fourth task.
      * 
-     * You're fourth task is to implement the 'cdr' function
-     * which returns the tail of the given list.
+     * You're fourth task is to implement the 'cdr' function which returns the
+     * tail of the given list.
      * 
      * cons takes exactly one argument: a list
      * 

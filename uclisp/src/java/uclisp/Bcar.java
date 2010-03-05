@@ -11,10 +11,10 @@ public class Bcar extends Function
      * 
      * Welcome to the third task.
      * 
-     * You're third task is to implement the 'car' function
-     * which returns the head of the given list.
+     * You're third task is to implement the 'car' function which returns the
+     * head of the given list.
      * 
-     * cons takes exactly one argument: a list
+     * car takes exactly one argument: a list
      * 
      * examples: (car (cons 3 nil)) --> 3
      *           (car nil) --> nil

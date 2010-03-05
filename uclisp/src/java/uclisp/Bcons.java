@@ -9,11 +9,11 @@ public class Bcons extends Function
      * TASK 2
      * ======
      * 
-     * Welcome to the second task. We hope you still have some
-     * cookies left... ;)
+     * Welcome to the second task. We hope you still have some cookies
+     * left... ;)
      * 
-     * You're second task is to implement the 'cons' function
-     * which constructs a list. 
+     * You're second task is to implement the 'cons' function which constructs
+     * a list.
      * 
      * cons takes two arguments: a head, and a tail list.
      * 
