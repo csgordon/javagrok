@@ -140,6 +140,10 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    untraceable_branches = 0;
 	    // XXX TODO: untraceables left to do: loops(4),break or return? goto?
 	    writer = new PrintWriter(new FileWriter(splatfile));
+
+            // TMP: we need to resolve this class the finish() phase because any class loading at
+            // that point causes the compiler to choke and die
+            new MyPretty(null, false, null);
 	}
 	private String className = "";
 	public void visitTopLevel(JCCompilationUnit tree) {
