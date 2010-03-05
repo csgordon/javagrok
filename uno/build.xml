@@ -1,0 +1,38 @@
+<!-- stock build configuration -->
+<project name="uno" default="compile" basedir=".">
+
+  <property name="app.ident" value="uno"/>
+  <property name="src.dir" value="src"/>
+  <property name="deploy.dir" value="dist"/>
+
+  <path id="clazzpath">
+    <pathelement location="${deploy.dir}/classes"/>
+    <fileset dir="lib" includes="soot-*.jar"/>
+  </path>
+
+  <target name="clean">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/classes"/>
+    <mkdir dir="${deploy.dir}/lib"/>
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes" debug="on"
+           optimize="off" deprecation="on" includeAntRuntime="no" source="1.6" target="1.6">
+      <classpath>
+        <path refid="clazzpath"/>
+      </classpath>
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
+    </javac>
+  </target>
+
+  <target name="dist" depends="compile">
+    <jar destfile="${deploy.dir}/${app.ident}.jar" basedir="${deploy.dir}/classes"/>
+  </target>
+
+</project>
