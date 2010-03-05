@@ -93,9 +93,16 @@
       	<provider classname="org.javagrok.analysis.Uno"/>
       </service>
     </jar>
-    <!-- build a jar file with our analysis annotations for compiling annotated code -->
+    <!-- build a jar file with the annotations needed to compile annotated code -->
+    <unjar src="lib/javarifier/javarifier.jar" dest="${classes.dir}">
+      <patternset>
+        <include name="checkers/quals/**"/>
+        <include name="checkers/javari/quals/**"/>
+      </patternset>
+    </unjar>
     <jar destfile="${deploy.dir}/javagrok-annotations.jar" basedir="${classes.dir}">
       <include name="org/javagrok/analysis/**"/>
+      <include name="checkers/**"/>
     </jar>
   </target>
 
