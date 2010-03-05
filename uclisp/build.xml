@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project name="uclisp" default="compile" basedir=".">
+  <property name="javagrok.dir" value=".."/>
+  <property name="javadoc.src" value="uclisp/**"/>
+  <import file="${javagrok.dir}/build-eval.xml"/>
+
+  <target name="dist" description="Rebuilds, analyzes and javadocs everything.">
+    <antcall target="clean"/>
+    <antcall target="javarifier"/>
+    <antcall target="uno"/>
+    <antcall target="grok"/>
+    <antcall target="javadoc"/>
+    <antcall target="jar"/>
+  </target>
+
+  <target name="test" depends="compile" description="Runs the interpreter on a test file.">
+    <fail unless="test">No program name provided. Use: ant -Dtest=foo test</fail>
+    <java fork="true" classname="uclisp.Interpreter" classpathref="classpath">
+      <arg value="examples/${test}.lisp"/>
+    </java>
+  </target>
+</project>

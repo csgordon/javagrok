@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!-- a shard build file for our various evaluation subprojects -->
+<project name="build-eval" basedir=".">
+
+  <property name="src.dir"     value="src/java"/>
+  <property name="deploy.dir"  value="dist"/>
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="javadoc.dir" value="${deploy.dir}/docs"/>
+
+  <property file="${javagrok.dir}/build.properties"/>
+  <property name="libs.dir" value="${javagrok.dir}/lib/"/>
+  <property name="javadoc.src" value="**"/>
+
+  <!-- default locations for various third party tools -->
+  <property name="javac.home" value="${java.home}/.."/>
+  <property name="afu.dir" value="${libs.dir}/afu"/>
+  <property name="afu-scripts.dir" value="${libs.dir}/afu"/>
+  <property name="javarifier.dir" value="${libs.dir}/javarifier"/>
+  <property name="javarifier-stubs.dir" value="${libs.dir}/javarifier"/>
+
+  <path id="classpath">
+    <pathelement location="${classes.dir}"/>
+  </path>
+
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+  </target>
+
+  <target name="clean"
+          description="Completely removes build result directory.">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <target name="compile" depends="prepare"
+          description="Compiles the code.">
+    <mkdir dir="${classes.dir}"/>
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${classes.dir}">
+      <classpath refid="classpath"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile"
+          description="Builds compiled classes into a jar file.">
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar">
+      <fileset dir="${classes.dir}" includes="**"/>
+      <fileset dir="${deploy.dir}/annotated-source" includes="**" excludes="**/*.unannotated"/>
+    </jar>
+  </target>
+
+  <target name="javarifier" depends="compile"
+          description="Runs Javarifier on the compiled classes.">
+    <path id="world.classpath">
+      <fileset dir="${java.home}">
+        <include name="lib/charsets.jar"/>
+        <include name="lib/jce.jar"/>
+        <include name="lib/jsse.jar"/>
+        <include name="lib/management-agent.jar"/>
+        <include name="lib/resources.jar"/>
+        <include name="lib/rt.jar"/>
+      </fileset>
+      <fileset dir="${java.home}/..">
+        <include name="Classes/classes.jar"/>
+      </fileset>
+    </path>
+
+    <!-- we have to manually enumerate the classes on which javarifier will run -->
+    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="all.classes">
+      <chainedmapper>
+        <mapper type="regexp" from="${src.dir}/(.*)" to="\1"/>
+        <mapper type="package" from="*.java" to="*"/>
+      </chainedmapper>
+    </pathconvert>
+
+    <mkdir dir="${deploy.dir}/javarifier"/>
+    <java classname="javarifier.Main">
+      <classpath>
+        <fileset dir="${javarifier.dir}" includes="javarifier.jar"/>
+        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
+      </classpath>
+      <!--<arg value="-Q"/>-->
+      <!--<arg value="-printStubs"/>-->
+      <arg value="-defaultStubCPEntries"/>
+      <arg value="${javarifier-stubs.dir}/jdk.jar"/>
+      <arg value="-defaultWorldCPEntries"/>
+      <arg pathref="world.classpath"/>
+      <arg value="-programCPEntries"/>
+      <arg value="${classes.dir}"/>
+      <arg value="-output"/>
+      <arg value="${deploy.dir}/javarifier/test.jaif"/>
+      <arg line="${all.classes}"/>
+    </java>
+    <delete dir="sootOutput"/>
+  </target>
+
+  <target name="nullability" depends="prepare"
+          description="Does the nullability inference dance.">
+    <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
+    <java jar="${libs.dir}/JavaNonNullInferencer.jar" fork="true">
+        <!-- more heap is needed to get this analysis to run -->
+        <jvmarg value="-Xmx512M"/>
+        <arg value="-d"/>
+        <arg value="${deploy.dir}/JavaNonNullInferencer"/>
+        <arg line="${src.files}"/>
+    </java>
+  </target>
+
+  <target name="uno" depends="compile"
+          description="Runs the UNO inferencer on the compiled code.">
+    <java classname="uno.Uno" fork="true" maxmemory="1024M">
+      <classpath>
+        <fileset dir="${javagrok.dir}/uno/lib">
+          <include name="soot-2.2.3.jar"/>
+          <include name="uno.jar"/>
+        </fileset>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <arg value="${deploy.dir}/uno-result"/>
+      <arg value="file.list"/>
+    </java>
+  </target>
+
+  <target name="grok" depends="compile"
+          description="Runs the JavaGrok annotation processors.">
+    <delete dir="${deploy.dir}/grok-classes"/>
+    <mkdir dir="${deploy.dir}/grok-classes"/>
+    <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
+           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           srcdir="${src.dir}" destdir="${deploy.dir}/grok-classes">
+      <classpath>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <pathelement location="${deploy.dir}/grok-classes"/>
+      </classpath>
+      <!--<compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>-->
+      <compilerarg value="-processor"/>
+      <compilerarg value="org.javagrok.processor.Processor"/>
+    </javac>
+
+    <!-- the AFU extractor writes all jaif files to the current directory, so -->
+    <!-- we run the JVM inside the dist/grok directory to avoid annoyance -->
+    <mkdir dir="${deploy.dir}/grok"/>
+
+    <!-- we have to manually enumerate all classes for AFU -->
+    <fileset dir="${classes.dir}" includes="**/*.class" id="bin.fileset"/>
+    <pathconvert refid="bin.fileset" pathsep=" " property="afu.classes">
+      <chainedmapper>
+        <mapper type="regexp" from="${classes.dir}/(.*)" to="\1"/>
+        <mapper type="package" from="*.class" to="*"/>
+      </chainedmapper>
+    </pathconvert>
+
+    <java classname="annotations.io.classfile.ClassFileReader" fork="true"
+          dir="${deploy.dir}/grok">
+      <bootclasspath>
+        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
+        <fileset dir="${java.home}" includes="lib/rt.jar"/>
+        <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
+      </bootclasspath>
+      <classpath>
+        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
+        <fileset dir="${libs.dir}" includes="jsr305.jar"/>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <pathelement location="${deploy.dir}/grok-classes"/>
+      </classpath>
+      <assertions><enable/></assertions>
+      <arg line="${afu.classes}"/>
+    </java>
+  </target>
+
+  <target name="annotate-source" depends="compile">
+    <delete dir="${deploy.dir}/annotated-source"/>
+    <mkdir dir="${deploy.dir}/annotated-source"/>
+    <copy todir="${deploy.dir}/annotated-source">
+      <fileset dir="${src.dir}" includes="**/*.java"/>
+    </copy>
+
+    <fileset dir="${deploy.dir}" includes="**/*.jaif" id="jaif.fileset"/>
+    <pathconvert refid="jaif.fileset" pathsep=" " property="jaif.files"/>
+    <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
+    <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
+
+    <java classname="annotator.Main" fork="true">
+      <bootclasspath>
+        <fileset dir="${javac.home}" includes="lib/javac.jar"/>
+        <fileset dir="${java.home}" includes="lib/rt.jar"/>
+        <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
+      </bootclasspath>
+      <classpath>
+        <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <assertions><enable/></assertions>
+      <arg value="-i"/>
+      <arg line="${jaif.files}"/>
+      <arg line="${src.files}"/>
+    </java>
+  </target>
+
+  <target name="javadoc" depends="annotate-source"
+          description="Merges .jaif annotations into source and runs javadoc.">
+    <mkdir dir="${javadoc.dir}"/>
+    <javadoc windowtitle="Javagrok API" doctitle="Javagrok API" destdir="${javadoc.dir}"
+             additionalparam="-breakiterator" executable="${javac.home}/bin/javadoc">
+      <packageset dir="${deploy.dir}/annotated-source">
+        <include name="${javadoc.src}"/>
+      </packageset>
+      <classpath>
+        <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok.jar"/>
+        <fileset dir="${javagrok.dir}/lib" includes="jsr305.jar"/>
+        <fileset dir="${javagrok.dir}/lib/javarifier" includes="javarifier.jar"/>
+        <pathelement location="${classes.dir}"/>
+      </classpath>
+      <doclet name="org.javagrok.doclet.Standard"
+              path="${javagrok.dir}/${deploy.dir}/javagrok.jar"/>
+      <link href="http://java.sun.com/javase/6/docs/api/"/>
+    </javadoc>
+  </target>
+
+</project>
