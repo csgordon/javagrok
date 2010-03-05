@@ -55,7 +55,10 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
 
-
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 /**
  * The main entry point for the javac analysis executing annotation processor.
@@ -84,7 +87,8 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	private Types types;
 	private Stack<HashSet<Object[]>> throwstack;
 	private int untraceable_branches;
-	public ExceptionScanner(final AnalysisContextImpl ctx) {
+	private PrintWriter writer;
+	public ExceptionScanner(final AnalysisContextImpl ctx, String splatfile) throws IOException {
 	    this.ctx = ctx;
 	    current_class = new Stack<JCClassDecl>();
 	    current_method = new Stack<JCMethodDecl>();
@@ -96,23 +100,27 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    throwstack = new Stack<HashSet<Object[]>>();
 	    untraceable_branches = 0;
 	    // XXX TODO: untraceables left to do: loops(4),break or return? goto?
+	    writer = new PrintWriter(new FileWriter(splatfile));
 	}
+	private String className = "";
 	public void visitTopLevel(JCCompilationUnit tree) {
 	    ctx.info("XXXXXXXXXX NEW TOP LEVEL");
 	    super.visitTopLevel(tree);
 	}
 	public void visitClassDef (JCClassDecl tree) {
-	    ctx.info("Visiting class "+ (tree.name.length()==0 ? "<anon class>" : tree.name));
-	    ctx.info("Symbol: "+tree.sym);
-	    if (tree.name.length()==0) {
+
+	    //ctx.info("Visiting class "+ (tree.name.length()==0 ? "<anon class>" : tree.name));
+	    //ctx.info("Symbol: "+tree.sym);
+	    String oldName = className;
+	    if (className.equals("")) {
+		this.className = tree.getSimpleName().toString();
+	    } else {
+		this.className += "$" + tree.getSimpleName().toString();
 	    }
-	    //if (tree.name.length() > 0) {
-	    //    ctx.addAnnotation(tree, ExceptionProperty.class,
-	    //    		  "property", tree.name + " analyzed by exception analysis!");
-	    //}
 	    current_class.push(tree);
 	    super.visitClassDef(tree);
 	    current_class.pop();
+	    className = oldName;
 	}
 	public String splatException(TypeMirror type,
 				     Stack<JCExpression> throwPath,
@@ -120,16 +128,64 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 				     boolean sometimes) {
 	    // TODO: Need to actually expand the whole stack, not just top element
 	    if (sometimes || throwPath.empty()) {
-		return type+" sometimes";
+		return type+" under some nontrivial conditions";
 	    } else {
 	        return type+" when "+(throwSigns.peek() == 0 ? "!(" : "(")+throwPath.peek()+")";
 	    }
+	}
+	private String resolveParameterList(JCMethodDecl tree) {
+		String paramList = "";
+		boolean first = true;
+		
+		for (JCVariableDecl var : tree.getParameters()) {
+			String str = resolveTypeToString(var.getType());
+			
+			
+			if (first) {
+				first = false;
+				paramList = str;
+			} 
+			else {
+				paramList = paramList + "," + str;					
+			}
+		}
+		
+		
+		return paramList;
+	}
+	// Helper method to resolve a JCTree which is supposed
+	// to represent a type into a string which can be
+	// used to generate a key for the hash map.
+	private String resolveTypeToString(JCTree type) {
+		String typeString = "";
+		if (type == null) {
+			return "void";
+		}
+		
+		if (type instanceof JCTree.JCTypeApply) {
+			type = ((JCTree.JCTypeApply) type).getType();
+		}
+		
+		if (type instanceof JCTree.JCIdent) {
+			typeString = ((JCTree.JCIdent) type).name.toString();//sym.getQualifiedName().toString();
+		}
+		else if (type instanceof JCTree.JCPrimitiveTypeTree) {
+			typeString = ((JCTree.JCPrimitiveTypeTree) type).getPrimitiveTypeKind().toString().toLowerCase();
+		}
+		else if (type instanceof JCTree.JCArrayTypeTree) {
+			typeString = resolveTypeToString(((JCTree.JCArrayTypeTree) type).elemtype) + "[]";
+		}
+		else {
+			typeString = type.getClass().getName();					
+		}
+		
+		return typeString;
 	}
 	public void visitMethodDef (JCMethodDecl tree) {
 	    if (tree == null) {
 		throw new IllegalArgumentException("Method declaration shouldn't be null!");
 	    }
-	    ctx.info("Visiting method "+tree.name+" in "+tree.sym+" of "+tree.sym.owner);
+	    //ctx.info("Visiting method "+tree.name+" in "+tree.sym+" of "+tree.sym.owner);
 	    if (tree.sym != null) {
 		exns.clear();
 		cond_exns.clear();
@@ -141,20 +197,26 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    if (tree.sym != null) {
 		String exnlist = "";
 		String condexns = "";
+		String loc = compunit.getPackageName()+"."+this.className+"("+resolveTypeToString(tree.getReturnType())+")"+tree.sym;
+		String splat = "";
+		//String loc = compunit.sourcefile+":"+tree.getStartPosition();
 		// Trust me, if you're crying reading this, imagine how I feel writing it
 		// Stupid compiler bugs.
+		HashSet<TypeMirror> alreadyThrown = new HashSet<TypeMirror>();
 		for (Object[] ex : throwstack.peek()) {
 		    TypeMirror throwType = (TypeMirror)ex[0];
 		    Stack<JCExpression> throwPath = (Stack<JCExpression>)ex[1];
 		    Stack<Integer> throwSigns = (Stack<Integer>)ex[2];
 		    boolean sometimes = (boolean)(Boolean)ex[3];
-		    // XXX TODO: Still need file name
-		    ctx.info("splatting: method at "+tree.getStartPosition()+"("+tree.sym.owner+"."+tree.sym+") throws "+splatException(throwType, throwPath, throwSigns, sometimes));
-		    //condexns += "<br>" + splatException(throwType, throwPath, throwSigns, sometimes);
+		    if (!alreadyThrown.contains(throwType) || !sometimes) {
+			splat += "<br>"+splatException(throwType, throwPath, throwSigns, sometimes);
+			alreadyThrown.add(throwType);
+		    }
 		}
-		//if (!throwstack.peek().isEmpty()) {
-		//    ctx.info("splatting: \n"+condexns);
-		//}
+		if (!throwstack.peek().isEmpty()) {
+		    ctx.info("splatting: "+loc+"=>"+splat);
+		    writer.println(loc+"-JAVAGROK-"+splat);
+		}
 		//if (!exns.isEmpty()) {
 		//    for (String s : exns) {
 		//	exnlist += " " + s;
@@ -266,7 +328,7 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    String exn = extractExceptionType(tree.getExpression());
 	    Type t = tree.getExpression().type;
 	    TypeMirror ty = t.asElement().asType();
-	    ctx.info("***"+current_class.peek().name+"."+current_method.peek().name+" throws "+ty+getCurrentBranchPath());
+	    //ctx.info("***"+current_class.peek().name+"."+current_method.peek().name+" throws "+ty+getCurrentBranchPath());
 	    if (!exns.contains(exn))
 		exns.add(exn);
 	    cond_exns.add(exn+getCurrentBranchPath());
@@ -304,6 +366,14 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	        ctx.info("Method invocation on SOMETHING");
 	    }
 	}
+
+	private JCCompilationUnit compunit;
+	public void setCompilationUnit(CompilationUnitTree unit) {
+	    compunit = (JCCompilationUnit)unit;
+	}
+	public void finished() {
+	    writer.close();
+	}
     }
     @Override // from AbstractProcessor
     public void init (final ProcessingEnvironment procEnv)
@@ -324,77 +394,30 @@ public class ExceptionProcessor extends AbstractTypeProcessor
         // the analysis context liases between javac internals and the analyzers
         _ctx = new AnalysisContextImpl(procEnv);
 
-        // locate our analyses via their META-INF/services declarations
-        //for (String aname : findAnalyses(procEnv)) {
-        //    try {
-        //        _analyzers.add((Analyzer)Class.forName(aname).newInstance());
-        //    } catch (Exception e) {
-        //        _ctx.warn("Failed to instantiate analyzer '" + aname + "': " + e);
-        //    }
-        //}
-
-        // now initialize our analyzers
-        //for (Analyzer a : _analyzers) {
-        //    try {
-        //        a.init(_ctx);
-        //    } catch (Exception e) {
-        //        _ctx.warn("Failed to initialize analyzer '" + a + "': " + e);
-        //    }                
-        //}
-
         _ctx.info("JavaGrok:ExceptionProcessor running");
+	try {
+	    String splatfile = ".splat";
+	    File f = new File(splatfile);
+	    if (f.exists()) {
+		f.delete();
+	    }
+	    f.createNewFile();
+	    scanner = new ExceptionScanner(_ctx, splatfile);
+	}
+	catch (IOException e) {
+	    e.printStackTrace();
+	    throw new RuntimeException("Cannot perform exception analysis with file error!");
+	}
     }
-
-    //@Override // from AbstractProcessor
-    //public boolean process (Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
-    //{
-    //    // run our analyzers in turn
-    //    for (Analyzer a : _analyzers) {
-    //        try {
-    //            a.process(_ctx, roundEnv.getRootElements());
-    //        } catch (Exception e) {
-    //            _ctx.warn("Analyzer failed in process() '" + a + "': " + e);
-    //            e.printStackTrace(System.err);
-    //        }
-    //    }
-    //    return false;
-    //}
-
-    //protected List<String> findAnalyses (ProcessingEnvironment procEnv)
-    //{
-    //    List<String> provs = new ArrayList<String>();
-    //    try {
-    //        Enumeration<URL> svcurls =
-    //            getClass().getClassLoader().getResources("META-INF/services/" + SERVICE_NAME);
-    //        while (svcurls.hasMoreElements()) {
-    //            readProviders(provs, svcurls.nextElement());
-    //        }
-    //    } catch (IOException ioe) {
-    //        procEnv.getMessager().printMessage(
-    //            Diagnostic.Kind.WARNING, "JavaGrok failed to enumerate analyzers: " + ioe);
-    //    }
-    //    return provs;
-    //}
-
-    //protected void readProviders (List<String> provs, URL svcurl)
-    //    throws IOException
-    //{
-    //    BufferedReader bin = new BufferedReader(new InputStreamReader(svcurl.openStream()));
-    //    try {
-    //        String prov;
-    //        while ((prov = bin.readLine()) != null) {
-    //            provs.add(prov);
-    //        }
-    //    } finally {
-    //        bin.close();
-    //    }
-    //}
 
     public void typeProcess(TypeElement element, TreePath tree)
     {
 	_ctx.info("Type-processing "+element);
-	elements.addAll(element.getEnclosedElements());
-	((JCTree)tree.getLeaf()).accept(new ExceptionScanner(_ctx));
+	//elements.addAll(element.getEnclosedElements());
+	if (scanner != null) {
+	    scanner.setCompilationUnit(tree.getCompilationUnit());
+	    ((JCTree)tree.getLeaf()).accept(scanner);
+	}
     }
 
     public void typeProcessingOver()
@@ -408,8 +431,12 @@ public class ExceptionProcessor extends AbstractTypeProcessor
         //        e.printStackTrace(System.err);
         //    }
         //}
+	if (scanner != null) {
+	    scanner.finished();
+	}
     }
 
+    protected ExceptionScanner scanner;
     protected AnalysisContextImpl _ctx;
     protected List<Analyzer> _analyzers = new ArrayList<Analyzer>();
     protected Set<Element> elements = new HashSet<Element>();
