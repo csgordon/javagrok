@@ -6,7 +6,7 @@
 
   <target name="dist" description="Rebuilds, analyzes and javadocs everything.">
     <antcall target="clean"/>
-    <antcall target="javarifier"/>
+    <!--<antcall target="javarifier"/>-->
     <antcall target="uno"/>
     <antcall target="grok"/>
     <antcall target="javadoc"/>
