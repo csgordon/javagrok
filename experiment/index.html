@@ -52,25 +52,31 @@ complete. </p>
   below, along with an explanation of the meaning of the annotation. </p>
 
 <ul>
-<li><strong>@UniqueReturn</strong><br /> You might find this annotation in front of 
-a method declaration. It indicates that the returned reference is
-the unique reference to this object.</li>
+<li><strong>@UniqueReturn</strong><br /> Occurs on method declarations.
+  Indicates that the return value is a unique reference to its referent.</li>
 
-<li><strong>@NonUniqueReturn</strong><br /> Contrairiwise this annotation in front of
-a method declaration indicates that the returned reference is not the only reference
-existing to the referenced object.</li>
+<li><strong>@NonUniqueReturn</strong><br /> Occurs on method declarations.
+  Contrairiwise indicates that the return value is not the only reference
+  existing to the referent.</li>
 
-<li><strong>@Retained</strong><br /> You might find this annotation in front of a method
-parameter. It indicates that this method (or one of its overriding methods in a 
-subclass) does retain the reference in at least one possible path. So if your reference
-to the object you pass into that method was the unique reference, then the reference
-might not be unique afterwards anymore.</li>
+<li><strong>@Retained</strong><br /> Occurs on method parameters. Indicates
+  that this method (or one of its overriding methods in a subclass) retains the
+  reference in at least one possible path. If the reference you supplied was a
+  unique reference, it may not be unique afterwards.</li>
 
-<li><strong>@NotRetained</strong><br /> You might find this annotation in front of a method
-parameter. It indicates that this method (or one of its overriding methods in a 
-subclass) does <strong>not</strong> retain the reference in at least one possible path. 
-So if you pass a unique reference into that method then the uniqueness of the reference
-will be preserved by that method.</li>
+<li><strong>@NotRetained</strong><br /> Occurs on method parameters. Indicates
+  that this method (or one of its overriding methods in a subclass) does
+  <strong>not</strong> retain the reference along any path.  If you supply a
+  unique reference, the uniqueness of the reference will be preserved.</li>
+
+<li><strong>@NonNull</strong><br /> Occurs on method parameters and return
+  values.  In the case of a method parameter, indicates that null must not be
+  passed in that parameter. In the case of a return value, indicates that the
+  method will not return null.</li>
+
+<li><strong>@Throws</strong><br /> Occurs on method declarations. Indicates
+  exceptions thrown by the method and the conditions under which they are
+  thrown.</li>
 </ul>
 
 <h3>Experiment Procedure</h3>
