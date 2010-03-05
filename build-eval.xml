@@ -91,10 +91,20 @@
       <arg value="-programCPEntries"/>
       <arg value="${classes.dir}"/>
       <arg value="-output"/>
-      <arg value="${deploy.dir}/javarifier/test.jaif"/>
+      <arg value="${deploy.dir}/javarifier/annotations.jaif"/>
       <arg line="${all.classes}"/>
     </java>
     <delete dir="sootOutput"/>
+
+    <!-- javarifier seems to be emitting annotation information that causes AFU -->
+    <!-- to choke, so we work around it by simply removing that extra info, awesome! -->
+    <exec executable="grep" output="${deploy.dir}/javarifier/annotations.tmp">
+      <arg value="-v"/>
+      <arg value="inner-type"/>
+      <arg value="${deploy.dir}/javarifier/annotations.jaif"/>
+    </exec>
+    <move file="${deploy.dir}/javarifier/annotations.tmp"
+          tofile="${deploy.dir}/javarifier/annotations.jaif"/>
   </target>
 
   <target name="nullability" depends="prepare"
@@ -199,7 +209,6 @@
     <fileset dir="${deploy.dir}/annotated-source" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
 
-    <echo>Annotating using ${jaif.files}</echo>
     <java classname="annotator.Main" fork="true">
       <bootclasspath>
         <fileset dir="${javac.home}" includes="lib/javac.jar"/>
