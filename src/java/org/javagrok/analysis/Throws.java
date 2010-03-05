@@ -11,19 +11,12 @@ import java.lang.annotation.Target;
 
 /**
  * Reports exceptions thrown by a method, and under what circumstances.
- *
- * TODO: maybe we should split this up into ParamProperty, MethodProperty, FieldProperty and
- * ClassProperty?
  */
 @Documented
 @Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
-public @interface ExceptionProperty
+public @interface Throws
 {
-    /** The text of the property. */
-    public String throwsWhen ();
-    //public String exceptionsThrown ();
-
-    //public String methodsCalled ();
-
+    /** Details the conditions under which this exception is thrown. */
+    public String when ();
 }

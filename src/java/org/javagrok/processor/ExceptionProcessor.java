@@ -31,7 +31,6 @@ import com.sun.source.util.TreePath;
 
 import org.javagrok.analysis.AnalysisContext;
 import org.javagrok.analysis.Analyzer;
-import org.javagrok.analysis.ExceptionProperty;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;

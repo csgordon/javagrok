@@ -143,8 +143,7 @@ public class ExceptionAnalyzer extends AbstractAnalyzer
 		String annot = map.get(location);
 		if (annot != null) {
 		    ctx.info("Method "+tree.name+" annotated: "+annot);
-		    ctx.addAnnotation(tree, ExceptionProperty.class,
-				      "throwsWhen", annot);
+		    ctx.addAnnotation(tree, Throws.class, "when", annot);
 		}
 		else {
 		    //ctx.info("Didn't match "+location);
