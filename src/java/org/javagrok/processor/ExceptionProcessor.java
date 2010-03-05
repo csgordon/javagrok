@@ -396,6 +396,22 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	public void setCompilationUnit(CompilationUnitTree unit) {
 	    compunit = (JCCompilationUnit)unit;
 	}
+	private Symbol getSymbol(JCExpression exp) {
+	    if (exp.getKind() == Tree.Kind.MEMBER_SELECT) {
+		return ((JCFieldAccess)exp).sym;
+	    }
+	    else if (exp.getKind() == Tree.Kind.IDENTIFIER) {
+		return ((JCIdent)exp).sym;
+	    }
+	    else {
+		return null;
+	    }
+	}
+	private void propagateFromToWithArgs(JCMethodDecl callee, JCMethodDecl caller, List<JCExpression> args) {
+	    // args is a list of actual arguments, the formals are in callee.params
+	    // We want to propagate exceptions from callee to caller if the args contain formals of the caller.
+	    // We use the args to replace the callee's formals in the conditions for the exceptions it throws.
+	}
 	public void finished() {
 	    writer.close();
 	    ctx.info("throwmap has "+throwmap.size()+" entries.");
@@ -409,6 +425,19 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    ctx.info("methdefs has "+methdefs.size()+" entries.");
 
 	    // Now for the big time: propagation:
+	    for (JCMethodDecl m : callmap.keySet()) {
+		for (Object[] app : callmap.get(m)) {
+		    JCMethodInvocation inv = (JCMethodInvocation)app[0];
+		    //ctx.info("Looking up invocation of "+getSymbol(inv.meth)+" in "+m.sym);
+		    JCMethodDecl target = methdefs.get(getSymbol(inv.meth));
+		    //ctx.info("Found target: "+target);
+		    // target is null if the method call is to a core class or such, we didn't analyze it
+		    if (target != null && !throwmap.get(target).isEmpty()) {
+			ctx.info("Need to propagate exceptions from "+target.getName()+" to "+m.getName());
+			propagateFromToWithArgs(target, m, inv.args);
+		    }
+		}
+	    }
 	}
     }
     @Override // from AbstractProcessor
