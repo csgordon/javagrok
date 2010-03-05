@@ -12,14 +12,12 @@ public class Blt extends Function
         throws RunTimeException
     {
         try {
-            Integer l = (Integer)interp.evaluateSExp(args.elementAt(0));
-            Integer r = (Integer)interp.evaluateSExp(args.elementAt(1));
-
-            return new Integer(l.intValue() < r.intValue() ? 1 : 0);
+            int l = (Integer)interp.evaluateSExp(args.car);
+            int r = (Integer)interp.evaluateSExp(args.cdr.car);
+            return l < r ? 1 : 0;
 
         } catch (ClassCastException cce) {
-            throw new RunTimeException("Non-integer type used for " +
-                                       "comparison expression.", args);
+            return fail("Non-integer type used in < expression.", args);
         }
     }
 

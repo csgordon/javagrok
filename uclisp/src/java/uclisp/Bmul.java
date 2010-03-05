@@ -13,24 +13,19 @@ public class Bmul extends Function
     {
         try {
             int prod = 1;
-
-            for (int i = 0; i < args.size(); i++) {
-                Integer ival = (Integer)interp.evaluateSExp(args.elementAt(i));
-                prod *= ival.intValue();
+            for (List l = args; !l.isNil(); l = l.cdr) {
+                prod *= (Integer)interp.evaluateSExp(l.car);
             }
-
-            return new Integer(prod);
+            return prod;
 
         } catch (ClassCastException cce) {
-            throw new RunTimeException("Non-integer type used for " +
-                                       "multiplication expression.", args);
+            return fail("Non-integer type used for mul expression.", args);
         }
     }
 
     public void verifyArguments (List args) throws RunTimeException
     {
         if (args.size() < 2)
-            throw new RunTimeException("Incorrect number of arguments " +
-                                       "to mul.", args);
+            fail("Incorrect number of arguments to mul.", args);
     }
 }

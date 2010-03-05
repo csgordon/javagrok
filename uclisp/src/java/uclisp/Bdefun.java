@@ -19,9 +19,7 @@ public class Bdefun extends Function
             // first check the args for validity. should be a list of vars
             for (int i = 0; i < alist.size(); i++) {
                 if (!(alist.elementAt(i) instanceof Name)) {
-                    throw new RunTimeException("Argument #" + i +
-                                               " of defun not valid.",
-                                               alist.elementAt(i));
+                    fail("Argument #" + i + " of defun not valid.", args);
                 }
             }
 
@@ -38,17 +36,9 @@ public class Bdefun extends Function
     public void verifyArguments (List args) throws RunTimeException
     {
         switch (args.size()) {
-        case 0:
-            throw new RunTimeException("Missing function name for defun.",
-                                       args);
-
-        case 1:
-            throw new RunTimeException("Missing argument list for defun.",
-                                       args);
-
-        case 2:
-            throw new RunTimeException("Missing function body for defun.",
-                                       args);
+        case 0: fail("Missing function name for defun.", args); break;
+        case 1: fail("Missing argument list for defun.", args); break;
+        case 2: fail("Missing function body for defun.", args); break;
         }
     }
 }

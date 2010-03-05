@@ -12,26 +12,22 @@ public class Beq extends Function
         throws RunTimeException
     {
         try {
-            int val =
-                ((Integer)interp.evaluateSExp(args.elementAt(0))).intValue();
-
+            // TODO: support list equality?
+            int val = (Integer)interp.evaluateSExp(args.car);
             for (int i = 1; i < args.size(); i++) {
-                Integer ival = (Integer)interp.evaluateSExp(args.elementAt(i));
-                if (ival.intValue() != val) return new Integer(0);
+                int ival = (Integer)interp.evaluateSExp(args.elementAt(i));
+                if (ival != val) return 0;
             }
-
-            return new Integer(1);
+            return 1;
 
         } catch (ClassCastException cce) {
-            throw new RunTimeException("Non-integer type used for " +
-                                       "equality expression.", args);
+            return fail("Non-integer type used for eq expression.", args);
         }
     }
 
     public void verifyArguments (List args) throws RunTimeException
     {
         if (args.size() < 2)
-            throw new RunTimeException("Incorrect number of arguments " +
-                                       "to eq.", args);
+            fail("Incorrect number of arguments to eq.", args);
     }
 }

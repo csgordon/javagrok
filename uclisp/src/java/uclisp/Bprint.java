@@ -60,8 +60,7 @@ public class Bprint extends Function
             formatValue(interp, interp.evaluateSExp(v), buf);
 
         } else {
-            throw new RunTimeException("print: invalid type: " +
-                                       v.getClass().getName(), v);
+            throw new RunTimeException("print: invalid type: " + v.getClass().getName(), v);
         }
     }
 

@@ -13,24 +13,20 @@ public class Badd extends Function
     {
         try {
             int sum = 0;
-
-            for (int i = 0; i < args.size(); i++) {
-                Integer ival = (Integer)interp.evaluateSExp(args.elementAt(i));
-                sum += ival.intValue();
+            for (List l = args; !l.isNil(); l = l.cdr) {
+                int ival = (Integer)interp.evaluateSExp(l.car);
+                sum += ival;
             }
-
-            return new Integer(sum);
+            return sum;
 
         } catch (ClassCastException cce) {
-            throw new RunTimeException("Non-integer type used for " +
-                                       "addition expression.", args);
+            return fail("Non-integer type used for add expression.", args);
         }
     }
 
     public void verifyArguments (List args) throws RunTimeException
     {
         if (args.size() < 2)
-            throw new RunTimeException("Incorrect number of arguments " +
-                                       "to add.", args);
+            fail("Incorrect number of arguments to add.", args);
     }
 }

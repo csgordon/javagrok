@@ -12,27 +12,23 @@ public class Bif extends Function
         throws RunTimeException
     {
         try {
-            Integer cond = (Integer)interp.evaluateSExp(args.car);
-            if (cond.intValue() != 0) {
+            int cond = (Integer)interp.evaluateSExp(args.car);
+            if (cond != 0) {
                 return interp.evaluateSExp(args.elementAt(1));
-
             } else if (args.size() == 3) {
                 return interp.evaluateSExp(args.elementAt(2));
-
             } else {
                 return List.nil;
             }
 
         } catch (ClassCastException cce) {
-            throw new RunTimeException("Non-integer type used for " +
-                                       "conditional expression.", args);
+            return fail("Non-integer type used for if expression.", args);
         }
     }
 
     public void verifyArguments (List args) throws RunTimeException
     {
         if ((args.size() != 2) && (args.size() != 3))
-            throw new RunTimeException("Incorrect number of arguments " +
-                                       "to if.", args);
+            fail("Incorrect number of arguments to if.", args);
     }
 }

@@ -12,17 +12,13 @@ public class Bdiv extends Function
         throws RunTimeException
     {
         try {
-            Integer l = (Integer)interp.evaluateSExp(args.elementAt(0));
-            Integer r = (Integer)interp.evaluateSExp(args.elementAt(1));
-
-            if (l.intValue() == 0)
-                throw new RunTimeException("Division by zero.", args);
-
-            return new Integer(r.intValue()/l.intValue());
+            int l = (Integer)interp.evaluateSExp(args.car);
+            int r = (Integer)interp.evaluateSExp(args.cdr.car);
+            if (l == 0) fail("Division by zero.", args);
+            return r/l;
 
         } catch (ClassCastException cce) {
-            throw new RunTimeException("Non-integer type used for " +
-                                       "subtraction expression.", args);
+            return fail("Non-integer type used for div expression.", args);
         }
     }
 

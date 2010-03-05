@@ -27,7 +27,7 @@ public class Bsetq extends Function
                 interp.env.put(lhs, rhs);
 
             } catch (ClassCastException cce) {
-                throw new RunTimeException(cce.toString(), args);
+                fail(cce.toString(), args);
             }
         }
 
@@ -37,9 +37,8 @@ public class Bsetq extends Function
     public void verifyArguments (List args) throws RunTimeException
     {
         if (args.size() < 2)
-            throw new RunTimeException("Too few arguments to setq.", args);
+            fail("Too few arguments to setq.", args);
         if (args.size() % 2 != 0)
-            throw new RunTimeException("setq requires variable " +
-                                       "value pairs.", args);
+            fail("setq requires variable value pairs.", args);
     }
 }
