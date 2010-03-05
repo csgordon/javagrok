@@ -15,7 +15,16 @@ public class Bprint extends Function
     public Object evaluate (Interpreter interp, Vector sexp)
         throws RunTimeException
     {
+        return evaluate(interp, sexp, "");
+    }
+
+    public Object evaluate (Interpreter interp, Vector sexp, String sep)
+        throws RunTimeException
+    {
         for (int i = 0; i < sexp.size(); i++) {
+            if (i > 0) {
+                _out.print(sep);
+            }
             printValue(interp, sexp.elementAt(i));
         }
         _out.flush();
@@ -36,7 +45,9 @@ public class Bprint extends Function
             _out.print("nil");
 
         } else if (v instanceof List) {
-            evaluate(interp, (Vector)v);
+            _out.print("(");
+            evaluate(interp, (Vector)v, " ");
+            _out.print(")");
 
         } else if (v instanceof Name) {
             printValue(interp, interp.evaluateSExp(v));
