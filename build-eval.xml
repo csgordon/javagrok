@@ -160,6 +160,7 @@
       <bootclasspath>
         <fileset dir="${javac.home}" includes="lib/javac.jar"/>
         <fileset dir="${java.home}" includes="lib/rt.jar"/>
+        <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
       </bootclasspath>
       <classpath>
         <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
@@ -188,6 +189,7 @@
       <bootclasspath>
         <fileset dir="${javac.home}" includes="lib/javac.jar"/>
         <fileset dir="${java.home}" includes="lib/rt.jar"/>
+        <fileset dir="${java.home}/.." includes="Classes/classes.jar"/>
       </bootclasspath>
       <classpath>
         <fileset dir="${afu.dir}" includes="annotation-file-utilities.jar"/>
