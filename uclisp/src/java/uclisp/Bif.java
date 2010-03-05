@@ -3,19 +3,16 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Bif extends Function
 {
     //
     // Bif public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
         try {
-            Integer cond = (Integer)interp.evaluateSExp(sexp.firstElement());
-
+            Integer cond = (Integer)interp.evaluateSExp(sexp.car);
             if (cond.intValue() != 0) {
                 return interp.evaluateSExp(sexp.elementAt(1));
 
@@ -32,7 +29,7 @@ public class Bif extends Function
         }
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List sexp) throws RunTimeException
     {
         if ((sexp.size() != 2) && (sexp.size() != 3))
             throw new RunTimeException("Incorrect number of arguments " +

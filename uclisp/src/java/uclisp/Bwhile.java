@@ -3,25 +3,20 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Bwhile extends Function
 {
     //
     // Bwhile public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
         try {
-            Vector body = Interpreter.cdr(sexp);
-            Integer cond = (Integer)interp.evaluateSExp(sexp.firstElement());
-
+            Integer cond = (Integer)interp.evaluateSExp(sexp.car);
             while (cond.intValue() != 0) {
-                interp.interpret(body);
-                cond = (Integer)interp.evaluateSExp(sexp.firstElement());
+                interp.interpret(new Progn(sexp.cdr));
+                cond = (Integer)interp.evaluateSExp(sexp.car);
             }
-
             return new Nil();
 
         } catch (ClassCastException cce) {
@@ -30,10 +25,11 @@ public class Bwhile extends Function
         }
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List sexp) throws RunTimeException
     {
-        if (sexp.size() < 2)
+        if (sexp.size() < 2) {
             throw new RunTimeException("Incorrect number of arguments " +
                                        "to while.", sexp);
+        }
     }
 }

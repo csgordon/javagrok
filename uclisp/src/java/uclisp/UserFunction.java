@@ -3,29 +3,28 @@
 
 package uclisp;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserFunction extends Function
 {
     //
     // UserFunction public constructor
 
-    public UserFunction (String name, Vector args, Vector sexps)
+    public UserFunction (String name, List args, List sexps)
     {
         _name = name;
         _args = args;
-        _sexps = sexps;
+        _sexps = new Progn(sexps);
     }
 
     //
     // UserFunction public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
-        Hashtable shadowed = new Hashtable();
+        Map<String,Object> shadowed = new HashMap<String,Object>();
 
         for (int i = 0; i < _args.size(); i++) {
             String name = ((Name)_args.elementAt(i)).toString();
@@ -41,16 +40,13 @@ public class UserFunction extends Function
         }
 
         // evaluate the sexps that constitute this function
-        // System.out.println("Interpreting sexps.");
         Object result = interp.interpret(_sexps);
 
         // copy the values of the shadowed variables back into the environment
-        Enumeration kiter = shadowed.keys();
-        while (kiter.hasMoreElements()) {
-            String key = (String)kiter.nextElement();
-            Object oval = shadowed.get(key);
-            if (oval instanceof Nil) interp.env.remove(key);
-            else interp.env.put(key, oval);
+        for (Map.Entry<String,Object> entry : shadowed.entrySet()) {
+            Object oval = entry.getValue();
+            if (oval instanceof Nil) interp.env.remove(entry.getKey());
+            else interp.env.put(entry.getKey(), oval);
         }
 
         return result;
@@ -70,6 +66,6 @@ public class UserFunction extends Function
     // UserFunction protected data members
 
     String _name;
-    Vector _args;
-    Vector _sexps;
+    List _args;
+    Progn _sexps;
 }

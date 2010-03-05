@@ -3,8 +3,6 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Value
 {
     //
@@ -25,7 +23,7 @@ public class Value
 
     int intval;
     String strval;
-    Vector lstval;
+    List lstval;
 
     //
     // Value public constructors
@@ -47,7 +45,7 @@ public class Value
         strval = name;
     }
 
-    public Value (int type, Vector list)
+    public Value (int type, List list)
     {
         this.type = type;
         lstval = list;
@@ -58,7 +56,7 @@ public class Value
         type = rhs.type;
         intval = rhs.intval;
         strval = rhs.strval;
-        lstval = copyList(rhs.lstval);
+        lstval = rhs.lstval;
     }
 
     //
@@ -79,7 +77,7 @@ public class Value
             break;
 
         case LIST:
-            lstval = copyList(rhs.lstval);
+            lstval = rhs.lstval;
             break;
 
         default:
@@ -118,39 +116,17 @@ public class Value
     }
 
     //
-    // Value public static member functions
-
-    public static Vector copyList (Vector source)
-    {
-        if (source == null) return null;
-        return copyList(source, 0, source.size());
-    }
-
-    public static Vector copyList (Vector source, int start, int length)
-    {
-        if (source == null) return null;
-
-        Vector newvec = new Vector();
-        for (int i = start; i < start+length; i++) {
-            newvec.addElement(new Value((Value)source.elementAt(i)));
-        }
-
-        return newvec;
-    }
-
-    //
     // Value protected member functions
 
-    String listToString (Vector list, String seperator)
+    protected String listToString (List list, String separator)
     {
-        String rv = "";
-
-        for (int i = 0; i < lstval.size(); i++) {
-            Value val = (Value)lstval.elementAt(i);
-            if (i != 0) rv = rv.concat(seperator);
-            rv = rv.concat(val.toString(seperator));
+        StringBuilder buf = new StringBuilder();
+        for (List l = list; !l.isEmpty(); l = l.cdr) {
+            if (buf.length() > 0) {
+                buf.append(separator);
+            }
+            buf.append(((Value)l.car).toString(separator));
         }
-
-        return rv;
+        return buf.toString();
     }
 }

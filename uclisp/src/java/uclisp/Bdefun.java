@@ -3,19 +3,18 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Bdefun extends Function
 {
     //
     // Bdefun public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
         try {
-            String name = ((Name)sexp.firstElement()).toString();
-            Vector args = (Vector)sexp.elementAt(1);
+            String name = ((Name)sexp.car).toString();
+            List args = (List)sexp.cdr.car;
+            List body = sexp.cdr.cdr;
 
             // first check the args for validity. should be a list of vars
             for (int i = 0; i < args.size(); i++) {
@@ -27,10 +26,7 @@ public class Bdefun extends Function
             }
 
             // create a new user function with this stuff
-            UserFunction fn = new UserFunction(name, args,
-                                               Interpreter.ccdr(sexp));
-            // System.out.println("Binding function: " + name);
-            interp.env.put(name, fn);
+            interp.env.put(name, new UserFunction(name, args, body));
 
             return new Nil();
 
@@ -39,7 +35,7 @@ public class Bdefun extends Function
         }
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List sexp) throws RunTimeException
     {
         switch (sexp.size()) {
         case 0:

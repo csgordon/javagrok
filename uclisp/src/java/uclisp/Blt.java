@@ -3,14 +3,12 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Blt extends Function
 {
     //
     // Blt public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
         try {

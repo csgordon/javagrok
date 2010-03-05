@@ -3,14 +3,12 @@
 
 package uclisp;
 
-import java.util.Vector;
-
 public class Badd extends Function
 {
     //
     // Badd public member functions
 
-    public Object evaluate (Interpreter interp, Vector sexp)
+    public Object evaluate (Interpreter interp, List sexp)
         throws RunTimeException
     {
         try {
@@ -29,7 +27,7 @@ public class Badd extends Function
         }
     }
 
-    public void verifyArguments (Vector sexp) throws RunTimeException
+    public void verifyArguments (List sexp) throws RunTimeException
     {
         if (sexp.size() < 2)
             throw new RunTimeException("Incorrect number of arguments " +

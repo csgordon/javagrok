@@ -3,7 +3,7 @@
 
 package uclisp;
 
-import java.io.InputStream;
+import java.io.Reader;
 import java.io.StreamTokenizer;
 
 public class Scanner extends StreamTokenizer
@@ -11,9 +11,9 @@ public class Scanner extends StreamTokenizer
     //
     // Scanner public constructor
 
-    public Scanner (InputStream is)
+    public Scanner (Reader in)
     {
-        super(is);
+        super(in);
 
         // initialize the stream tokenizer for lisp
         commentChar(';');

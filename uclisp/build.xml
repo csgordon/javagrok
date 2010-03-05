@@ -11,4 +11,11 @@
     <antcall target="javadoc"/>
     <antcall target="jar"/>
   </target>
+
+  <target name="test" depends="compile" description="Runs the interpreter on a test file.">
+    <fail unless="test">No program name provided. Use: ant -Dtest=foo test</fail>
+    <java fork="true" classname="uclisp.Interpreter" classpathref="classpath">
+      <arg value="examples/${test}.lisp"/>
+    </java>
+  </target>
 </project>

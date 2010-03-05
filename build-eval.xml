@@ -38,8 +38,8 @@
            source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${classes.dir}">
       <classpath refid="classpath"/>
-      <!--<compilerarg value="-Xlint"/>
-      <compilerarg value="-Xlint:-serial"/>-->
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
     </javac>
   </target>
 
