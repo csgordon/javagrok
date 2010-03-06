@@ -33,7 +33,7 @@ public class UserFunction extends Function
             // shadow this variable
             Object oval = interp.env.get(name);
             if (oval != null) shadowed.put(name, oval);
-            else shadowed.put(name, List.nil);
+            else shadowed.put(name, NO_VAL);
 
             // evaluate the argument and bind it to the variable
             interp.env.put(name, interp.evaluateSExp(val));
@@ -45,7 +45,7 @@ public class UserFunction extends Function
         // copy the values of the shadowed variables back into the environment
         for (Map.Entry<String,Object> entry : shadowed.entrySet()) {
             Object oval = entry.getValue();
-            if (oval == List.nil) interp.env.remove(entry.getKey());
+            if (oval == NO_VAL) interp.env.remove(entry.getKey());
             else interp.env.put(entry.getKey(), oval);
         }
 
@@ -65,7 +65,9 @@ public class UserFunction extends Function
     //
     // UserFunction protected data members
 
-    String _name;
-    List _args;
-    Progn _progn;
+    protected String _name;
+    protected List _args;
+    protected Progn _progn;
+
+    protected static final Object NO_VAL = new Object();
 }

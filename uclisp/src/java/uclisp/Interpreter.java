@@ -91,6 +91,10 @@ public class Interpreter
 
     Object evaluateCall (List sexp) throws RunTimeException
     {
+        if (sexp.isNil()) {
+            throw new RunTimeException("Evaluation of empty sexp.", sexp);
+        }
+
         try {
             String nm = ((Name)sexp.car).toString();
             Function fn = (Function)env.get(nm);
@@ -128,9 +132,6 @@ public class Interpreter
                 throw new RunTimeException("Function must return nil, not null.", sexp);
             }
             return rv;
-
-        } catch (NoSuchElementException nsee) {
-            throw new RunTimeException("Evaluation of empty sexp.", sexp);
 
         } catch (ClassCastException cce) {
             cce.printStackTrace();
