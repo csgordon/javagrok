@@ -1,0 +1,50 @@
+#!/usr/bin/perl -w
+#
+# Adds imports to JastAdd processed source files. Their import adding algorithm
+# is, to put it politely, boneheaded, and fails on our subject code. So we'll
+# just tell it not to add any imports and then add them ourselves using the
+# magic of Perl.
+
+my %imports;
+
+my $dir = shift or die "Usage: $0 src_dir\n";
+my @files = `find $dir -name '*.java'`;
+
+foreach $file (@files) {
+    chomp($file);
+    my @lines = `cat $file`;
+    my $i = 0;
+    my $pkgline = 0;
+    foreach $line (@lines) {
+        # print $line if ($line =~ m/package/);
+        if ($line =~ m/^\s*package\s+[A-Za-z._]+\s*;\s*$/) {
+            $pkgline = $i;
+        }
+        if ($line =~ m/\@NonNull/) {
+            $imports{"org.javagrok.analysis.NonNull"} = 1;
+        }
+        if ($line =~ m/\@Raw/) {
+            $imports{"org.javagrok.analysis.Raw"} = 1;
+        }
+        $i++;
+    }
+
+    if ($pkgline == 0) {
+        warn "Unable to find 'package' line in $file\n";
+        next;
+    }
+
+    my @imps = ("\n");
+    foreach $key (keys %imports) {
+        push(@imps, "import $key;\n");
+    }
+    if (@imps > 1) {
+        splice(@lines, $pkgline+1, 0, @imps);
+        if (!open(OUT, ">$file")) {
+            warn "Unable to open $file for writing: $!\n";
+            next;
+        }
+        print OUT join("", @lines);
+        close(OUT);
+    }
+}
