@@ -179,7 +179,7 @@
 
   <target name="exp-zip" depends="dist"
           description="Packages up the experiment files.">
-    <exec executable="ant" dir="uclisp">
+    <exec executable="ant" dir="nenya">
       <arg line="dist"/>
     </exec>
     <zip destfile="dist/experiment.zip">
@@ -188,7 +188,8 @@
         <include name="experiment/.classpath"/>
         <include name="experiment/.project"/>
         <include name="experiment/build.xml"/>
-        <include name="experiment/docs/**"/>
+        <include name="experiment/nenya/dist/nenya.jar"/>
+        <include name="experiment/nenya/dist/docs/**"/>
         <include name="experiment/lib/**"/>
         <include name="experiment/lisp/**"/>
         <include name="experiment/src/**/*.java"/>
