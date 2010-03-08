@@ -34,10 +34,13 @@ public class Task1 extends Task
         // Step 4: Add a MouseListener to the MediaPanel to be notified of mouse clicks. When the
         // user clicks the mouse, use the hitTest() method on the Sprite to determine whether or
         // not the user clicked on the sprite. In either case, you will create a
-        // FloatingTextAnimation to emit feedback to the user. The FloatingTextAnimation takes a
-        // Label in its constructor, use the createLabel() method defined in Task (our superclass)
-        // to create that label. If the click hits the sprite, create a label that says "Ouch!", if
-        // it misses the sprite, create a label that says "Ha ha!"
+        // FloatingTextAnimation to emit feedback to the user. The animation should be positioned
+        // at the point of the click and added to the panel.
+
+        // The FloatingTextAnimation takes a Label in its constructor, use the createLabel() method
+        // defined in Task (our superclass) to create that label. If the click hits the sprite,
+        // create a label that says "Ouch!", if it misses the sprite, create a label that says "Ha
+        // ha!"
 
         // Congratulations. You have just created a "punch Cartman" game. :)
     }
