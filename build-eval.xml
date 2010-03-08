@@ -107,7 +107,7 @@
           tofile="${deploy.dir}/javarifier/annotations.jaif"/>
   </target>
 
-  <target name="nullability" depends="prepare"
+  <target name="nullability" depends="compile"
           description="Does the nullability inference dance.">
     <fileset dir="${src.dir}" includes="**/*.java" id="src.fileset"/>
     <pathconvert refid="src.fileset" pathsep=" " property="src.files"/>
