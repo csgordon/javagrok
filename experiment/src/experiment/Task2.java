@@ -14,7 +14,9 @@ public class Task2 extends Task
     {
         // Step 1: Create an OrientableImageSprite using the getMirage("ladybug.png") image and add
         // it to the display. Center the ladybug image in the middle of the window using the
-        // setLocation() method.
+        // setLocation() method. Note that the "hot spot" of an OrientableImageSprite is in the
+        // center of the sprite rather than the upper-left like it is for a plain-old ImageSprite.
+        // The hot spot is what is moved to the location you specify with setLocation().
 
         // Step 2: Add a listener to MediaPanel that listens for mouse clicks. Move the ladybug
         // sprite to the point at which the user clicks, using a LinePath. Use

@@ -19,7 +19,11 @@ public class Task1 extends Task
         // class of this task skeleton) to obtain the image that you will supply to the
         // ImageSprite.
 
-        // Step 2: Move the ImageSprite on a Path back and forth across the window. You will want
+        // Step 2: Move the sprite to the center of the window. The coordinates are (0, 0) in the
+        // upper left of the window and both the sprite and the panel have methods to obtain their
+        // width and height.
+
+        // Step 3: Move the ImageSprite on a Path back and forth across the window. You will want
         // to use the LinePath class to move the sprite. The path should be added to the sprite
         // object. The LinePath will only move the Sprite from one point to another, so you will
         // have to add a PathObserver to the Sprite to receive notification when the Sprite reaches
@@ -27,7 +31,7 @@ public class Task1 extends Task
         // opposite direction, so that you achieve an oscilating motion back and forth across the
         // window.
 
-        // Step 3: Add a MouseListener to the MediaPanel to be notified of mouse clicks. When the
+        // Step 4: Add a MouseListener to the MediaPanel to be notified of mouse clicks. When the
         // user clicks the mouse, use the hitTest() method on the Sprite to determine whether or
         // not the user clicked on the sprite. In either case, you will create a
         // FloatingTextAnimation to emit feedback to the user. The FloatingTextAnimation takes a
