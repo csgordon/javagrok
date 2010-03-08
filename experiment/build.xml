@@ -6,7 +6,7 @@
 
   <path id="build.classpath">
     <pathelement location="${classes.dir}"/>
-    <fileset dir="lib" includes="javagrok-annotations.jar"/>
+    <fileset dir="nenya/dist" includes="nenya.jar"/>
   </path>
 
   <target name="prepare">
@@ -21,43 +21,35 @@
   <target name="compile" depends="prepare" description="Compiles the code.">
     <javac debug="on" source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
            srcdir="${src.dir}" destdir="${classes.dir}" classpathref="build.classpath">
-      <!--<compilerarg value="-Xlint"/>
-      <compilerarg value="-Xlint:-serial"/>-->
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
     </javac>
   </target>
 
-  <target name="test" depends="compile">
-    <fail unless="program">No program name provided. Try "ant fact".</fail>
-    <java fork="true" classname="uclisp.Interpreter" classpathref="build.classpath">
-      <arg value="lisp/${program}.lisp"/>
+  <target name="task" depends="compile">
+    <fail unless="taskno">No task number provided. Did you mean "ant task1"?</fail>
+    <java fork="true" classname="experiment.TaskRunner">
+      <classpath>
+        <path refid="build.classpath"/>
+        <pathelement path="."/>
+      </classpath>
+      <arg value="${taskno}"/>
     </java>
   </target>
 
-  <target name="hello" description="Runs the Hello World test program.">
-    <antcall target="test"><param name="program" value="hello"/></antcall>
+  <target name="task1">
+    <antcall target="task"><param name="taskno" value="1"/></antcall>
   </target>
 
-  <target name="fact" description="Runs the factorial test program.">
-    <antcall target="test"><param name="program" value="fact"/></antcall>
+  <target name="task2">
+    <antcall target="task"><param name="taskno" value="2"/></antcall>
   </target>
 
-  <target name="towers" description="Runs the Towers of Hanoi test program.">
-    <antcall target="test"><param name="program" value="towers"/></antcall>
+  <target name="task3">
+    <antcall target="task"><param name="taskno" value="3"/></antcall>
   </target>
 
-  <target name="min" description="Runs the 'min' test program.">
-    <antcall target="test"><param name="program" value="min"/></antcall>
-  </target>
-
-  <target name="cons" description="Runs the 'cons' test program.">
-    <antcall target="test"><param name="program" value="cons"/></antcall>
-  </target>
-
-  <target name="car" description="Runs the 'car' test program.">
-    <antcall target="test"><param name="program" value="car"/></antcall>
-  </target>
-
-  <target name="cdr" description="Runs the 'cdr' test program.">
-    <antcall target="test"><param name="program" value="cdr"/></antcall>
+  <target name="task4">
+    <antcall target="task"><param name="taskno" value="4"/></antcall>
   </target>
 </project>
