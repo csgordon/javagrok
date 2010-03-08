@@ -320,6 +320,13 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    return t.asElement().asType();
 	}
 	public void visitTry(JCTry tree) {
+            // if this try/catch is in a class static initializer, there will be nothing on our
+            // stack (we won't be in a method declaration), so we just skip it; we'd have nothing
+            // to provide annotations for anyway
+            if (throwstack.isEmpty()) {
+                return;
+            }
+
 	    throwstack.push(new HashSet<Object[]>());
 	    appstack.push(new HashSet<Object[]>());
 	    scan(tree.body);
@@ -330,9 +337,9 @@ public class ExceptionProcessor extends AbstractTypeProcessor
 	    untraceable_branches--;
 	    scan(tree.finalizer);
 	    HashSet<Object[]> exns = throwstack.pop();
-	    throwstack.peek().addAll(exns);
+            throwstack.peek().addAll(exns);
 	    HashSet<Object[]> calls = appstack.pop();
-	    appstack.peek().addAll(calls);
+            appstack.peek().addAll(calls);
 	}
 	public void visitCatch(JCCatch tree) {
 	    // XXX TODO: If a subsequent catch for the same try block catches
