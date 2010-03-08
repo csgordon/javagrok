@@ -15,7 +15,7 @@ public class Task3 extends Task
     // Graphics2D.fillOval()).
 
     // When you create your sprite, you will need to specify its width and height. You can either
-    // hardcode those values, or accept a width and height in your sprite's constructor.
+    // hard-code those values, or accept a width and height in your sprite's constructor.
 
     // In your paint method, you can read the _bounds field of the Sprite to determine where and at
     // what size to render your circle.

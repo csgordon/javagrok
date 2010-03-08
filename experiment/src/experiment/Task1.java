@@ -28,7 +28,7 @@ public class Task1 extends Task
         // object. The LinePath will only move the Sprite from one point to another, so you will
         // have to add a PathObserver to the Sprite to receive notification when the Sprite reaches
         // the end of its path. At that point, set the sprite on a new path going back in the
-        // opposite direction, so that you achieve an oscilating motion back and forth across the
+        // opposite direction, so that you achieve an oscillating motion back and forth across the
         // window.
 
         // Step 4: Add a MouseListener to the MediaPanel to be notified of mouse clicks. When the
