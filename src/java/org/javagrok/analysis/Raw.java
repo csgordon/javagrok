@@ -9,9 +9,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Communicates that a variable declaration must not hold null values.
+ * Communicates that a method is called on an object before it is fully initialized (called from
+ * its constructor). Not sure what it means when it's on a variable declaration.
  */
 @Retention(RetentionPolicy.CLASS)
-public @interface NonNull
+public @interface Raw
 {
 }

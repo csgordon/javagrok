@@ -115,15 +115,19 @@
         <!-- more heap is needed to get this analysis to run -->
         <jvmarg value="-Xmx512M"/>
         <arg value="-d"/><arg value="${deploy.dir}/JavaNonNullInferencer"/>
-        <arg value="-import"/><arg value="org.javagrok.analysis.NonNull"/>
         <arg line="${src.files}"/>
     </java>
+
+    <!-- now we have to add import for the annotations using a special script -->
+    <exec executable="${javagrok.dir}/bin/addimports">
+      <arg value="${deploy.dir}/JavaNonNullInferencer"/>
+    </exec>
 
     <!-- now we compile the annotated source and extract the annotations -->
     <delete dir="${deploy.dir}/null-classes"/>
     <mkdir dir="${deploy.dir}/null-classes"/>
     <javac fork="yes" executable="${javac.home}/bin/javac" debug="on"
-           source="1.6" target="1.6" encoding="utf-8" includeantruntime="false"
+           source="1.7" target="1.7" encoding="utf-8" includeantruntime="false"
            srcdir="${deploy.dir}/JavaNonNullInferencer" destdir="${deploy.dir}/null-classes">
       <classpath>
         <fileset dir="${javagrok.dir}/${deploy.dir}" includes="javagrok-annotations.jar"/>
