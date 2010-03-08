@@ -413,61 +413,64 @@ public class Uno extends AbstractAnalyzer {
 			throw new IllegalArgumentException(text);
 		}
 
-		String property = parts[0];
-		Boolean holds = Boolean.parseBoolean(parts[1]);  // TODO might be "True?" how to handle it? as false? as true? Maybe best would be to ignore the line then... 
-		String className = parts[2];
-		String methodOrFieldName;
-		String returnType;
-		
-		switch (firstChar) {
-		case 'm':  // Method annotation: m UniqRet True org.javagrok.test.TestMain void main(java.lang.String[])
-			returnType = parts[3];
-			methodOrFieldName = parts[4];
-			addPropertyForMethod(property, holds, className, methodOrFieldName, returnType);
-			break;
-		case 'p':  // Parameter annotation: p NEscPar True org.javagrok.test.TestMain void main(java.lang.String[]) 0 java.lang.String[] [True] <-- last one optional
-			if (parts.length < 6) {
-				String text = "Parameter information should have 6 or 7 parts";
-				ctx.info("UNO: " + text);
-				throw new IllegalArgumentException(text);
-			}
-			try {
+		String property = parts[0];		
+
+		// We are not interested in results in which UNO is unsure
+		if (!("true?".equals(parts[1].toLowerCase()))) {
+			Boolean holds = Boolean.parseBoolean(parts[1]); 
+			String className = parts[2];
+			String methodOrFieldName;
+			String returnType;
+			
+			switch (firstChar) {
+			case 'm':  // Method annotation: m UniqRet True org.javagrok.test.TestMain void main(java.lang.String[])
 				returnType = parts[3];
 				methodOrFieldName = parts[4];
-				int parameterNumber = Integer.parseInt(parts[5]);
-				String parameterType = parts[6];
-				String nofield = "";
-				if (parts.length == 8) {
-					nofield = parts[7];
+				addPropertyForMethod(property, holds, className, methodOrFieldName, returnType);
+				break;
+			case 'p':  // Parameter annotation: p NEscPar True org.javagrok.test.TestMain void main(java.lang.String[]) 0 java.lang.String[] [True] <-- last one optional
+				if (parts.length < 6) {
+					String text = "Parameter information should have 6 or 7 parts";
+					ctx.info("UNO: " + text);
+					throw new IllegalArgumentException(text);
 				}
-				
-				/* If nofield is false it means that the reference might get retained in a local field.
-				 * In the case of LentPar it means that the property of lending gets weakened and
-				 * it also includes now that the reference might be retained in a local field and UNO
-				 * would still consider it to be only lent and not retained.
-				 * Note: We are not interested in those properties so we do not add it to the properties
-				 * data structure.
-				 */
-				if (Boolean.parseBoolean(nofield) || nofield.equals("")) {
-					addPropertyForParameter(property, holds, className, methodOrFieldName, parameterNumber, returnType);					
+				try {
+					returnType = parts[3];
+					methodOrFieldName = parts[4];
+					int parameterNumber = Integer.parseInt(parts[5]);
+					String parameterType = parts[6];
+					String nofield = "";
+					if (parts.length == 8) {
+						nofield = parts[7];
+					}
+					
+					/* If nofield is false it means that the reference might get retained in a local field.
+					 * In the case of LentPar it means that the property of lending gets weakened and
+					 * it also includes now that the reference might be retained in a local field and UNO
+					 * would still consider it to be only lent and not retained.
+					 * Note: We are not interested in those properties so we do not add it to the properties
+					 * data structure.
+					 */
+					if (Boolean.parseBoolean(nofield) || nofield.equals("")) {
+						addPropertyForParameter(property, holds, className, methodOrFieldName, parameterNumber, returnType);					
+					}
+				} 
+				catch (NumberFormatException e) {
+					String text = "Parameter number was not an integer";
+					ctx.info("UNO: " + text);
+					throw new IllegalArgumentException(text);
 				}
-			} 
-			catch (NumberFormatException e) {
-				String text = "Parameter number was not an integer";
+				break;
+			case 'f':  // Field annotation: f NEscField True org.javagrok.test.TestMain _box
+				methodOrFieldName = parts[3];
+				addPropertyForField(property, holds, className, methodOrFieldName);
+				break;
+			default:
+				String text = "line has to begin with either m or p";
 				ctx.info("UNO: " + text);
 				throw new IllegalArgumentException(text);
 			}
-			break;
-		case 'f':  // Field annotation: f NEscField True org.javagrok.test.TestMain _box
-			methodOrFieldName = parts[3];
-			addPropertyForField(property, holds, className, methodOrFieldName);
-			break;
-		default:
-			String text = "line has to begin with either m or p";
-			ctx.info("UNO: " + text);
-			throw new IllegalArgumentException(text);
 		}
-
 	}
 
 	private String removeCommentAndTrim(String line) {
