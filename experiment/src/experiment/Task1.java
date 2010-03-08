@@ -19,6 +19,11 @@ public class Task1 extends Task
         // Remember: This experiment does not assess you, it assess our tool. You do not have to
         // complete all the tasks. It is totally okay to stop after an hour.
 
+        // Try to imagine that you're writing industrial-strength code rather than something that
+        // just works for these exercises. For example if the documentation tells you something
+        // about the code, like that a method may return null, be sure to check for that in your
+        // own code.
+
         // Step 1: Create an ImageSprite with the image "cartman.png" and add it to the MediaPanel
         // that was passed into this function as an argument.
 
