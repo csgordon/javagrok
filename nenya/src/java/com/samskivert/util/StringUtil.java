@@ -53,38 +53,6 @@ import java.util.regex.Pattern;
 public class StringUtil
 {
     /**
-     * Used to format objects in {@link #listToString(Object,StringUtil.Formatter)}.
-     */
-    public static class Formatter
-    {
-        /** Formats the supplied object into a string. */
-        public String toString (Object object) {
-            return object == null ? "null" : object.toString();
-        }
-
-        /** Returns the string that will be prepended to a formatted list. */
-        public String getOpenBox () {
-            return "(";
-        }
-
-        /** Returns the string that will be appended to a formatted list. */
-        public String getCloseBox () {
-            return ")";
-        }
-    }
-
-    /**
-     * @return true if the string is null or empty, false otherwise.
-     *
-     * @deprecated use isBlank instead.
-     */
-    @Deprecated
-    public static boolean blank (String value)
-    {
-        return isBlank(value);
-    }
-
-    /**
      * @return true if the string is null or consists only of whitespace, false otherwise.
      */
     public static boolean isBlank (String value)
@@ -95,131 +63,6 @@ public class StringUtil
             }
         }
         return true;
-    }
-
-    /**
-     * Calls {@link String#trim} on non-null values, returns null for null values.
-     */
-    public static String trim (String value)
-    {
-        return (value == null) ? null : value.trim();
-    }
-
-    /**
-     * @return the supplied string if it is non-null, "" if it is null.
-     */
-    public static String deNull (String value)
-    {
-        return (value == null) ? "" : value;
-    }
-
-    /**
-     * Truncate the specified String if it is longer than maxLength.
-     */
-    public static String truncate (String s, int maxLength)
-    {
-        return truncate(s, maxLength, "");
-    }
-
-    /**
-     * Returns the string if it is non-blank (see {@link #isBlank}), the default value otherwise.
-     */
-    public static String getOr (String value, String defval)
-    {
-        return isBlank(value) ? defval : value;
-    }
-
-    /**
-     * Truncate the specified String if it is longer than maxLength.  The string will be truncated
-     * at a position such that it is maxLength chars long after the addition of the 'append'
-     * String.
-     *
-     * @param append a String to add to the truncated String only after truncation.
-     */
-    public static String truncate (String s, int maxLength, String append)
-    {
-        if ((s == null) || (s.length() <= maxLength)) {
-            return s;
-        } else {
-            return s.substring(0, maxLength - append.length()) + append;
-        }
-    }
-
-    /**
-     * Returns a version of the supplied string with the first letter capitalized.
-     */
-    public static String capitalize (String s)
-    {
-        if (isBlank(s)) {
-            return s;
-        }
-        char c = s.charAt(0);
-        if (Character.isUpperCase(c)) {
-            return s;
-        } else {
-            return String.valueOf(Character.toUpperCase(c)) + s.substring(1);
-        }
-    }
-
-    /**
-     * Returns a US locale lower case string.  Useful when manipulating filenames and resource
-     * keys which would not have locale specific characters.
-     */
-    public static String toUSLowerCase (String s)
-    {
-        return isBlank(s) ? s : s.toLowerCase(Locale.US);
-    }
-
-    /**
-     * Returns a US locale upper case string.  Useful when manipulating filenames and resource
-     * keys which would not have locale specific characters.
-     */
-    public static String toUSUpperCase (String s)
-    {
-        return isBlank(s) ? s : s.toUpperCase(Locale.US);
-    }
-
-    /**
-     * Validates a character.
-     */
-    public static interface CharacterValidator
-    {
-        public boolean isValid (char c);
-    }
-
-    /**
-     * Sanitize the specified String so that only valid characters are in it.
-     */
-    public static String sanitize (String source, CharacterValidator validator)
-    {
-        if (source == null) {
-            return null;
-        }
-        int nn = source.length();
-        StringBuilder buf = new StringBuilder(nn);
-        for (int ii=0; ii < nn; ii++) {
-            char c = source.charAt(ii);
-            if (validator.isValid(c)) {
-                buf.append(c);
-            }
-        }
-        return buf.toString();
-    }
-
-    /**
-     * Sanitize the specified String such that each character must match against the regex
-     * specified.
-     */
-    public static String sanitize (String source, String charRegex)
-    {
-        final StringBuilder buf = new StringBuilder(" ");
-        final Matcher matcher = Pattern.compile(charRegex).matcher(buf);
-        return sanitize(source, new CharacterValidator() {
-            public boolean isValid (char c) {
-                buf.setCharAt(0, c);
-                return matcher.matches();
-            }
-        });
     }
 
     /**
@@ -246,120 +89,6 @@ public class StringUtil
         sb.append(source.substring(start));
 
         return sb.toString();
-    }
-
-    /**
-     * Pads the supplied string to the requested string width by appending spaces to the end of the
-     * returned string. If the original string is wider than the requested width, it is returned
-     * unmodified.
-     */
-    public static String pad (String value, int width)
-    {
-        return pad(value, width, ' ');
-    }
-
-    /**
-     * Pads the supplied string to the requested string width by appending the specified character
-     * to the end of the returned string.
-     * If the original string is wider than the requested width, it is returned unmodified.
-     */
-    public static String pad (String value, int width, char c)
-    {
-        // sanity check
-        if (width <= 0) {
-            throw new IllegalArgumentException("Pad width must be greater than zero.");
-        }
-        int l = value.length();
-        return (l >= width) ? value
-                            : value + fill(c, width - l);
-    }
-
-    /**
-     * Pads the supplied string to the requested string width by prepending spaces to the beginning
-     * of the string. If the original string is wider than the requested width, it is
-     * returned unmodified.
-     */
-    public static String prepad (String value, int width)
-    {
-        return prepad(value, width, ' ');
-    }
-
-    /**
-     * Pads the supplied string to the requested string width by prepending the specified character
-     * to the beginning of the string.
-     * If the original string is wider than the requested width, it is returned unmodified.
-     */
-    public static String prepad (String value, int width, char c)
-    {
-        // sanity check
-        if (width <= 0) {
-            throw new IllegalArgumentException("Pad width must be greater than zero.");
-        }
-        int l = value.length();
-        return (l >= width) ? value
-                            : fill(c, width - l) + value;
-    }
-
-    /**
-     * Returns a string containing the requested number of spaces.
-     */
-    public static String spaces (int count)
-    {
-        return fill(' ', count);
-    }
-
-    /**
-     * Returns a string containing the specified character repeated the specified number of times.
-     */
-    public static String fill (char c, int count)
-    {
-        char[] sameChars = new char[count];
-        Arrays.fill(sameChars, c);
-        return new String(sameChars);
-    }
-
-    /**
-     * Returns whether the supplied string represents an integer value by attempting to parse it
-     * with {@link Integer#parseInt}.
-     */
-    public static boolean isInteger (String value)
-    {
-        try {
-            Integer.parseInt(value);
-            return true;
-        } catch (NumberFormatException nfe) {
-            // fall through
-        }
-        return false;
-    }
-
-    /**
-     * Format the specified int as a String color value, like "000000". You might want
-     * to add a prefix like "#" or "0x", depending on your usage.
-     */
-    public static String toColorString (int c)
-    {
-        return prepad(Integer.toHexString(c), 6, '0');
-    }
-
-    /**
-     * Formats a floating point value with useful default rules; ie. always display a digit to the
-     * left of the decimal and display only two digits to the right of the decimal (rounding as
-     * necessary).
-     */
-    public static String format (float value)
-    {
-        return _ffmt.format(value);
-    }
-
-    /**
-     * Formats a floating point value with useful default rules; ie. always display a digit to the
-     * left of the decimal and display only two digits to the right of the decimal (rounding as
-     * necessary).
-     */
-    public static String format (double value)
-    {
-        return _ffmt.format(value);
     }
 
     /**
@@ -578,73 +307,6 @@ public class StringUtil
     }
 
     /**
-     * Formats a collection of elements (either an array of objects, an {@link Iterator}, an {@link
-     * Enumeration} or a {@link Collection}) using the supplied formatter on each element. Note
-     * that if you simply wish to format a collection of elements by calling {@link
-     * Object#toString} on each element, you can just pass the list to the {@link
-     * #toString(Object)} method which will do just that.
-     */
-    public static String listToString (Object val, Formatter formatter)
-    {
-        StringBuilder buf = new StringBuilder();
-        listToString(buf, val, formatter);
-        return buf.toString();
-    }
-
-    /**
-     * Formats the supplied collection into the supplied string buffer using the supplied
-     * formatter. See {@link #listToString(Object,StringUtil.Formatter)} for more details.
-     */
-    public static void listToString (StringBuilder buf, Object val, Formatter formatter)
-    {
-        // get an iterator if this is a collection
-        if (val instanceof Iterable<?>) {
-            val = ((Iterable<?>)val).iterator();
-        }
-
-        String openBox = formatter.getOpenBox();
-        String closeBox = formatter.getCloseBox();
-
-        if (val instanceof Object[]) {
-            buf.append(openBox);
-            Object[] v = (Object[])val;
-            for (int i = 0; i < v.length; i++) {
-                if (i > 0) {
-                    buf.append(", ");
-                }
-                buf.append(formatter.toString(v[i]));
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof Iterator<?>) {
-            buf.append(openBox);
-            Iterator<?> iter = (Iterator<?>)val;
-            for (int i = 0; iter.hasNext(); i++) {
-                if (i > 0) {
-                    buf.append(", ");
-                }
-                buf.append(formatter.toString(iter.next()));
-            }
-            buf.append(closeBox);
-
-        } else if (val instanceof Enumeration<?>) {
-            buf.append(openBox);
-            Enumeration<?> enm = (Enumeration<?>)val;
-            for (int i = 0; enm.hasMoreElements(); i++) {
-                if (i > 0) {
-                    buf.append(", ");
-                }
-                buf.append(formatter.toString(enm.nextElement()));
-            }
-            buf.append(closeBox);
-
-        } else {
-            // fall back on the general purpose
-            toString(buf, val);
-        }
-    }
-
-    /**
      * Generates a string representation of the supplied object by calling {@link #toString} on the
      * contents of its public fields and prefixing that by the name of the fields. For example:
      *
@@ -765,29 +427,29 @@ public class StringUtil
         }
     }
 
-    /**
-     * URL encodes the specified string using the UTF-8 character encoding.
-     */
-    public static String encode (String s)
-    {
-        try {
-            return (s != null) ? URLEncoder.encode(s, "UTF-8") : null;
-        } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException("UTF-8 is unknown in this Java.");
-        }
-    }
+//     /**
+//      * URL encodes the specified string using the UTF-8 character encoding.
+//      */
+//     public static String encode (String s)
+//     {
+//         try {
+//             return (s != null) ? URLEncoder.encode(s, "UTF-8") : null;
+//         } catch (UnsupportedEncodingException uee) {
+//             throw new RuntimeException("UTF-8 is unknown in this Java.");
+//         }
+//     }
 
-    /**
-     * URL decodes the specified string using the UTF-8 character encoding.
-     */
-    public static String decode (String s)
-    {
-        try {
-            return (s != null) ? URLDecoder.decode(s, "UTF-8") : null;
-        } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException("UTF-8 is unknown in this Java.");
-        }
-    }
+//     /**
+//      * URL decodes the specified string using the UTF-8 character encoding.
+//      */
+//     public static String decode (String s)
+//     {
+//         try {
+//             return (s != null) ? URLDecoder.decode(s, "UTF-8") : null;
+//         } catch (UnsupportedEncodingException uee) {
+//             throw new RuntimeException("UTF-8 is unknown in this Java.");
+//         }
+//     }
 
     /**
      * Generates a string from the supplied bytes that is the HEX encoded representation of those
@@ -828,29 +490,6 @@ public class StringUtil
     }
 
     /**
-     * Turn a hexlated String back into a byte array.
-     */
-    public static byte[] unhexlate (String hex)
-    {
-        if (hex == null || (hex.length() % 2 != 0)) {
-            return null;
-        }
-
-        // if for some reason we are given a hex string that wasn't made by hexlate, convert to
-        // lowercase so things work.
-        hex = hex.toLowerCase();
-        byte[] data = new byte[hex.length()/2];
-        for (int ii = 0; ii < hex.length(); ii+=2) {
-            int value = (byte)(XLATE.indexOf(hex.charAt(ii)) << 4);
-            value  += XLATE.indexOf(hex.charAt(ii+1));
-            // values over 127 are wrapped around, restoring negative bytes
-            data[ii/2] = (byte)value;
-        }
-
-        return data;
-    }
-
-    /**
      * Encodes the supplied source text into an MD5 hash.
      */
     public static byte[] md5 (String source)
@@ -866,62 +505,6 @@ public class StringUtil
     public static String md5hex (String source)
     {
         return hexlate(md5(source));
-    }
-
-    /**
-     * Returns a hex string representing the SHA-1 encoded source.
-     *
-     * @exception RuntimeException thrown if the SHA-1 codec was not available in this JVM.
-     */
-    public static String sha1hex (String source)
-    {
-        return hexlate(digest("SHA-1", source));
-    }
-
-    /**
-     * Parses an array of signed byte-sized integers from their string representation. The array
-     * should be represented as a bare list of numbers separated by commas, for example:
-     *
-     * <pre>25, 17, 21, 99</pre>
-     *
-     * Any inability to parse the short array will result in the function returning null.
-     */
-    public static byte[] parseByteArray (String source)
-    {
-        StringTokenizer tok = new StringTokenizer(source, ",");
-        byte[] vals = new byte[tok.countTokens()];
-        for (int i = 0; tok.hasMoreTokens(); i++) {
-            try {
-                // trim the whitespace from the token
-                vals[i] = Byte.parseByte(tok.nextToken().trim());
-            } catch (NumberFormatException nfe) {
-                return null;
-            }
-        }
-        return vals;
-    }
-
-    /**
-     * Parses an array of short integers from their string representation.  The array should be
-     * represented as a bare list of numbers separated by commas, for example:
-     *
-     * <pre>25, 17, 21, 99</pre>
-     *
-     * Any inability to parse the short array will result in the function returning null.
-     */
-    public static short[] parseShortArray (String source)
-    {
-        StringTokenizer tok = new StringTokenizer(source, ",");
-        short[] vals = new short[tok.countTokens()];
-        for (int i = 0; tok.hasMoreTokens(); i++) {
-            try {
-                // trim the whitespace from the token
-                vals[i] = Short.parseShort(tok.nextToken().trim());
-            } catch (NumberFormatException nfe) {
-                return null;
-            }
-        }
-        return vals;
     }
 
     /**
@@ -1164,83 +747,6 @@ public class StringUtil
     }
 
     /**
-     * Returns an array containing the values in the supplied array converted into a table of
-     * values wrapped at the specified column count and fit into the specified field width. For
-     * example, a call like <code>toWrappedString(values, 5, 3)</code> might result in output like
-     * so:
-     *
-     * <pre>
-     *  12  1  9 10  3
-     *   1  5  7  9 11
-     *  39 15 12 80 16
-     * </pre>
-     */
-    public static String toMatrixString (int[] values, int colCount, int fieldWidth)
-    {
-        StringBuilder buf = new StringBuilder();
-        StringBuilder valbuf = new StringBuilder();
-
-        for (int i = 0; i < values.length; i++) {
-            // format the integer value
-            valbuf.setLength(0);
-            valbuf.append(values[i]);
-
-            // pad with the necessary spaces
-            int spaces = fieldWidth - valbuf.length();
-            for (int s = 0; s < spaces; s++) {
-                buf.append(" ");
-            }
-
-            // append the value itself
-            buf.append(valbuf);
-
-            // if we're at the end of a row but not the end of the whole integer list, append a
-            // newline
-            if (i % colCount == (colCount-1) &&
-                i != values.length-1) {
-                buf.append(LINE_SEPARATOR);
-            }
-        }
-
-        return buf.toString();
-    }
-
-    /**
-     * Used to convert a time interval to a more easily human readable string of the form: <code>1d
-     * 15h 4m 15s 987m</code>.
-     */
-    public static String intervalToString (long millis)
-    {
-        StringBuilder buf = new StringBuilder();
-        boolean started = false;
-
-        long days = millis / (24 * 60 * 60 * 1000);
-        if (days != 0) {
-            buf.append(days).append("d ");
-            started = true;
-        }
-
-        long hours = (millis / (60 * 60 * 1000)) % 24;
-        if (started || hours != 0) {
-            buf.append(hours).append("h ");
-        }
-
-        long minutes = (millis / (60 * 1000)) % 60;
-        if (started || minutes != 0) {
-            buf.append(minutes).append("m ");
-        }
-
-        long seconds = (millis / (1000)) % 60;
-        if (started || seconds != 0) {
-            buf.append(seconds).append("s ");
-        }
-
-        buf.append(millis % 1000).append("m");
-
-        return buf.toString();
-    }
-
-    /**
      * Returns the class name of the supplied object, truncated to one package prior to the actual
      * class name. For example, <code>com.samskivert.util.StringUtil</code> would be reported as
      * <code>util.StringUtil</code>. If a null object is passed in, <code>null</code> is returned.
@@ -1279,118 +785,6 @@ public class StringUtil
     }
 
     /**
-     * Converts a name of the form <code>weAreSoCool</code> to a name of the form
-     * <code>WE_ARE_SO_COOL</code>.
-     */
-    public static String unStudlyName (String name)
-    {
-        boolean seenLower = false;
-        StringBuilder nname = new StringBuilder();
-        int nlen = name.length();
-        for (int i = 0; i < nlen; i++) {
-            char c = name.charAt(i);
-            // if we see an upper case character and we've seen a lower case character since the
-            // last time we did so, slip in an _
-            if (Character.isUpperCase(c)) {
-                if (seenLower) {
-                    nname.append("_");
-                }
-                seenLower = false;
-                nname.append(c);
-            } else {
-                seenLower = true;
-                nname.append(Character.toUpperCase(c));
-            }
-        }
-        return nname.toString();
-    }
-
-    /**
-     * See {@link #stringCode(String,StringBuilder)}.
-     */
-    public static int stringCode (String value)
-    {
-        return stringCode(value, null);
-    }
-
-    /**
-     * Encodes (case-insensitively) a short English language string into a semi-unique
-     * integer. This is done by selecting the first eight characters in the string that fall into
-     * the set of the 16 most frequently used characters in the English language and converting
-     * them to a 4 bit value and storing the result into the returned integer.
-     *
-     * <p> This method is useful for mapping a set of string constants to a set of unique integers
-     * (e.g. mapping an enumerated type to an integer and back without having to require that the
-     * declaration order of the enumerated type remain constant for all time). The caller must, of
-     * course, ensure that no collisions occur.
-     *
-     * @param value the string to be encoded.
-     * @param encoded if non-null, a string buffer into which the characters used for the encoding
-     * will be recorded.
-     */
-    public static int stringCode (String value, StringBuilder encoded)
-    {
-        int code = 0;
-        for (int ii = 0, uu = 0; ii < value.length(); ii++) {
-            char c = Character.toLowerCase(value.charAt(ii));
-            Integer cc = _letterToBits.get(c);
-            if (cc == null) {
-                continue;
-            }
-            code += cc.intValue();
-            if (encoded != null) {
-                encoded.append(c);
-            }
-            if (++uu == 8) {
-                break;
-            }
-            code <<= 4;
-        }
-        return code;
-    }
-
-    /**
-     * Wordwraps a string. Treats any whitespace character as a single character.
-     *
-     * <p>If you want the text to wrap for a graphical display, use a wordwrapping component
-     * such as {@link com.samskivert.swing.Label} instead.
-     *
-     * @param str String to word-wrap.
-     * @param width Maximum line length.
-     */
-    public static String wordWrap (String str, int width)
-    {
-        int size = str.length();
-        StringBuilder buf = new StringBuilder(size + size/width);
-        int lastidx = 0;
-        while (lastidx < size) {
-            if (lastidx + width >= size) {
-                buf.append(str.substring(lastidx));
-                break;
-            }
-            int lastws = lastidx;
-            for (int ii = lastidx, ll = lastidx + width; ii < ll; ii++) {
-                char c = str.charAt(ii);
-                if (c == '\n') {
-                    buf.append(str.substring(lastidx, ii + 1));
-                    lastidx = ii + 1;
-                    break;
-                } else if (Character.isWhitespace(c)) {
-                    lastws = ii;
-                }
-            }
-            if (lastws == lastidx) {
-                buf.append(str.substring(lastidx, lastidx + width)).append(LINE_SEPARATOR);
-                lastidx += width;
-            } else if (lastws > lastidx) {
-                buf.append(str.substring(lastidx, lastws)).append(LINE_SEPARATOR);
-                lastidx = lastws + 1;
-            }
-        }
-        return buf.toString();
-    }
-
-    /**
      * Helper function for the various <code>join</code> methods.
      */
     protected static String join (Object[] values, String separator, boolean escape)
@@ -1420,34 +814,6 @@ public class StringUtil
         }
     }
 
-    /** Used to easily format floats with sensible defaults. */
-    protected static final NumberFormat _ffmt = NumberFormat.getInstance();
-    static {
-        _ffmt.setMinimumIntegerDigits(1);
-        _ffmt.setMinimumFractionDigits(1);
-        _ffmt.setMaximumFractionDigits(2);
-    }
-
     /** Used by {@link #hexlate} and {@link #unhexlate}. */
     protected static final String XLATE = "0123456789abcdef";
-
-    /** Maps the 16 most frequent letters in the English language to a number between 0 and
-     * 15. Used by {@link #stringCode}. */
-    protected static final IntMap<Integer> _letterToBits = IntMaps.newHashIntMap();
-    static {
-        String mostCommon = "etaoinsrhldcumfp";
-        for (int ii = mostCommon.length() - 1; ii >= 0; ii--) {
-            _letterToBits.put(mostCommon.charAt(ii), Integer.valueOf(ii));
-        }
-        // sorry g, w, y, b, v, k, x, j, q, z
-    }
-
-    /** The line separator for this platform. */
-    protected static String LINE_SEPARATOR = "\n";
-    static {
-        try {
-            LINE_SEPARATOR = System.getProperty("line.separator");
-        } catch (Exception e) {
-        }
-    }
 }
