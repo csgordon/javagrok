@@ -177,7 +177,7 @@
     </javadoc>
   </target>
 
-  <target name="exp-zip" depends="dist"
+  <target name="nenya-exp" depends="dist"
           description="Packages up the experiment files.">
     <exec executable="ant" dir="nenya">
       <arg line="dist"/>
@@ -193,6 +193,7 @@
         <include name="experiment/lib/**"/>
         <include name="experiment/lisp/**"/>
         <include name="experiment/src/**/*.java"/>
+        <include name="experiment/rsrc/**"/>
       </fileset>
     </zip>
   </target>
