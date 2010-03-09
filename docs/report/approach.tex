@@ -13,13 +13,23 @@ we will read the results into a our framework.
 
 \begin{figure}
 \centering
-\psfig{file=figures/technicalApproach/technicalApproach.eps, width=3in}
+\psfig{file=figures/technicalApproach/from_source_to_jaif.eps, width=3.1in}
 \caption{Toolchain}
-\label{fig:toolchain}
+\label{fig:from_source_to_jaif}
 \end{figure}
 
-Figure~\ref{fig:toolchain} 
-illustrates the stages in our toolchain, explained below.
+\begin{figure}
+\centering
+\psfig{file=figures/technicalApproach/from_jaif_to_javadoc.eps, width=3in}
+\caption{Toolchain}
+\label{fig:from_jaif_to_javadoc}
+\end{figure}
+
+Figure~\ref{fig:from_source_to_jaif} 
+illustrates the stages from the source to JAIF in our toolchain, explained 
+below. While figure~\ref{fig:from_jaif_to_javadoc} shows how JavaGrok
+puts the annotations back into the source files and generates the HTML
+documentation.
 
 First Uno processes the source code which we want to annotate. 
 Because Uno stores its inferred properties in a single separate file, 
