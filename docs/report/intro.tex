@@ -33,30 +33,20 @@ consider the hypothesis that a significant amount of user pain and frustration
 with un(der)documented libraries is due to confusion about
 properties discoverable via static analyses. We consider analyses for nullability,
 reference leaking and capturing, and exceptional conditions.
-Here, we distinguish between confusions about formal properties
-and conceptual
-or higher level confusions about the proper way to use a library, focusing on
-the formal properties.
+Here, we focus on confusions about formal properties
+rather than conceptual
+or higher level confusions about the proper way to use a library.
 
-To explore this hypothesis we conduct a user study, comparing developers'
+To explore this hypothesis we conducted a user study, comparing developers'
 experience using a poorly documented library with and without our
-annotations.  We look at the participants' experience as revealed
-by how frequently the
-documentation fails to help resolve confusions, how frequently source
-code is referred to instead of documentation, and via qualitative exit
-questionnaires.  We plan to use this feedback to evaluate whether the augmented
-documentation reduced developer confusion.
+annotations.  We measured how often users were confused and what means they used to resolve their confusion.  Additionally, we collected qualitative exit
+questionnaires.  Unfortunately, we found no evidence that Javagrok had any impact, positive or negative on the user experience.  We discuss reasons why the evaluation failed and possible alternatives at the end of this paper.
 
 Although there has been some previous work on automatic
-documentation annotation~\cite{autodoc}, this is the first user study
-to directly address the question
-``Is automatically generated documentation helpful?''
-Previous work sought to answer the question
-``Is automatically generated documentation accurate or more informative than
-exemplar user documentation?''
-While this question is certainly interesting in its own right,
-we believe that determining whether the generated documentation is effective in aiding
-developers to be a crucial question.
+documentation annotation~\cite{autodoc}, this is the first user study (to our knowledge)
+focused on the benefit of automatically generated annotations for the problem of program understanding.  By contrast, previous work~CITE sought to evaluate the accuracy of generated annotations or benefit of program analyses for verification tasks.
+We believe that determining whether the generated documentation helps
+developers is the logical next step, and more relevant to practice.
 
 %Our hypothesis is that the properties and facts explained above help the 
 %client of a library to accomplish a programming task in which the programmer
