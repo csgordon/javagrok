@@ -69,21 +69,28 @@ Cherem and Rugina~\cite{UniquenessInference} described a uniqueness inference
 technique using a two-level abstraction: a combination of a flow-sensitive
 intraprocedural analysis with a flow-insensitive interprocedural analysis. 
 They can infer uniqueness information which is used to actively free Java
-object whenever an unique reference is lost.  Ma and
-Foster~\cite{Uno} describe their inference tool Uno that uses a similar
+objects whenever an unique reference is lost. As they focus on optimizing 
+early deallocation they do not evaluate their inference in respect to usefulness
+for a programmer.
+
+Ma and Foster~\cite{Uno} describe their inference tool Uno that uses a similar
 algorithmic idea. They infer a variety of alias and encapsulation
 properties, including uniqueness, lending and aliasing. In their evaluation
 they focus on statistics: for example how many times UNO could infer a certain property.
-Aldrich, Kostadinov and Chambers~\cite{AliasJava} showed how alias information helps the
-programmer to understand how data is shared in large software systems. 
-They do not use their alias annotations for documentation purposes.  Their
-annotations must also be sound for type-checking. In their evaluation
-they mainly show how much time they needed to annotate the source code by hand.
-They implement inference for their annotations, but found the inference to
-produce too much information to be useful for developers (the results were too
-precise).
-None of the above have performed a user study to see how the inferred information
-can help a programmer to understand unsufficently documented code.
+But they do not evaluate how their inferred properties can be used, either by a tool
+or by the user.
+
+Aldrich, Kostadinov and Chambers~\cite{AliasJava} show alias information 
+can be used at compile time to check if the alias annotations are actually
+preserved. Their hypothesis is that this additional safety and annotations will
+help the programmer to understand the program. In their paper they mainly focus
+on the alias type system and on how it's built up. But they also see the need
+for an automatic inference and therefore they also describe an inference algorithm.
+They perform two evaluation on real projects where the programmer
+annotated the code by hand with alias information. They also test their
+alias annotation inference algorithm, but they get to the conclusion that
+their inference tool inferred too much annotations to be actually useful
+for developers.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
 exceptions.  Our exception inference is weaker than theirs due to the lack of
