@@ -41,7 +41,10 @@ eMoose~\cite{emoose} performs a programming-environment version of
 inter-procedural constraint propagation; it integrates
 documentation about a method being called into the hover text for a programmer
 working at a call site for that method, and they performed a user study to show
-that the new presentation of documentation helped developers.  Any of these
+that the new presentation of documentation helped developers.  Their work
+focused on how presentation of documentation can help developers, while our work
+focuses on how we can automatically augment documentation to contain more
+information.  Any of these
 techniques could probably be used
 in conjunction with our work to further improve the developer experience.
 
@@ -93,10 +96,7 @@ their inference tool inferred too much annotations to be actually useful
 for developers.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
-exceptions.  Our exception inference is weaker than theirs due to the lack of
-symbolic execution in our system.  One
-possible future extension of our work would be to integrate their exception
-analysis.  They evaluated their tool through a manual comparison of inferred documentation to
+exceptions.  They evaluated their tool through a manual comparison of inferred documentation to
 existing documentation for several moderately-sized Java projects considered to
 have decent documentation.  We performed a live user study using a library with what
 we felt to be average documentation, comparing the progress and feedback of
