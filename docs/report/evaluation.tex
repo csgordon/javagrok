@@ -8,19 +8,17 @@ specifically focused on when the developer had questions about how to correctly
 use the library. We considered four cases: a) the question was answered by our
 annotations, b) the question was answered by the existing library
 documentation, c) the question was answered by direct referal to the library
-source code, and d) the question was unable to be answered by any source. We
-also asked the developers to note any time they were surprised by the library's
-behavior.
+source code, and d) the question was unable to be answered. We also asked the
+developers to note any time they were surprised by the library's behavior.
 
-Our hypothesis, construed in terms of this experiment, is that by augmenting
-library documentation with the results of the previously described analyses, we
-will decrease the frequency with which developers must refer to the library
-source code to answer questions, and see incidence of questions answered by
-annotations that matches that decrease. We do not expect the annotations to
-offset questions that would be answered by reading the documentation, nor do we
-expect them to have an impact on questions that cannot by answered by any
-means. We hypothesized that our annotations may result in a reduction in
-surprise at library behavior, but would not increase the incidence of surprise.
+Our hypothesis is that by augmenting library documentation with properties
+inferred via static analyses, we will decrease the frequency with which
+developers must refer to the library source code to answer questions. This
+should show up as a non-zero incidence of questions being answered by
+annotations and a corresponding decrease in the questions that were answered by
+source code. We also hypothesized that our annotations may have resulted in a
+reduction in surprise at library behavior, and would not increase the incidence
+of surprise.
 
 \subsection{Experiment Design}
 
@@ -57,17 +55,18 @@ original, unmodified documentation.
 The members of each group were provided with equivalent development
 environments (the Eclipse IDE, configured to provide ready access to the
 augmented or unmodified documentation as well as the augmented or unmodified
-library source code). Additionally the subjects were shown how to access both
-the library documentation and source code to reduce the likelihood that
-differing familiarity with the development environment influenced their
-decision to inspect the documentation or source code.
+library source code). As the subjects' experience with the Eclipse IDE was
+quite varied, they were shown how to access both the library documentation and
+source code. The aim was to reduce the likelihood that differing familiarity
+with the IDE would influence their decision to inspect the documentation or
+source code.
 
 The subjects were instructed to first check the documentation when they
 encountered a question about correct usage of the library, then to consult the
 source code only if their question was not answered to their satisfaction by
 the documentation. Finally they were asked to record the outcome of each event.
-The experimental could record a question as being resolved by ``annotations'',
-``documentation'', ``source code'' and ``not answered''. The control group had
+The experimenter could record a question as being resolved by ``annotations'',
+``documentation'', ``source code'' and ``not resolved''. The control group had
 only the latter three choices as they had unaugmented documentation.
 
 We also instructed subjects to complete a short survey after completing the
