@@ -25,6 +25,13 @@ below. While figure~\ref{fig:from_jaif_to_javadoc} shows how JavaGrok
 puts the annotations back into the source files and generates the HTML
 documentation.
 
+\begin{figure*}
+\centering
+\psfig{file=figures/technicalApproach/from_jaif_to_javadoc.eps, width=5.0in}
+\caption{From JAIF to Javadoc}
+\label{fig:from_jaif_to_javadoc}
+\end{figure*}
+
 In a first step JavaGrok inokes Uno to process the source code to annotate. 
 Because Uno stores its inferred properties in a single separate file, 
 we changed UNO's output format slightly to make it easier to parse it automatically.
@@ -58,10 +65,3 @@ those annotations back into the original source. The annotated source
 code is now one of JavaGrok's output formats. Additionally Javadoc processes
 the annotated source and combines the newly added annotations into the html
 documentation.
-
-\begin{figure*}
-\centering
-\psfig{file=figures/technicalApproach/from_jaif_to_javadoc.eps, width=5.0in}
-\caption{From JAIF to Javadoc}
-\label{fig:from_jaif_to_javadoc}
-\end{figure*}

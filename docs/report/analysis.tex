@@ -3,48 +3,48 @@
 In this section we describe the analyses we perform: their implementation,
 output, and why each analysis would be useful for a developer.
 
-\subsection{Javarifier}
-\label{sec:Javarifier}
+% \subsection{Javarifier}
+% \label{sec:Javarifier}
 
-Javarifier is a tool to infer reference immutability information built in
-conjuction with research done by Quinonez et al.~\cite{Javarifier}. It infers
-mutability constraints for object fields, method arguments and receivers.  We
-use \textit{mutate} to mean updating the value of an object's fields, calling a
-method on an object that updates the values of its fields, or calling a method
-on an object that mutates an object referenced by one of its fields.
+% Javarifier is a tool to infer reference immutability information built in
+% conjuction with research done by Quinonez et al.~\cite{Javarifier}. It infers
+% mutability constraints for object fields, method arguments and receivers.  We
+% use \textit{mutate} to mean updating the value of an object's fields, calling a
+% method on an object that updates the values of its fields, or calling a method
+% on an object that mutates an object referenced by one of its fields.
 
-Below we enumerate the annotations inferred by Javarifier which are utilized by
-JavaGrok, and a summary of what they communicate to the developer:
+% Below we enumerate the annotations inferred by Javarifier which are utilized by
+% JavaGrok, and a summary of what they communicate to the developer:
 
-\texttt{@ReadOnly} When appearing on a method, this indicates to the developer
-that the method will not mutate its receiver. When appearing on a method
-argument, this indicates to the developer that the method will not mutate the
-argument through the supplied reference.
+% \texttt{@ReadOnly} When appearing on a method, this indicates to the developer
+% that the method will not mutate its receiver. When appearing on a method
+% argument, this indicates to the developer that the method will not mutate the
+% argument through the supplied reference.
 
-\texttt{@Mutable} When appearing on a method, this indicates to the developer
-that the method may mutate its receiver. When appearing on a method argument,
-this indicates to the developer that the method may mutate the argument through
-the supplied reference.
+% \texttt{@Mutable} When appearing on a method, this indicates to the developer
+% that the method may mutate its receiver. When appearing on a method argument,
+% this indicates to the developer that the method may mutate the argument through
+% the supplied reference.
 
-Javarifier generates two additional annotations which are important for type
-checking, but not important when simply communicating method behavior to a
-developer.
+% Javarifier generates two additional annotations which are important for type
+% checking, but not important when simply communicating method behavior to a
+% developer.
 
-\texttt{@QReadOnly} appears on type parameters of method arguments, for example
-\texttt{List<@QReadOnly Date>}. Such an annotation on a method argument
-indicates that the method accepts both \texttt{List<@ReadOnly Date>} and
-\texttt{List<@Mutable Date>}. However, the method itself is restricted to only
-operations allowed on both read-only and mutable dates, which is strictly a
-subset of the operations allowed on read-only dates.
+% \texttt{@QReadOnly} appears on type parameters of method arguments, for example
+% \texttt{List<@QReadOnly Date>}. Such an annotation on a method argument
+% indicates that the method accepts both \texttt{List<@ReadOnly Date>} and
+% \texttt{List<@Mutable Date>}. However, the method itself is restricted to only
+% operations allowed on both read-only and mutable dates, which is strictly a
+% subset of the operations allowed on read-only dates.
 
-\texttt{@PolyRead} indicates that a method and/or its arguments are polymorphic
-over mutability. Such a method may legally be instantiated with
-\texttt{@ReadOnly} receiver and/or arguments and thus must not mutate the
-receiver or arguments.
+% \texttt{@PolyRead} indicates that a method and/or its arguments are polymorphic
+% over mutability. Such a method may legally be instantiated with
+% \texttt{@ReadOnly} receiver and/or arguments and thus must not mutate the
+% receiver or arguments.
 
-We convert both of the above annotations to \texttt{@ReadOnly}, as
-that is sufficient to communicate the method's behavior to the developer and we
-are not concerned with type-checking mutability.
+% We convert both of the above annotations to \texttt{@ReadOnly}, as
+% that is sufficient to communicate the method's behavior to the developer and we
+% are not concerned with type-checking mutability.
 
 \subsection{Uno}
 
