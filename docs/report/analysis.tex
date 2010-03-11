@@ -112,9 +112,9 @@ and require reasoning about iteration and ``falling through'' cases.  When
 analysis of a control structure is complete, a clause is popped from the
 branch stack or the counter is decremented as appropriate.
 
-When entering a method or a try/catch construct, we push a new empty set of exceptions onto
+When entering a method or a \texttt{try}/\texttt{catch} construct, we push a new empty set of exceptions onto
 a stack that tracks what exceptions are thrown at the current level of
-\texttt{try} nesting --- the try-stack.
+\texttt{try} nesting: the try-stack.
 When a throw statement is found, the statement's AST node is added to the
 topmost set on the try-stack, 
 along with the current branch condition if no complex control structures have
@@ -126,23 +126,23 @@ into the next set on the try-stack, and process the bodies of
 the \texttt{catch} clauses.  When traversal of a method is complete, we add the
 single remaining set on the try-stack to a hash map from method definition AST
 nodes to sets of exception-condition pairs.
-
-{\LARGE TODO: Compare this to the code! I think that actually, we add throws to
-the current set \emph{as we filter}, then merge the set, so a throw in a catch
-body could potentially be filtered out by a subsequent catch associated with the
-same try, which is wrong.}
+{\bf\large TODO: Compare this to the code! I think that actually, we add throws to
+the current set \emph{as we filter}, then merge the set, so a throw in a
+\texttt{catch}
+body could potentially be filtered out by a subsequent \texttt{catch} associated with the
+same \texttt{try}, which is wrong.}
 
 Method calls are handled in a similar manner, as they are potential sources of
 exceptions.  A separate try-stack exists for method calls.  When a call is
 encountered, it is added to the set with its condition as for throws, but the
-container also has a list of exception types filtered by catch clauses.  When
+container also has a list of exception types filtered by \texttt{catch} clauses.  When
 initially added to the top of the method try-stack, the list is empty.  When
-processing the catch clauses associated with a \texttt{try}, the list of each
+processing the \texttt{catch} clauses associated with a \texttt{try}, the list of each
 method call instance in the topmost set of the method try-stack is populated. 
 
 In the second phase, the tree is traversed again, and the mappings from the first
 phase is used.  When visiting a method definition, any explicit throws from
-methods the current node calls are filtered based on the list of catch clauses
+methods the current node calls are filtered based on the list of \texttt{catch} clauses
 enclosing the calls.  Those throws are then added to the set of uncaught
 exceptions from the current method, and the whole group along with their
 conditions (either complex, via a method call, or the simple condition under
@@ -154,8 +154,34 @@ These annotations are compiled into bytecode, and extracted in a later phase of
 JavaGrok.
 
 \subsubsection{Precision}
-{\LARGE: Discuss precision.  One-level propagation of only explicit throws,
-"check-param" methods, funkiness with throws in catch clauses.}
+{\LARGE: Discuss funkiness with throws in catch clauses.}
+
+We found our inferred exception conditions to be of sufficient detail.  While
+additional information could be gathered by a more complete inter-procedural
+propagation, we found our inference able to generate sufficient information for
+our evaluation library.  Many of the library methods were simple wrappers to
+fill out additional arguments for another method, or made use of utility
+argument validators, such as in Figure \ref{fig:argvalidate}.
+
+\begin{figure}
+\begin{verbatim}
+...
+public void count(int x) {
+    checkCountTarget(x);
+    ...
+}
+public void checkCountTarget(int y) {
+    if (y < 0)
+        throw new IllegalArgumentException();
+}
+\end{verbatim}
+\caption{An example of a use of an argument validation method.
+\texttt{count(int x)} uses \texttt{checkCountTarget(int y)} to verify that the
+provided argument is valid.  Our exception inference detects this and annotates
+\texttt{indexList} to indicate that passing a negative number will result in an
+\texttt{InvalidArgumentException}.}
+\label{fig:argvalidate}
+\end{figure}
 
 Buse and Weimer infer documentation for exception conditions
 using an analysis that performs full symbolic execution along paths to reach throw
