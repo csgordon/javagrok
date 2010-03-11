@@ -1,0 +1,258 @@
+\section{Analyses}
+
+In this section we describe the analyses we perform: their implementation,
+output, and why each analysis would be useful for a developer.
+
+\subsection{Javarifier}
+\label{sec:Javarifier}
+
+Javarifier is a tool to infer reference immutability information built in
+conjuction with research done by Quinonez et al.~\cite{Javarifier}. It infers
+mutability constraints for object fields, method arguments and receivers.  We
+use \textit{mutate} to mean updating the value of an object's fields, calling a
+method on an object that updates the values of its fields, or calling a method
+on an object that mutates an object referenced by one of its fields.
+
+Below we enumerate the annotations inferred by Javarifier which are utilized by
+JavaGrok, and a summary of what they communicate to the developer:
+
+\texttt{@ReadOnly} When appearing on a method, this indicates to the developer
+that the method will not mutate its receiver. When appearing on a method
+argument, this indicates to the developer that the method will not mutate the
+argument through the supplied reference.
+
+\texttt{@Mutable} When appearing on a method, this indicates to the developer
+that the method may mutate its receiver. When appearing on a method argument,
+this indicates to the developer that the method may mutate the argument through
+the supplied reference.
+
+Javarifier generates two additional annotations which are important for type
+checking, but not important when simply communicating method behavior to a
+developer.
+
+\texttt{@QReadOnly} appears on type parameters of method arguments, for example
+\texttt{List<@QReadOnly Date>}. Such an annotation on a method argument
+indicates that the method accepts both \texttt{List<@ReadOnly Date>} and
+\texttt{List<@Mutable Date>}. However, the method itself is restricted to only
+operations allowed on both read-only and mutable dates, which is strictly a
+subset of the operations allowed on read-only dates.
+
+\texttt{@PolyRead} indicates that a method and/or its arguments are polymorphic
+over mutability. Such a method may legally be instantiated with
+\texttt{@ReadOnly} receiver and/or arguments and thus must not mutate the
+receiver or arguments.
+
+We convert both of the above annotations to \texttt{@ReadOnly}, as
+that is sufficient to communicate the method's behavior to the developer and we
+are not concerned with type-checking mutability.
+
+\subsection{Uno}
+
+{\bf\large TODO: Write more about how Uno works: flow-sensitive, intraprocedural 
+pointer-analysis}
+Uno~\cite{Uno} infers alias and encapsulation properties. The
+tool generates predicates which provide information about how a certain
+function treats its parameters, return values and fields when called. More
+concretely, it infers whether or not a function captures or leaks a
+reference, or returns a new unique reference.
+
+Below we enumarete the annotations we use and which Uno predicates it uses.
+
+\texttt{@UniqueReturn} on method declarations. This annotations indicates 
+that the return value is a unique reference to its referent. This maps directly
+to Uno's predicate UniqRet being true.
+\texttt{@NonUniqueReturn} can occur on method declarations and means that 
+there is at least one possible path between method entrance and exit in
+which the returned reference is not the only reference to its referent.
+This maps directly to Uno's predicate UniqRet being false.
+\texttt{@Retained} when appearing in front of a method parameter it indicates
+that the're exists at least one path between method entrance and exit in 
+which the reference get's captured. For example might the called method store
+a reference to the referent in a local field.
+\texttt{@NotRetained} respectively indicates that the method has no execution 
+paths which retains a reference to the passed object.
+The retention annotations correspond to Uno's LentPar predicate.
+
+Our hypothesis is that the retention annotations is useful to developers
+because it tells at a simple glance at the method interface if the argument
+one passes is possibly gonna be retained. If so, the developer can either only
+pass a copy of the object as an argument or is at least aware that the uniqueness
+of the object's reference might not be maintained by that method.
+
+% TODO: Already motivated in example....
+%Uniqueness information on returned objects poses similar useful scenarios. As
+%already motivated with the example in section~\ref{sec:Example} uniqueness 
+%information of return values can be critical in situations where the developer 
+%might not expect a method to leak it's internal representation. 
+
+Uno infers a lot of other predicates which at first thought also might be 
+interesting for a programmer. But turning them all into annotations will
+add to much information to the source code. In a self-experiment we 
+realised that the amount of additional information might easily distract
+the programmer instead of help. Therefore we only use the predicates 
+described above.
+
+The tool generates predicates which are stored in a single separate file. 
+To integrate the analysis results of UNO into the Java documentation we
+use our own framework. We implemented an AST traversal inside the Java 7 
+compiler that, at initialization, reads in the file generated by UNO and 
+stores the information in a hashset. During the iteration over the AST
+the visitor inserts annotation at the appropriate places.
+
+\subsection{Thrown Exceptions}
+
+Java requires that checked exceptions be declared by methods that raise them,
+but frequently the conditions under which exceptions are raised are unclear to a
+library user. Even with checked exceptions, often a supertype of a thrown
+exception is declared.  While knowing that an \texttt{IOException} might be
+thrown is useful, knowing that the method might throw either a
+\texttt{FileNotFoundException} or \texttt{InterruptedByTimeoutException} is more
+useful to a developer, because knowing the specific exception may help to debug
+a program; knowing that a \texttt{FileNotFoundException} was thrown tells a
+developer to check that file paths are correct and that any tasks that should
+have created the file ran correctly, while an \texttt{IOException} could
+indicate a variety of problems with local files, or any of a number of problems
+with the network.  Additionally, unchecked exceptions need not be declared in Java method
+signatures or documentation and can remain entirely invisible to the library
+user until they are encountered at runtime.
+
+To alleviate this, we infer some of the conditions under which a method would
+throw an exception, and produce annotations of the form:
+
+\begin{verbatim}
+@Throws(when =
+    "IllegalArgumentException when (x < 0)")
+public Object getElement(int x) { ... }
+\end{verbatim}
+
+This inferred information can inform developers of unchecked exceptions,
+and alert them to otherwise undocumented assumptions of a library without
+requiring developers to dig through the library's code.
+Annotations may contain a list of exceptions and conditions, and for some
+complex conditions we reduce the condition to ``sometimes'' because our analysis
+performs no symbolic execution, and is only based on syntactic structure.  We do not use an
+existing analysis tool because none were available for this task, but our
+simple analysis provides useful results.
+
+\subsubsection{Implementation}
+
+Our exception analysis is implemented in two phases as plugins to the JDK 7 compiler.
+In the first phase, the
+abstract syntax tree for every method of the program is traversed in the
+following manner.  The analysis walks over every statement of the method,
+descending recursively into control flow constructs.  The analysis keeps a stack
+of conditional branches, pushing branch conditions when entering the positive
+branch of a conditional, and negating the most recent condition when entering
+the \texttt{else} clause.  A counter is also kept for how many times the
+analysis has entered a more complex control structure, such as a loop or
+\texttt{switch} statement whose conditions for execution are more complicated,
+and require reasoning about iteration and ``falling through'' cases.  When
+analysis of a control structure is complete, a clause is popped from the
+branch stack or the counter is decremented as appropriate.
+
+When entering a method or a \texttt{try}/\texttt{catch} construct, we push a new empty set of exceptions onto
+a stack that tracks what exceptions are thrown at the current level of
+\texttt{try} nesting: the try-stack.
+When a throw statement is found, the statement's AST node is added to the
+topmost set on the try-stack, 
+along with the current branch condition if no complex control structures have
+been encountered, otherwise it is added with a flag that the condition was more
+complicated than we trace.  When a \texttt{try} body has been traversed, we
+remove exceptions from that top set that are subclasses of caught exception
+types in the associated \texttt{catch} bodies.  We then merge the topmost set
+into the next set on the try-stack, and process the bodies of
+the \texttt{catch} clauses.  When traversal of a method is complete, we add the
+single remaining set on the try-stack to a hash map from method definition AST
+nodes to sets of exception-condition pairs.
+{\bf\large TODO: Compare this to the code! I think that actually, we add throws to
+the current set \emph{as we filter}, then merge the set, so a throw in a
+\texttt{catch}
+body could potentially be filtered out by a subsequent \texttt{catch} associated with the
+same \texttt{try}, which is wrong.}
+
+Method calls are handled in a similar manner, as they are potential sources of
+exceptions.  A separate try-stack exists for method calls.  When a call is
+encountered, it is added to the set with its condition as for throws, but the
+container also has a list of exception types filtered by \texttt{catch} clauses.  When
+initially added to the top of the method try-stack, the list is empty.  When
+processing the \texttt{catch} clauses associated with a \texttt{try}, the list of each
+method call instance in the topmost set of the method try-stack is populated. 
+
+In the second phase, the tree is traversed again, and the mappings from the first
+phase is used.  When visiting a method definition, any explicit throws from
+methods the current node calls are filtered based on the list of \texttt{catch} clauses
+enclosing the calls.  Those throws are then added to the set of uncaught
+exceptions from the current method, and the whole group along with their
+conditions (either complex, via a method call, or the simple condition under
+which the exception is thrown) are serialized and added to that method as an
+annotation.  When serializing the conditions for explicit throws of a method
+call, any formal parameters of the current method used as actual parameters to
+callees replace the corresponding callee formals in the serialized condition.
+These annotations are compiled into bytecode, and extracted in a later phase of
+JavaGrok.
+
+\subsubsection{Precision}
+{\LARGE: Discuss funkiness with throws in catch clauses.}
+
+We found our inferred exception conditions to be of sufficient detail.  While
+additional information could be gathered by a more complete inter-procedural
+propagation, we found our inference able to generate sufficient information for
+our evaluation library.  Many of the library methods were simple wrappers to
+fill out additional arguments for another method, or made use of utility
+argument validators, such as in Figure \ref{fig:argvalidate}.
+
+\begin{figure}
+\begin{verbatim}
+...
+public void count(int x) {
+    checkCountTarget(x);
+    ...
+}
+public void checkCountTarget(int y) {
+    if (y < 0)
+        throw new IllegalArgumentException();
+}
+\end{verbatim}
+\caption{An example of a use of an argument validation method.
+\texttt{count(int x)} uses \texttt{checkCountTarget(int y)} to verify that the
+provided argument is valid.  Our exception inference detects this and annotates
+\texttt{indexList} to indicate that passing a negative number will result in an
+\texttt{InvalidArgumentException}.}
+\label{fig:argvalidate}
+\end{figure}
+
+Buse and Weimer infer documentation for exception conditions
+using an analysis that performs full symbolic execution along paths to reach throw
+statements, propagating information between methods as necessary~\cite{autodoc}.
+Because they
+perform full symbolic execution, their tool can be much more precise than ours.
+Replacing our exception analysis with theirs, or implementing our own symbolic
+execution would likely improve the quality of our exception documentation.  
+
+As in Buse and Weimer's work, we expose internal field names and
+local variable names in exceptional conditions.  We agree with their assessment
+that while this leaks some
+implementation information and is not necessarily informative, in practice
+leaked variables are often still useful: for example, showing that an exception is
+thrown from a list's \texttt{remove()} method when a local variable \texttt{len}
+is equal to 0 has clear implications.
+
+\subsection{Nullability}
+\label{sec:Nullability}
+
+In heavily object oriented languages like Java, every variable is nullable,
+capable of holding either a reference or the
+special value null.  Because of this ubiquity, one common mistake is to call
+methods with null parameters they are unprepared to handle, or to erroneously
+assume that returned values are never null.  Well documented libraries, like
+the Java collections framework, frequently spell out when variables are
+assumed to be nullable or not-null, while many libraries with weaker
+documentation omit this information entirely.
+
+By means of a nullability type inference~\cite{NonNullTypeInference} we can add
+similarly useful information to documentation.  Although the JastAdd analysis
+we've chosen to use does not require a whole program, it does make a closed
+world assumption; that is, it assumes it is analyzing all code that will ever be
+linked with the library.  This leads to optimistic annotation inferences when run on
+library code.  JastAdd produces \texttt{@NonNull} annotations, indicating that the user should assume that an
+argument or method return value will not assume the value \texttt{null}.

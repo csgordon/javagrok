@@ -1,0 +1,104 @@
+\section{Related Work}
+There is a wealth of work on inferring interesting properties of existing code,
+but most of these are focused on inferring properties suitable for automatic
+verification.
+Because of this, few projects have performed user studies to evaluate how
+inferred information may assist developers.
+
+The most directly relevant work is Buse and Weimer's system for automatically
+inferring documentation for conditions that will result in a Java method
+throwing an exception~\cite{autodoc}.  We implement a similar analysis
+to detect the conditions under which some exceptions are thrown, though weaker
+because we do not perform full symbolic execution.  They also performed a
+comparison of generated documentation to exemplar documentation for several
+moderately-sized Java projects.  We are the first to perform a user study of how
+helpful to programmers these inferred properties can be when used to augment existing
+documentation.
+
+Analysis of libraries as a separate entity from whole programs, without
+considering documentation, has been considered by the software
+engineering community.  Arnout and Meyer performed a study of the .NET
+collections libraries where they manually extracted
+contracts~\cite{findingcontracts}.  Their work is complementary to ours: in some
+sense we are extracting and documenting the implicit contracts of libraries,
+while they extract the implicit contracts and present them for static checking.
+
+Williams et al.~describe a method for detecting possible deadlocks in Java
+libraries~\cite{deadlocklibs}.  Sankaranarayanan et al.~use inductive logic
+programming to infer precise Datalog specifications of proper use of library
+APIs~\cite{mininglibspecs}.  Their work is intended for consumption by the
+developer, but they do not go so far as to modify whatever documentation a
+library has.  Either of these approaches, or others, could likely be adapted to
+generate additional useful documentation.
+
+Tools for analyzing documentation, particularly in relation to program text,
+have also received some attention.  Schreck, Dallmeier, and Zimmermann describe
+a tool for measuring the quality of software documentation, and how that
+quality varies over time~\cite{evolvedoc}. Tools like Mismar~\cite{mismar} make
+it easier to construct usage guides for code bases by allowing the developer to
+essentially drag-and-drop software components to form a documentation skeleton.
+eMoose~\cite{emoose} performs a programming-environment version of
+inter-procedural constraint propagation; it integrates
+documentation about a method being called into the hover text for a programmer
+working at a call site for that method, and they performed a user study to show
+that the new presentation of documentation helped developers.  Their work
+focused on how presentation of documentation can help developers, while our work
+focuses on how we can automatically augment documentation to contain more
+information.  Any of these
+techniques could probably be used
+in conjunction with our work to further improve the developer experience.
+
+\subsection{Individual Analyses}
+
+There has been some recent work in nullability analysis for Java
+resulting in two available tools.  Hubert~\cite{NIT} implemented a nullability
+analysis for Java bytecode based on abstract interpretation techniques.  This
+analysis is instantiated in the {\sc NIT} tool.  Ekman and
+Hedin~\cite{NonNullTypeInference} independently implemented a nullability type
+inference analysis.  Both of these tools make closed world assumptions, but the
+Ekman and Hedin's JastAdd inferencer does not require a whole program
+analysis---hence our decision to use it.
+%(Further details on further
+%nullability analysis tools and discussion should be here in the final version.
+%Didn't have time right now to get to it.)
+
+Quinonez, et al.~\cite{Javarifier} described a technique for inference of
+reference immutability in Java and implemented it in a tool called {\sc
+  Javarifier}. Their goal is the inference of annotations for the {\sc Javari}
+language (an extension of Java) which enforces reference immutability
+constraints. %% TODO: IGJ~\cite{IGJ}, Pidasa~\cite{Pidasa}.
+
+Cherem and Rugina~\cite{UniquenessInference} described a uniqueness inference
+technique using a two-level abstraction: a combination of a flow-sensitive
+intraprocedural analysis with a flow-insensitive interprocedural analysis. 
+They can infer uniqueness information which is used to actively free Java
+objects whenever an unique reference is lost. As they focus on optimizing 
+early deallocation they do not evaluate their inference in respect to usefulness
+for a programmer.
+
+Ma and Foster~\cite{Uno} describe their inference tool Uno that uses a similar
+algorithmic idea. They infer a variety of alias and encapsulation
+properties, including uniqueness, lending and aliasing. In their evaluation
+they focus on statistics: for example how many times UNO could infer a certain property.
+But they do not evaluate how their inferred properties can be used, either by a tool
+or by the user.
+
+Aldrich, Kostadinov and Chambers~\cite{AliasJava} show alias information 
+can be used at compile time to check if the alias annotations are actually
+preserved. Their hypothesis is that this additional safety and annotations will
+help the programmer to understand the program. In their paper they mainly focus
+on the alias type system and on how it's built up. But they also see the need
+for an automatic inference and therefore they also describe an inference algorithm.
+They perform two evaluation on real projects where the programmer
+annotated the code by hand with alias information. They also test their
+alias annotation inference algorithm, but they get to the conclusion that
+their inference tool inferred too much annotations to be actually useful
+for developers.
+
+Buse and Weimer~\cite{autodoc} automatically infer documentation for
+exceptions.  They evaluated their tool through a manual comparison of inferred documentation to
+existing documentation for several moderately-sized Java projects considered to
+have decent documentation.  We performed a live user study using a library with what
+we felt to be average documentation, comparing the progress and feedback of
+developers using existing documentation to that of developers using augmented
+documentation.
