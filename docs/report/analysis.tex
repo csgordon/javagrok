@@ -67,7 +67,7 @@ annotation.  For the reverse (the argument is never retained), the tool uses
 These annotations also take sub-classing into account. In the case of
 \texttt{@UniqueReturn} for example, this means that every known overriding method
 also returns a unique reference, because only then the caller can be sure
-that the returned object is actually a unique reference.
+that the returned reference is actually unique.
 
 Our hypothesis is that the retention annotations are useful to developers
 because they show at a glance whether an argument
