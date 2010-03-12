@@ -361,6 +361,7 @@ public class ExceptionProcessor extends AbstractTypeProcessor
             for (Object[] app : appstack.peek()) {
                 ((HashSet<TypeMirror>)app[4]).add(caught);
             }
+	    super.visitCatch(tree);
 
             // test code for above:
             //try {

@@ -96,9 +96,11 @@ their inference tool inferred too much annotations to be actually useful
 for developers.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
-exceptions.  They evaluated their tool through a manual comparison of inferred documentation to
-existing documentation for several moderately-sized Java projects considered to
-have decent documentation.  We performed a live user study using a library with what
-we felt to be average documentation, comparing the progress and feedback of
-developers using existing documentation to that of developers using augmented
-documentation.
+exceptions.  In addition to differences in the evaluation of our work, they use
+an analysis that performs symbolic execution along paths to reach throw
+statements, propagating information between methods as necessary.
+Because they
+perform symbolic execution, their tool can be more precise than ours, though
+they also lose precision by ignoring loop iteration.
+Replacing our exception analysis with theirs, or implementing our own symbolic
+execution would likely improve the quality of our exception documentation.
