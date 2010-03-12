@@ -49,23 +49,25 @@ output, and why each analysis would be useful for a developer.
 \subsection{Uno}
 
 Uno~\cite{Uno} infers alias and encapsulation properties as well as a a number
-of other properties. We selected some of these which we regarded useful for our
+of other properties. Uno's inferences those on the base of a flow-sensitive
+intraprocedural points-to analysis combined with a interprocedural analysis.
+We selected some of Uno's properties which we regarded as useful for our
 purposes based on our own experience. The chosen properties 
-provide information about how a certain function treats its parameters, return 
-values and fields when called. More concretely, it infers whether or not a 
+provide information about how a certain function treats its parameters and 
+return values when called. More concretely, it infers whether or not a 
 function captures or leaks a reference, or returns a new unique reference.
 
-Below we enumarete the annotations we infer.
+Below we enumarete the annotations JavaGrok infers.
 
-\texttt{@UniqueReturn} on method declarations. This annotations indicates 
-that the return value is a unique reference to its referent.
-\texttt{@NonUniqueReturn} can occur on method declarations and means that 
-there is at least one possible path between method entrance and exit in
+\texttt{@UniqueReturn} can appear on method declarations. This annotations 
+indicates that the return value is a unique reference to its referent.
+\texttt{@NonUniqueReturn} respectively can occur on method declarations and means 
+that there is at least one possible path between method entrance and exit in
 which the returned reference is not the only reference to its referent.
-\texttt{@Retained} when appearing in front of a method parameter it indicates
+\texttt{@Retained}, when appearing in front of a method parameter, indicates
 that the're exists at least one path between method entrance and exit in 
 which the reference get's captured. For example might the called method store
-a reference to the referent in a local field.
+a reference to the referent in a field.
 \texttt{@NotRetained} respectively indicates that the method has no execution 
 paths which retains a reference to the passed object.
 
