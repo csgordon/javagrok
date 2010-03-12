@@ -9,7 +9,7 @@ internal representation. This might be surprising
 if the list of objects that gets returned keeps growing
 even though the caller of \texttt{getAll()} does not add those objects.
 
-\begin{figure}[h]
+\begin{figure}[t]
 \begin{lstlisting}
 public class A
 {
@@ -40,7 +40,7 @@ of the list into a newly created list.  Figure \ref{fig:postannotation}
 shows a class annotated with reference leak and capture information produced by
 our tool.
 
-\begin{figure}[h]
+\begin{figure}[t!]
 \begin{lstlisting}
 public class A
 {
