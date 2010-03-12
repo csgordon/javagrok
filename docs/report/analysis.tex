@@ -134,12 +134,17 @@ assumed to be nullable or not-null, while many libraries with weaker
 documentation omit this information entirely.
 
 By means of a nullability type inference from the JastAdd compiler~\cite{NonNullTypeInference} we can add
-similarly useful information to documentation.  Although the JastAdd analysis
+similarly useful information to documentation.  JastAdd was developed in
+conjunction with a nullability type-checker, and the inference is both unsound
+and imprecise with respect to that type-checker.  In our evaluation, this did
+not appear to be an issue.  Although the JastAdd inference
 does not require a whole program, it does make a closed
 world assumption; that is, it assumes that it is analyzing all code that will ever be
-linked with the library.  At worst this leads to an imprecise, overly
-conservative analysis, which turned out not to be a problem in our evaluation
-tasks.  JastAdd produces \texttt{@NonNull} annotations, indicating that the user
+linked with the library.  This is a poor match for library API annotations, but
+the assumption did not seem to significantly affect the inference's accuracy.
+We used JastAdd despite its imprecision and lack of soundness
+because all other nullability tools we evaluated required whole programs for analysis.
+JastAdd produces \texttt{@NonNull} annotations, indicating that the user
 should assume that an
 argument or method return value will not assume the value \texttt{null}.  For example,
 
@@ -148,4 +153,3 @@ public void addSprite(@NonNull Sprite sprite)
 { ... }
 \end{verbatim}
 
-Absence of an annotation implies that the argument or return may be null.
