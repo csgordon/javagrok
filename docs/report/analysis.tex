@@ -130,19 +130,23 @@ is equal to 0 has clear implications.
 \subsection{Nullability}
 \label{sec:Nullability}
 
-In heavily object oriented languages like Java, every variable is nullable,
-capable of holding either a reference or the
-special value null.  Because of this ubiquity, one common mistake is to call
-methods with null parameters they are unprepared to handle, or to erroneously
-assume that returned values are never null.  Well documented libraries, like
-the Java collections framework, frequently spell out when variables are
+In Java, (almost) every variable is nullable,
+capable of holding either a reference to an object or the
+special value null.  One commonly made mistake is calling
+methods with null parameters they are unprepared to handle, or erroneously
+assuming that returned values are never null.  Well documented libraries (like
+the Java collections framework) spell out when variables are
 assumed to be nullable or not-null, while many libraries with weaker
 documentation omit this information entirely.
 
 By means of a nullability type inference~\cite{NonNullTypeInference} we can add
 similarly useful information to documentation.  Although the JastAdd analysis
 we've chosen to use does not require a whole program, it does make a closed
-world assumption; that is, it assumes it is analyzing all code that will ever be
-linked with the library.  This leads to optimistic annotation inferences when run on
-library code.  JastAdd produces \texttt{@NonNull} annotations, indicating that the user should assume that an
-argument or method return value will not assume the value \texttt{null}.
+world assumption; that is, it assumes that it is analyzing all code that will ever be
+linked with the library.  At worst this leads to an imprecise, overly conservative analysis, which turned out not to be a problem in our evaluation tasks.  JastAdd produces \texttt{@NonNull} annotations, indicating that the user should assume that an
+argument or method return value will not assume the value \texttt{null}.  For example,
+
+\begin{verbatim}
+public void addSprite(@Retained@NonNull
+                      Sprite sprite) { ... }
+\end{verbatim}

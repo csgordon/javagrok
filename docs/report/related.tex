@@ -54,14 +54,18 @@ in conjunction with our work to further improve the developer experience.
 
 \subsection{Individual Analyses}
 
-There has been some recent work in nullability analysis for Java
-resulting in two available tools.  Hubert~\cite{NIT} implemented a nullability
-analysis for Java bytecode based on abstract interpretation techniques.  This
-analysis is instantiated in the {\sc NIT} tool.  Ekman and
-Hedin~\cite{NonNullTypeInference} independently implemented a nullability type
-inference analysis.  Both of these tools make closed world assumptions, but the
-Ekman and Hedin's JastAdd inferencer does not require a whole program
-analysis---hence our decision to use it.
+There has been a good amount of recent work in nullability analysis for Java.
+Engelen provides a useful (albeit slightly dated) survey in his master's thesis~CITE.
+Hubert~\cite{NIT} implemented a nullability
+analysis for Java bytecode based on abstract interpretation
+techniques, producing the {\sc NIT} tool.  Fausto Spoto(CITE) has also developed
+an abstract interpretation based analysis, Julia that is currently accessible via a web form.
+Daikon(CITE) provides a dynamic nullness analysis.
+Ekman and Hedin~\cite{NonNullTypeInference} implemented a nullability type
+inference analysis in JastAdd.  Ultimately we chose to use 
+Ekman and Hedin's JastAdd inferencer because it's readily available for
+integration into our tool, is a static analysis, and does not require a whole program
+analysis.  Ekman and Hedin do not evaluate the effectiveness of their inference for end-users.
 %(Further details on further
 %nullability analysis tools and discussion should be here in the final version.
 %Didn't have time right now to get to it.)
