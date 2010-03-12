@@ -73,12 +73,12 @@ analysis---hence our decision to use it.
 % constraints. %% TODO: IGJ~\cite{IGJ}, Pidasa~\cite{Pidasa}.
 
 Cherem and Rugina~\cite{UniquenessInference} described a uniqueness inference
-technique using a two-level abstraction: a combination of a flow-sensitive
+technique using a two-level abstraction: a combination of a flow-sensitive,
 intraprocedural analysis with a flow-insensitive interprocedural analysis. 
 They can infer uniqueness information which is used to actively free Java
 objects whenever an unique reference is lost. As they focus on optimizing 
 early deallocation they do not evaluate their inference in respect to usefulness
-for a programmer.
+for a programmer to understand an API.
 
 Ma and Foster~\cite{Uno} describe their inference tool Uno that uses a similar
 algorithmic idea. They infer a variety of alias and encapsulation

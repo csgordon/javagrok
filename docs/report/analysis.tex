@@ -48,31 +48,36 @@ output, and why each analysis would be useful for a developer.
 
 \subsection{Uno}
 
-Uno~\cite{Uno} infers alias and encapsulation properties as well as a a number
-of other properties. Uno's inferences those on the base of a flow-sensitive
-intraprocedural points-to analysis combined with a interprocedural analysis.
+Uno~\cite{Uno} infers alias and encapsulation properties as well as a number
+of other properties. Uno's inferences those on the base of a flow-sensitive,
+intra-procedural points-to analysis combined with an inter-procedural analysis.
 We selected some of Uno's properties which we regarded as useful for our
 purposes based on our own experience. The chosen properties 
 provide information about how a certain function treats its parameters and 
 return values when called. More concretely, it infers whether or not a 
 function captures or leaks a reference, or returns a new unique reference.
 
-Below we enumarete the annotations JavaGrok infers.
+Below we enumerate the annotations JavaGrok infers.
 
-\texttt{@UniqueReturn} can appear on method declarations. This annotations 
+\texttt{@UniqueReturn} can appear on method declarations. This annotation 
 indicates that the return value is a unique reference to its referent.
 \texttt{@NonUniqueReturn} respectively can occur on method declarations and means 
 that there is at least one possible path between method entrance and exit in
 which the returned reference is not the only reference to its referent.
 \texttt{@Retained}, when appearing in front of a method parameter, indicates
-that the're exists at least one path between method entrance and exit in 
-which the reference get's captured. For example might the called method store
-a reference to the referent in a field.
+that there exists at least one path between method entrance and exit in 
+which the reference gets captured. For example might the called method store
+a reference to the object in a field.
 \texttt{@NotRetained} respectively indicates that the method has no execution 
-paths which retains a reference to the passed object.
+paths which retain a reference to the passed object.
 
-Our hypothesis is that the retention annotations is useful to developers
-because it tells at a simple glance at the method interface if the argument
+These annotations also take sub-classing into account. In the case of
+\texttt{@UniqueReturn} for example, this means that every overriding method
+also returns a unique reference, because only then the caller can be sure
+that the returned object is actually a unique reference.
+
+Our hypothesis is that the retention annotations are useful to developers
+because they tell at a simple glance at the method interface if the argument
 one passes is possibly gonna be retained. If so, the developer can either only
 pass a copy of the object as an argument or is at least aware that the uniqueness
 of the object's reference might not be maintained by that method.
@@ -81,7 +86,7 @@ of the object's reference might not be maintained by that method.
 
 Java requires that checked exceptions be declared by methods that raise them,
 but frequently the conditions under which exceptions are raised are unclear to a
-library user. Even with checked exceptions, often a supertype of a thrown
+library user. Even with checked exceptions, often a super-type of a thrown
 exception is declared.  While knowing that an \texttt{IOException} might be
 thrown is useful, knowing that the method might throw either a
 \texttt{FileNotFoundException} or \texttt{InterruptedByTimeoutException} is more
