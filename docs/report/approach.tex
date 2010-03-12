@@ -18,13 +18,12 @@ framework.
 
 To combine the results of disparate analyses JavaGrok has to convert their results
 into a common format.  Our tool uses the JAIF~\cite{JAIF}
-(Java Annotation Index File) format for that purpose.  Some analyses provide 
-annotatopmd embedded in byte-code which can be easily extracted into the JAIF 
-format, and others provide textual results for which JavaGrok reads in and parses the result.
-{\bf TODO: Last sentence in this paragraph sounds weird...}
+(Java Annotation Index File) format for that purpose. Twp analyses provide 
+annotations embedded in byte-code which can be easily extracted into the JAIF 
+format, and one provides textual results.
 
 Figure~\ref{fig:from_source_to_jaif} 
-illustrates the stages from the source to JAIF in our toolchain, explained 
+illustrates the stages from the source to JAIF in JavaGrok's toolchain, explained 
 below. While figure~\ref{fig:from_jaif_to_javadoc} shows how JavaGrok
 puts the annotations back into the source files and generates the HTML
 documentation.
@@ -39,18 +38,18 @@ documentation.
 In a first step JavaGrok invokes Uno to process the source code to annotate. 
 Uno stores its inferred properties in a single separate file. We changed Uno's 
 output format slightly to make it easier to parse it automatically.
-During the compilation process the Java~7{\bf Citation needed????} compiler reads in Uno's results 
+During the compilation process the JDK~7 compiler~\cite{jdk7} reads in Uno's results 
 to add annotations at the correct places. 
 At the end of this compilation the class files contain retention and uniqueness
 annotations.
-Analog to that the exception analysis is integrated into the Java~7 compiler too. 
+Analog to that the exception analysis is integrated into the JDK~7 compiler too. 
 The output are also class files with exception annotations.
 
 JastAdd on the other hand processes the source code and adds nullability 
 annotations directly into the source code. After that, JavaGrok compiles the 
 altered source code to class files which still contain the annotations.
 
-At this point JavaGrok has for all three analyses the annotations in class files.
+At this point JavaGrok has the annotations in class files for all three analyses.
 In the next step JavaGrok extracts the annotations automatically into the JAIF 
 format using the annotation file utilities AFU~\cite{AFU}.
 
