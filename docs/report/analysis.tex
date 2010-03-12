@@ -106,106 +106,13 @@ and alert them to otherwise undocumented assumptions of a library without
 requiring developers to dig through the library's code.
 Annotations may contain a list of exceptions and conditions, and for some
 complex conditions we reduce the condition to ``sometimes'' because our analysis
-performs no symbolic execution, and is only based on syntactic structure.  We do not use an
+performs no symbolic execution.  We do not use an
 existing analysis tool because none were available for this task, but our
-simple analysis provides useful results.
+simple analysis provides adequate results.  Implementation details are presented
+in Section \ref{sec:exception_impl}.
 
-\subsubsection{Implementation}
-
-Our exception analysis is implemented in two phases as plugins to the JDK 7 compiler.
-In the first phase, the
-abstract syntax tree for every method of the program is traversed in the
-following manner.  The analysis walks over every statement of the method,
-descending recursively into control flow constructs.  The analysis keeps a stack
-of conditional branches, pushing branch conditions when entering the positive
-branch of a conditional, and negating the most recent condition when entering
-the \texttt{else} clause.  A counter is also kept for how many times the
-analysis has entered a more complex control structure, such as a loop or
-\texttt{switch} statement whose conditions for execution are more complicated,
-and require reasoning about iteration and ``falling through'' cases.  When
-analysis of a control structure is complete, a clause is popped from the
-branch stack or the counter is decremented as appropriate.
-
-When entering a method or a \texttt{try}/\texttt{catch} construct, we push a new empty set of exceptions onto
-a stack that tracks what exceptions are thrown at the current level of
-\texttt{try} nesting: the try-stack.
-When a throw statement is found, the statement's AST node is added to the
-topmost set on the try-stack, 
-along with the current branch condition if no complex control structures have
-been encountered, otherwise it is added with a flag that the condition was more
-complicated than we trace.  When a \texttt{try} body has been traversed, we
-remove exceptions from that top set that are subclasses of caught exception
-types in the associated \texttt{catch} bodies.  We then merge the topmost set
-into the next set on the try-stack, and process the bodies of
-the \texttt{catch} clauses.  When traversal of a method is complete, we add the
-single remaining set on the try-stack to a hash map from method definition AST
-nodes to sets of exception-condition pairs.
-{\bf\large TODO: Compare this to the code! I think that actually, we add throws to
-the current set \emph{as we filter}, then merge the set, so a throw in a
-\texttt{catch}
-body could potentially be filtered out by a subsequent \texttt{catch} associated with the
-same \texttt{try}, which is wrong.}
-
-Method calls are handled in a similar manner, as they are potential sources of
-exceptions.  A separate try-stack exists for method calls.  When a call is
-encountered, it is added to the set with its condition as for throws, but the
-container also has a list of exception types filtered by \texttt{catch} clauses.  When
-initially added to the top of the method try-stack, the list is empty.  When
-processing the \texttt{catch} clauses associated with a \texttt{try}, the list of each
-method call instance in the topmost set of the method try-stack is populated. 
-
-In the second phase, the tree is traversed again, and the mappings from the first
-phase is used.  When visiting a method definition, any explicit throws from
-methods the current node calls are filtered based on the list of \texttt{catch} clauses
-enclosing the calls.  Those throws are then added to the set of uncaught
-exceptions from the current method, and the whole group along with their
-conditions (either complex, via a method call, or the simple condition under
-which the exception is thrown) are serialized and added to that method as an
-annotation.  When serializing the conditions for explicit throws of a method
-call, any formal parameters of the current method used as actual parameters to
-callees replace the corresponding callee formals in the serialized condition.
-These annotations are compiled into bytecode, and extracted in a later phase of
-JavaGrok.
-
-\subsubsection{Precision}
-{\LARGE: Discuss funkiness with throws in catch clauses.}
-
-We found our inferred exception conditions to be of sufficient detail.  While
-additional information could be gathered by a more complete inter-procedural
-propagation, we found our inference able to generate sufficient information for
-our evaluation library.  Many of the library methods were simple wrappers to
-fill out additional arguments for another method, or made use of utility
-argument validators, such as in Figure \ref{fig:argvalidate}.
-
-\begin{figure}
-\begin{verbatim}
-...
-public void count(int x) {
-    checkCountTarget(x);
-    ...
-}
-public void checkCountTarget(int y) {
-    if (y < 0)
-        throw new IllegalArgumentException();
-}
-\end{verbatim}
-\caption{An example of a use of an argument validation method.
-\texttt{count(int x)} uses \texttt{checkCountTarget(int y)} to verify that the
-provided argument is valid.  Our exception inference detects this and annotates
-\texttt{indexList} to indicate that passing a negative number will result in an
-\texttt{InvalidArgumentException}.}
-\label{fig:argvalidate}
-\end{figure}
-
-Buse and Weimer infer documentation for exception conditions
-using an analysis that performs full symbolic execution along paths to reach throw
-statements, propagating information between methods as necessary~\cite{autodoc}.
-Because they
-perform full symbolic execution, their tool can be much more precise than ours.
-Replacing our exception analysis with theirs, or implementing our own symbolic
-execution would likely improve the quality of our exception documentation.  
-
-As in Buse and Weimer's work, we expose internal field names and
+As in Buse and Weimer's work on inferring exceptional conditions for
+documentation~\cite{autodoc}, we expose internal field names and
 local variable names in exceptional conditions.  We agree with their assessment
 that while this leaks some
 implementation information and is not necessarily informative, in practice
