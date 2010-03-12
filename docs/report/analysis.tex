@@ -50,7 +50,7 @@ output, and why each analysis would be useful for a developer.
 
 The Uno~\cite{Uno} analysis tool infers alias and encapsulation properties as well as a number
 of other properties using a flow-sensitive,
-intra-procedural points-to analysis combined with an inter-procedural analysis.
+intraprocedural points-to analysis combined with an interprocedural analysis.
 We document some of the inferred properties that we regard as useful
 based on our own experience. The chosen properties 
 provide information about how a certain method treats its parameters and 
@@ -91,7 +91,7 @@ have created the file.  A simple \texttt{IOException} could
 indicate a wide variety of problems with local files, or any of a number of problems
 with the network.  Additionally, unchecked exceptions need not be declared in Java method
 signatures or documentation and can remain entirely invisible to the library
-user until they are encountered at runtime.
+user until they are encountered at run time.
 
 To alleviate this, JavaGrok infers and documents some of the conditions under which a method would
 throw an exception, producing annotations of the form:

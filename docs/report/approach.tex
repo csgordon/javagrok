@@ -1,5 +1,5 @@
 \section{Implementation}
-This section explains how JavaGrok's toolchain works and
+This section explains how JavaGrok's tool chain works and
 how the exception analysis is implemented.
 
 \subsection{Toolchain}
@@ -87,7 +87,7 @@ complex control structure.
 
 When a \texttt{try} body has been traversed, the analysis processes the
 associated \texttt{catch} clauses by first removing any throws from the
-try-stack that are exceptions subclassing the caught exception type, then
+try-stack that are exceptions sub-classing the caught exception type, then
 analyzing the body of the \texttt{catch}.  This is actually an error that we did
 not detect until after the user study.  In some cases this bug could result in subsequent
 \texttt{catch} clauses filtering out exceptions thrown by earlier \texttt{catch}
@@ -131,7 +131,7 @@ call, any formal parameters of the current method used as actual parameters to
 callees replace the corresponding callee formals in the serialized condition.
 Throws propagated from method calls are also marked as being thrown by a called
 method.
-These annotations are compiled into bytecode, and extracted in a later phase of
+These annotations are compiled into byte-code, and extracted in a later phase of
 JavaGrok.
 
 \subsubsection{Precision}
