@@ -1,5 +1,5 @@
 \section{Implementation}
-This section explains how JavaGrok's toolchain works. Additionally it explains
+This section explains how JavaGrok's toolchain works and
 how the exception analysis is implemented.
 
 \subsection{Toolchain}
@@ -12,20 +12,20 @@ how the exception analysis is implemented.
 \end{figure*}
 
 To infer information about Java code JavaGrok uses two existing inference tools and 
-an exception inference developed by ourselves and combines their output. 
-To aid in writing our own analyses, we have additionally developed a simple 
+our own exceptional condition inference, combining their output. 
+To aid in writing our own analyses, we also developed a simple 
 framework. 
 
-To combine the results of disparate analyses JavaGrok has to convert their results
+To combine the results of disparate analyses JavaGrok converts their results
 into a common format.  Our tool uses the JAIF~\cite{JAIF}
-(Java Annotation Index File) format for that purpose. Twp analyses provide 
+(Java Annotation Index File) format for that purpose. Two analyses provide 
 annotations embedded in byte-code which can be easily extracted into the JAIF 
-format, and one provides textual results.
+format, and one provides textual results that we insert into byte-code for
+consistent extraction.
 
 Figure~\ref{fig:from_source_to_jaif} 
-illustrates the stages from the source to JAIF in JavaGrok's toolchain, explained 
-below. While figure~\ref{fig:from_jaif_to_javadoc} shows how JavaGrok
-puts the annotations back into the source files and generates the HTML
+illustrates the processing from source to JAIF. Figure~\ref{fig:from_jaif_to_javadoc} shows how JavaGrok
+puts the annotations back in the source files and generates the HTML
 documentation.
 
 \begin{figure*}
@@ -35,28 +35,27 @@ documentation.
 \label{fig:from_jaif_to_javadoc}
 \end{figure*}
 
-In a first step JavaGrok invokes Uno to process the source code to annotate. 
+First JavaGrok invokes Uno to process the source code to annotate. 
 Uno stores its inferred properties in a single separate file. We changed Uno's 
-output format slightly to make it easier to parse it automatically.
-During the compilation process the JDK~7 compiler~\cite{jdk7} reads in Uno's results 
-to add annotations at the correct places. 
-At the end of this compilation the class files contain retention and uniqueness
+output format slightly to make it easier to parse.
+During the compilation process a plugin for the JDK~7 compiler~\cite{jdk7} reads in Uno's results 
+and inserts annotations where properties were inferred. 
+After compilation the class files contain retention and uniqueness
 annotations.
-Analog to that the exception analysis is integrated into the JDK~7 compiler too. 
-The output are also class files with exception annotations.
+Also during compilation, exception annotations are inferred and inserted by a
+plugin for exception analysis, described in Section \ref{sec:exception_impl}. 
 
-JastAdd on the other hand processes the source code and adds nullability 
-annotations directly into the source code. After that, JavaGrok compiles the 
-altered source code to class files which still contain the annotations.
+JastAdd adds nullability 
+annotations to the source code directly. Then JavaGrok compiles the 
+altered source code to class files which also contain the annotations.
 
-At this point JavaGrok has the annotations in class files for all three analyses.
-In the next step JavaGrok extracts the annotations automatically into the JAIF 
-format using the annotation file utilities AFU~\cite{AFU}.
+At this point JavaGrok all three analyses' results are in compiled class files.
+Next JavaGrok extracts the annotations into the JAIF 
+format using the annotation file utilities (AFU)~\cite{AFU}.
 
-Once the results of the various analyses have been collected into a set of
-annotation files, the annotation file utilities merge
+Once the results of the various analyses have been collected, the annotation file utilities merge
 those annotations back into the original source. The annotated source
-code is now one of JavaGrok's output formats. Additionally JavaGrok invokes 
+code is now part of JavaGrok's output. Finally JavaGrok invokes 
 Javadoc to process the annotated source and combines the newly added 
 annotations into the HTML documentation.
 
@@ -172,7 +171,7 @@ provided argument is valid.  Our exception inference detects this and annotates
 \label{fig:argvalidate}
 \end{figure}
 
-Because the analysis lose information to some control flow constructs and opt not to
+Because the analysis loses information to some control flow constructs and does not
 propagate explicit exception throws through more than one call, some relevant
 throws may be missed, but hand inspection of the code used in our evaluation
 suggested this was not a major issue.

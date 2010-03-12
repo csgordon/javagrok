@@ -1,8 +1,8 @@
 \section{Introduction}
 
 Despite their best intentions, many developers routinely fail to provide
-adequate or any documentation of the code they write.  Whether because of bad
-practice, laziness or a sincere belief on the part of programmers that their
+adequate or any documentation for the code they write.  Whether because of poor
+practice, lack of time or a sincere belief on the part of programmers that their
 code will soon be thrown away, much code in regular use remains undocumented.
 New developers join the team, the code is handed off to another group, or
 perhaps even posted publicly on the Internet.  By various means, this code
@@ -11,46 +11,35 @@ code will save them weeks of effort---now face a thoroughly unenviable task:
 grok a lump of un(der)documented code and learn its interface well enough
 to solve their original problem.
 
-%Ideally, we would have an army of ingenious, classically trained Shakespearean
-%typing monkeys, ready to provide high-quality documentation for all our
-%programs and libraries at the drop of a hat.  However in reality, we, the
-%unlucky developers often must make do with a single use case or oblique e-mail
-%offering advice---if we get anything at all.  Sitting at our desks, we curse
-%fate, the code in front of us, and the anonymous (or not so anonymous)
-%programmer responsible for our pain.  We wonder, wouldn't it be nice if we
-%could just push a button and get some useful, if not perfect documentation?
-
-%We wonder, wouldn't it be nice if we could just push a button and get some useful, albeit imperfect documentation?
 We believe it would be useful to have a tool that could generate partial
 documentation of at least simple properties.
 
 The prototype tool we describe here, JavaGrok, seeks to do just this.  By
-applying static analyses to library source code and then
+applying static analyses to infer properties of library source code and then
 translating the results into human readable form, we are able to
 automatically construct or augment Javadoc documentation.
 Using this tool, we
 consider the hypothesis that a significant amount of user pain and frustration
 with un(der)documented libraries is due to confusion about
-properties discoverable via static analyses. We consider analyses for nullability,
+properties discoverable via static analyses. We consider analyses for argument nullability,
 reference leaking and capturing, and exceptional conditions.
 Here, we focus on confusions about formal properties
 rather than conceptual
 or higher level confusions about the proper way to use a library.
 
-To explore this hypothesis we conducted a user study, comparing developers'
-experience using a poorly documented library with and without JavaGrok
-annotations.  We measured how often users were confused and how they resolved their confusion.  We also collected qualitative exit
-questionnaires.  Unfortunately, we found no evidence that JavaGrok had significant impact, positive or negative on the user experience.  We discuss reasons why our evaluation failed and possible alternatives at the end of this paper.
-
 Although there has been previous work on automatic
-documentation annotation~\cite{autodoc}, this is the first user study (to our knowledge)
-focused on whether automatically generated documentation is helpful for program understanding.  By contrast, previous work~CITE(autodoc, Nimmer 2002) has evaluated the benefit of program analyses to users in verification tasks or the accuracy of generated annotations relative to exemplar documentation.
+documentation~\cite{autodoc}, this is the first user study
+focused on whether automatically generated documentation is helpful for program
+understanding.  By contrast, previous work~CITE(autodoc, Nimmer 2002) has
+evaluated the benefit of program analyses to users in verification tasks or the
+accuracy of generated annotations relative to exemplar documentation.
 We believe that determining whether automatically generated documentation helps
 developers understand code is the logical next step, and more relevant to practice.
 
-%Our hypothesis is that the properties and facts explained above help the 
-%client of a library to accomplish a programming task in which the programmer
-%has to use this library without any prior knowledge about it.
-%In section~\ref{sec:Evaluation} we will discuss our results of our user study
-%whether our hypothesis proved true.
-
+To explore this hypothesis we conducted a user study, comparing developers'
+experience using a poorly documented library with and without JavaGrok
+annotations.  We measured how often users were confused and how they resolved their confusion.  We also collected qualitative exit
+questionnaires.  Unfortunately, we found no evidence that JavaGrok had
+significant impact, positive or negative on the user experience.  We discuss
+reasons why our evaluation was not conclusive and possible alternative
+evaluations later.

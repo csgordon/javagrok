@@ -1,6 +1,6 @@
 \section{Analyses}
 
-In this section we describe the analyses we perform: their implementation,
+In this section we describe the analyses we perform: their source,
 output, and why each analysis would be useful for a developer.
 
 % \subsection{Javarifier}
@@ -46,39 +46,32 @@ output, and why each analysis would be useful for a developer.
 % that is sufficient to communicate the method's behavior to the developer and we
 % are not concerned with type-checking mutability.
 
-\subsection{Uno}
+\subsection{Reference Capture and Leakage}
 
-Uno~\cite{Uno} infers alias and encapsulation properties as well as a number
-of other properties. Uno's inferences those on the base of a flow-sensitive,
+The Uno~\cite{Uno} analysis tool infers alias and encapsulation properties as well as a number
+of other properties using a flow-sensitive,
 intra-procedural points-to analysis combined with an inter-procedural analysis.
-We selected some of Uno's properties which we regarded as useful for our
-purposes based on our own experience. The chosen properties 
-provide information about how a certain function treats its parameters and 
-return values when called. More concretely, it infers whether or not a 
-function captures or leaks a reference, or returns a new unique reference.
+We document some of the inferred properties that we regard as useful
+based on our own experience. The chosen properties 
+provide information about how a certain method treats its parameters and 
+return values when called. More concretely, whether or not a 
+method captures or leaks a reference, or returns a new unique reference.
 
-Below we enumerate the annotations JavaGrok infers.
-
-\texttt{@UniqueReturn} can appear on method declarations. This annotation 
-indicates that the return value is a unique reference to its referent.
-\texttt{@NonUniqueReturn} respectively can occur on method declarations and means 
-that there is at least one possible path between method entrance and exit in
-which the returned reference is not the only reference to its referent.
-\texttt{@Retained}, when appearing in front of a method parameter, indicates
-that there exists at least one path between method entrance and exit in 
-which the reference gets captured. For example might the called method store
-a reference to the object in a field.
-\texttt{@NotRetained} respectively indicates that the method has no execution 
-paths which retain a reference to the passed object.
+To indicate that the return value of a method is the only reference to its
+referent, JavaGrok annotates a method with the \texttt{@UniqueReturn}
+annotation.  To show that a reference passed as an argument may be stored by
+some path of a method, JavaGrok marks that argument with a \texttt{@Retained}
+annotation.  For the reverse (the argument is never retained), the tool uses
+\texttt{@NotRetained}.
 
 These annotations also take sub-classing into account. In the case of
-\texttt{@UniqueReturn} for example, this means that every overriding method
+\texttt{@UniqueReturn} for example, this means that every known overriding method
 also returns a unique reference, because only then the caller can be sure
 that the returned object is actually a unique reference.
 
 Our hypothesis is that the retention annotations are useful to developers
-because they tell at a simple glance at the method interface if the argument
-one passes is possibly gonna be retained. If so, the developer can either only
+because they show at a glance whether an argument
+might be retained. If so, the developer can either only
 pass a copy of the object as an argument or is at least aware that the uniqueness
 of the object's reference might not be maintained by that method.
 
@@ -91,16 +84,17 @@ exception is declared.  While knowing that an \texttt{IOException} might be
 thrown is useful, knowing that the method might throw either a
 \texttt{FileNotFoundException} or \texttt{InterruptedByTimeoutException} is more
 useful to a developer, because knowing the specific exception may help to debug
-a program; knowing that a \texttt{FileNotFoundException} was thrown tells a
-developer to check that file paths are correct and that any tasks that should
-have created the file ran correctly, while an \texttt{IOException} could
-indicate a variety of problems with local files, or any of a number of problems
+a program.  For example, knowing that a \texttt{FileNotFoundException} was thrown tells a
+developer to check for specific failures such as incorrect file paths and
+failures in earlier operations that should
+have created the file.  A simple \texttt{IOException} could
+indicate a wide variety of problems with local files, or any of a number of problems
 with the network.  Additionally, unchecked exceptions need not be declared in Java method
 signatures or documentation and can remain entirely invisible to the library
 user until they are encountered at runtime.
 
-To alleviate this, we infer some of the conditions under which a method would
-throw an exception, and produce annotations of the form:
+To alleviate this, JavaGrok infers and documents some of the conditions under which a method would
+throw an exception, producing annotations of the form:
 
 \begin{verbatim}
 @Throws(when =
@@ -123,30 +117,35 @@ documentation~\cite{autodoc}, we expose internal field names and
 local variable names in exceptional conditions.  We agree with their assessment
 that while this leaks some
 implementation information and is not necessarily informative, in practice
-leaked variables are often still useful: for example, showing that an exception is
+exposed private or local variables are often still useful: for example, showing that an exception is
 thrown from a list's \texttt{remove()} method when a local variable \texttt{len}
 is equal to 0 has clear implications.
 
 \subsection{Nullability}
 \label{sec:Nullability}
 
-In Java, (almost) every variable is nullable,
+In Java, almost every variable is nullable,
 capable of holding either a reference to an object or the
-special value null.  One commonly made mistake is calling
+special value null.  One common mistake is to call
 methods with null parameters they are unprepared to handle, or erroneously
-assuming that returned values are never null.  Well documented libraries (like
-the Java collections framework) spell out when variables are
+assume that returned values are never null.  Well documented, libraries like
+the Java collections framework, clearly indicate when variables are
 assumed to be nullable or not-null, while many libraries with weaker
 documentation omit this information entirely.
 
-By means of a nullability type inference~\cite{NonNullTypeInference} we can add
+By means of a nullability type inference from the JastAdd compiler~\cite{NonNullTypeInference} we can add
 similarly useful information to documentation.  Although the JastAdd analysis
-we've chosen to use does not require a whole program, it does make a closed
+does not require a whole program, it does make a closed
 world assumption; that is, it assumes that it is analyzing all code that will ever be
-linked with the library.  At worst this leads to an imprecise, overly conservative analysis, which turned out not to be a problem in our evaluation tasks.  JastAdd produces \texttt{@NonNull} annotations, indicating that the user should assume that an
+linked with the library.  At worst this leads to an imprecise, overly
+conservative analysis, which turned out not to be a problem in our evaluation
+tasks.  JastAdd produces \texttt{@NonNull} annotations, indicating that the user
+should assume that an
 argument or method return value will not assume the value \texttt{null}.  For example,
 
 \begin{verbatim}
-public void addSprite(@Retained@NonNull
-                      Sprite sprite) { ... }
+public void addSprite(@NonNull Sprite sprite)
+{ ... }
 \end{verbatim}
+
+Absence of an annotation implies that the argument or return may be null.
