@@ -80,26 +80,32 @@ The results of our experiment are shown in Figure ~\ref{fig:exp_results} and
 discussed below.
 
 \subsection{Discussion}
+We knew we had a small test group, so we were looking for a striking difference
+between the control and experimental groups.  The results had no such strong
+trends.
 Overall, our results were inconclusive.  Our sample size of developers is not
 large enough to be statistically significant, but the developer surveys exhibit
 a mixture of both positive and negative trends.
 
 Most developer complaints from both the experimental and control groups were
-about the high-level usage model of the library being unclear.  This suggests the task we chose was
-not good for evaluating our tool; our tool infers small technical
+about the high-level usage model of the library being unclear.  This suggests
+the evaluation task was
+a poor choice for evaluating our tool; our tool infers small technical
 properties of the code, not use models for the library.  A better task would
 have required use of our annotations or close source inspection to avoid some
 subtle bugs.  Only the control group ever said they were surprised by library
 behavior, but the surprises were about higher-level component interactions such
-as what order to call a pair of methods.
+as what order to call a pair of methods, not about properties JavaGrok can
+infer.
 
 None of the developers in the experimental group found the annotations to be
-frequently useful.  None answered more than one question through the
-annotations, which was never more than 1/9th of the questions they had.  Most
+frequently useful.  None answered more than one question using the
+annotations, which was never more than 1/9th of a subject's questions.  Most
 questions for both groups were answered by reading the existing documentation.
 
-There was some positive feedback from the experimental group, however.  All
-found the annotations to be of a useful level of detail, and 3 of 4 found them
+There was however some positive feedback from the experimental group.  All
+found the annotations to be of a useful level of detail, and 3 of 4 said they
+considered the annotations
 to be potentially useful, but not for the evaluation task.  This generally
 positive response reinforces our belief that the properties
 JavaGrok infers could be useful.  It is also possible that other properties
@@ -112,7 +118,7 @@ realistic task, and designing a task geared towards requiring annotations.  We
 settled on a task we felt was reasonably general and might benefit from the
 generated annotations.  Designing a task specifically to make the annotations useful would
 not have helped us understand how useful they were generally, but the situations
-when they would provide benefit seem not appear to occur in such a short exercise.
+where they would provide benefit seem not appear to occur in such a short exercise.
 Upon reflection, we suspect that the target experiment time of one hour per
 subject, chosen to encourage volunteers, may simply not be enough time to run
 into tricky cases where the very particular information JavaGrok documents would
