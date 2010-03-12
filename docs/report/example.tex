@@ -32,8 +32,8 @@ public class A
 \label{fig:pre}
 \end{figure}
 
-But with information about reference leaks and caputures added, a programmer can 
-determine that she or he will not have an uniqe reference
+But with information about reference leaks and captures added, a programmer can 
+determine that she or he will not have an unique reference
 to the list of all objects.  Knowing the reference is still shared by the
 library, a developer may decide to copy the content 
 of the list into a newly created list.  Figure \ref{fig:postannotation}
@@ -71,8 +71,4 @@ it is preferable to refer to condensed documentation rather than
 deciphering library code.
 Fortunately Javadoc will reproduce any source annotations in the HTML
 documentation it produces.  For \texttt{getAll()}, the documentation will
-include:\\
-\\
-{\bf getAll}()\\
-\\
-@NonUniqueReturn\\
+include the annotations JavaGrok added.
