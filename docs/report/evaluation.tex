@@ -1,0 +1,129 @@
+\section{Evaluation}
+\label{sec:Evaluation}
+
+We performed a small experiment wherein developers were given a third party
+library and a set of programming tasks and were asked to report on certain
+events that occurred during the use of the library to complete the tasks. We
+specifically focused on when the developer had questions about how to correctly
+use the library. We considered four cases: a) the question was answered by our
+annotations, b) the question was answered by the existing library
+documentation, c) the question was answered by direct referal to the library
+source code, and d) the question was unable to be answered. We also asked the
+developers to note any time they were surprised by the library's behavior.
+
+Our hypothesis is that by augmenting library documentation with properties
+inferred via static analyses, we will decrease the frequency with which
+developers must refer to the library source code to answer questions. This
+should show up as a non-zero incidence of questions being answered by
+annotations and a corresponding decrease in the questions that were answered by
+source code. We also hypothesized that our annotations may have resulted in a
+reduction in surprise at library behavior, and would not increase the incidence
+of surprise.
+
+\subsection{Experiment Design}
+
+\begin{figure*}
+\centering
+\begin{tabular}{ l | r r r r | r }
+ & \multicolumn{4}{| c | }{Question answered by:} & \\
+Developer & Annotations & Docs & Source & Unanswered & Surprised \\
+\hline
+Dev 1 & 0 & 14 & 0 & 1 & 0 \\
+Dev 2 & 1 &  5 & 2 & 1 & 0 \\
+Dev 3 & 1 &  3 & 0 & 0 & 0 \\
+Dev 4 & 1 &  6 & 1 & 1 & 0 \\
+\hline
+\textit{Experiment} & 3 & 28 & 3 & 3 & 0 \\
+\hline
+Dev 5 & - &  4 & 0 & 0 & 0 \\
+Dev 6 & - & 13 & 2 & 3 & 1 \\
+Dev 7 & - & 10 & 0 & 2 & 0 \\
+Dev 8 & - &  7 & 1 & 2 & 1 \\
+\hline
+\textit{Control} & - & 34 & 3 & 7 & 2 \\
+\hline
+\end{tabular}
+\caption{Experiment Results}
+\label{fig:exp_results}
+\end{figure*}
+
+The experiment involved two groups of four developers each. The developers were
+given a Java library with which they are unfamiliar and a set of programming
+tasks to be implemented using the functionality provided by the library. One
+group was provided with augmented documentation and the other provided with
+original, unmodified documentation.
+
+The members of each group were provided with equivalent development
+environments (the Eclipse IDE, configured to provide ready access to the
+augmented or unmodified documentation as well as the augmented or unmodified
+library source code). As the subjects' experience with the Eclipse IDE was
+quite varied, they were shown how to access both the library documentation and
+source code. The aim was to reduce the likelihood that differing familiarity
+with the IDE would influence their decision to inspect the documentation or
+source code.
+
+The subjects were instructed to first check the documentation when they
+encountered a question about correct usage of the library, then to consult the
+source code only if their question was not answered to their satisfaction by
+the documentation. Finally they were asked to record the outcome of each event.
+The experimenter could record a question as being resolved by ``annotations'',
+``documentation'', ``source code'' and ``not resolved''. The control group had
+only the latter three choices as they had unaugmented documentation.
+
+We also instructed subjects to complete a short survey after completing the
+experimental tasks. The results of this survey were not intended to directly
+validate or refute our hypothesis, but to help us to gauge other aspects of the
+work, better understand ambiguous results, and to direct future work. Elements
+from the survey are mentioned in the discussion.
+
+The results of our experiment are shown in Figure ~\ref{fig:exp_results} and
+discussed below.
+
+\subsection{Discussion}
+Overall, our results were inconclusive.  Our sample size of developers is not
+large enough to be statistically significant, but the developer surveys exhibit
+a mixture of both positive and negative trends.
+
+Most developer complaints from both the experimental and control groups were
+about the high-level usage model of the library being unclear.  This suggests the task we chose was
+not good for evaluating our tool; our tool infers small technical
+properties of the code, not use models for the library.  A better task would
+have required use of our annotations or close source inspection to avoid some
+subtle bugs.  Only the control group ever said they were surprised by library
+behavior, but the surprises were about higher-level component interactions such
+as what order to call a pair of methods.
+
+None of the developers in the experimental group found the annotations to be
+frequently useful.  None answered more than one question through the
+annotations, which was never more than 1/9th of the questions they had.  Most
+questions for both groups were answered by reading the existing documentation.
+
+There was some positive feedback from the experimental group, however.  All
+found the annotations to be of a useful level of detail, and 3 of 4 found them
+to be potentially useful, but not for the evaluation task.  This generally
+positive response reinforces our belief that the properties
+JavaGrok infers could be useful.  It is also possible that other properties
+exist that could have been inferred and would have been useful for our chosen
+evaluation task.
+
+In designing
+our experimental task, we struggled to find a balance between designing a
+realistic task, and designing a task geared towards requiring annotations.  We
+settled on a task we felt was reasonably general and might benefit from the
+generated annotations.  Designing a task specifically to make the annotations useful would
+not have helped us understand how useful they were generally, but the situations
+when they would provide benefit seem not appear to occur in such a short exercise.
+Upon reflection, we suspect that the target experiment time of one hour per
+subject, chosen to encourage volunteers, may simply not be enough time to run
+into tricky cases where the very particular information JavaGrok documents would
+be useful.  We suspect that the annotations might prove valuable in a longer
+study, using a library over a longer period of time, allowing more time to run
+into what we acknowledge are usually corner cases where specific information
+about JavaGrok's properties would prove useful.  One of our subjects said he
+suspects they may prove more useful in debugging than in development.
+
+While our actual results showed no significant benefit to JavaGrok's annotations
+for this task, the generally positive response to the idea from our test
+subjects suggests that automatically inferred documentation deserves more
+thorough study.
+

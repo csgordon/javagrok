@@ -1,0 +1,74 @@
+\section{Example}
+\label{sec:Example}
+
+Consider Figure \ref{fig:pre}, a na\"ive collection object.
+A programmer looking at the method interface of 
+\texttt{public Object getAll()} does not know
+that \texttt{getAll()} will leak a reference to its
+internal representation. This might be surprising
+if the list of objects that gets returned keeps growing
+even though the caller of \texttt{getAll()} does not add those objects.
+
+\begin{figure}[h]
+\begin{lstlisting}
+public class A
+{
+	private LinkedList<Object> list;
+		
+	public A() {
+		list = new LinkedList<Object>();
+	}
+		
+  public void add(Object o) {
+   	list.add(o);
+  }
+    
+	public List<Object> getAll() {
+		return list;
+  }
+}
+\end{lstlisting}
+\caption{An example unannotated class.}
+\label{fig:pre}
+\end{figure}
+
+But with information about reference leaks and captures added, a programmer can 
+determine that she or he will not have an unique reference
+to the list of all objects.  Knowing the reference is still shared by the
+library, a developer may decide to copy the content 
+of the list into a newly created list.  Figure \ref{fig:postannotation}
+shows a class annotated with reference leak and capture information produced by
+our tool.
+
+\begin{figure}[h]
+\begin{lstlisting}
+public class A
+{
+	private LinkedList<Object> list;
+	
+	@UniqueReturn
+	public A() {
+		list = new LinkedList<Object>();
+	}
+		
+  public void add(@Retained Object o) {
+   	list.add(o);
+  }
+  
+	@NonUniqueReturn
+	public List<Object> getAll() {
+		return list;
+  }
+}
+\end{lstlisting}
+\caption{An example class annotated with capture and leak information.}
+\label{fig:postannotation}
+\end{figure}
+
+For a simple example such as this, inspecting the library code is not a
+significant burden for the developer.  But as library size and complexity grow,
+it is preferable to refer to condensed documentation rather than
+deciphering library code.
+Fortunately Javadoc will reproduce any source annotations in the HTML
+documentation it produces.  For \texttt{getAll()}, the documentation will
+include the annotations JavaGrok added.

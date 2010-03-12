@@ -1,0 +1,1 @@
+java -Xmx2000M -classpath "bin/:lib/soot-2.2.3.jar:." uno.Uno $1 $2 $3 $4 $5
