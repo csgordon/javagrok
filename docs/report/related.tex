@@ -25,7 +25,12 @@ sense we are extracting and documenting the implicit contracts of libraries,
 while they extract the implicit contracts and present them for static checking.
 
 Williams et al.~describe a method for detecting possible deadlocks in Java
-libraries~\cite{deadlocklibs}.  Sankaranarayanan et al.~use inductive logic
+libraries~\cite{deadlocklibs}.  They evaluated their tool quantitatively in
+terms of how many potential deadlocks they found and were able to confirm by
+hand in several libraries, and on how well they could control the number of
+false positives.
+
+Sankaranarayanan et al.~use inductive logic
 programming to infer precise Datalog specifications of proper use of library
 APIs~\cite{mininglibspecs}.  Their work is intended for consumption by the
 developer, but they do not go so far as to modify whatever documentation a
@@ -54,7 +59,7 @@ in conjunction with our work to further improve the developer experience.
 
 \subsection{Individual Analyses}
 
-There has been a good amount of recent work in nullability analysis for Java.
+There has been a lot of work on nullability analysis for Java.
 Engelen provides a useful (albeit slightly dated) survey in his master's thesis~\cite{Engelen2006}.
 Hubert~\cite{NIT} implemented a nullability
 analysis for Java bytecode based on abstract interpretation
@@ -63,10 +68,9 @@ an abstract interpretation based analysis in his Julia tool.
 Ekman and Hedin~\cite{NonNullTypeInference} implemented a nullability type
 inference analysis in JastAdd.  Ultimately we chose to use 
 Ekman and Hedin's JastAdd inferencer because it's a static analysis, does not require whole program analysis and is readily available for
-integration into JavaGrok.  None of these authors evaluated whether their nullability annotations were beneficial to users.
-%(Further details on further
-%nullability analysis tools and discussion should be here in the final version.
-%Didn't have time right now to get to it.)
+integration into JavaGrok.  None of these authors evaluated whether their
+nullability annotations were beneficial to users, only whether they produced
+accurate annotations.
 
 % Quinonez, et al.~\cite{Javarifier} described a technique for inference of
 % reference immutability in Java and implemented it in a tool called {\sc
@@ -82,8 +86,8 @@ objects whenever an unique reference is lost. As they focus on optimizing
 early deallocation they do not evaluate their inference in respect to usefulness
 for a programmer to understand an API.
 
-Ma and Foster~\cite{Uno} describe their inference tool Uno that uses a similar
-algorithmic idea. They infer a variety of alias and encapsulation
+Ma and Foster~\cite{Uno} describe their inference tool Uno, which uses a similar
+algorithm. They infer a variety of alias and encapsulation
 properties, including uniqueness, lending and aliasing. In their evaluation
 they focus on statistics: for example how many times Uno could infer a certain property.
 But they do not evaluate how their inferred properties can be used, either by a tool
@@ -95,10 +99,10 @@ preserved. Their hypothesis is that this additional safety and annotations will
 help the programmer to understand the program. In their paper they mainly focus
 on the alias type system and on how it's built up. But they also see the need
 for an automatic inference and therefore they also describe an inference algorithm.
-They perform two evaluation on real projects where the programmer
+They perform two evaluations on real projects where a programmer
 annotated the code by hand with alias information. They also test their
-alias annotation inference algorithm, but they get to the conclusion that
-their inference tool inferred too much annotations to be actually useful
+alias annotation inference algorithm, but they conclude that
+their inference tool inferred too many annotations and was too precise to be actually useful
 for developers.
 
 Buse and Weimer~\cite{autodoc} automatically infer documentation for
