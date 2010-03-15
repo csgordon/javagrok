@@ -14,7 +14,7 @@ foreach $file (@files) {
     chomp($file);
     my @lines = `cat $file`;
     my $i = 0;
-    my $pkgline = 0;
+    my $pkgline = -1;
     foreach $line (@lines) {
         # print $line if ($line =~ m/package/);
         if ($line =~ m/^\s*package\s+[A-Za-z._]+\s*;\s*$/) {
@@ -29,7 +29,7 @@ foreach $file (@files) {
         $i++;
     }
 
-    if ($pkgline == 0) {
+    if ($pkgline == -1) {
         warn "Unable to find 'package' line in $file\n";
         next;
     }
